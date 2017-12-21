@@ -64,11 +64,11 @@ func (m *ActionMap) Invoke(id uintptr) error {
 }
 
 type CommandMap struct {
-	fnMap map[uintptr]func([]string)
+	fnMap map[uintptr]func([]string) (string, error)
 	id    uintptr
 }
 
-func (m *CommandMap) Register(fn func([]string)) uintptr {
+func (m *CommandMap) Register(fn func([]string) (string, error)) uintptr {
 	m.id = m.id + 1
 	m.fnMap[m.id] = fn
 	return m.id
@@ -78,21 +78,20 @@ func (m *CommandMap) UnRegister(id uintptr) {
 	delete(m.fnMap, id)
 }
 
-func (m *CommandMap) Find(id uintptr) func([]string) {
+func (m *CommandMap) Find(id uintptr) func([]string) (string, error) {
 	return m.fnMap[id]
 }
 
-func (m *CommandMap) Invoke(id uintptr, args []string) error {
+func (m *CommandMap) Invoke(id uintptr, args []string) (string, error) {
 	fn, ok := m.fnMap[id]
 	if !ok {
-		return errors.New("Not found action")
+		return "", errors.New("Not found action")
 	}
-	fn(args)
-	return nil
+	return fn(args)
 }
 
 func NewCommandMap() *CommandMap {
-	return &CommandMap{make(map[uintptr]func([]string)), 1}
+	return &CommandMap{make(map[uintptr]func([]string) (string, error)), 1}
 }
 
 func (interp *Interp) EvalAsString(script string) (string, error) {

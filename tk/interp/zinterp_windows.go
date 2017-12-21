@@ -48,12 +48,18 @@ var (
 	procTcl_GetDoubleFromObj  = modtcl86t.NewProc("Tcl_GetDoubleFromObj")
 	procTcl_GetBooleanFromObj = modtcl86t.NewProc("Tcl_GetBooleanFromObj")
 	procTcl_GetStringFromObj  = modtcl86t.NewProc("Tcl_GetStringFromObj")
+	procTcl_NewWideIntObj     = modtcl86t.NewProc("Tcl_NewWideIntObj")
+	procTcl_NewDoubleObj      = modtcl86t.NewProc("Tcl_NewDoubleObj")
+	procTcl_NewBooleanObj     = modtcl86t.NewProc("Tcl_NewBooleanObj")
+	procTcl_NewStringObj      = modtcl86t.NewProc("Tcl_NewStringObj")
 	procTcl_Init              = modtcl86t.NewProc("Tcl_Init")
 	procTcl_GetCurrentThread  = modtcl86t.NewProc("Tcl_GetCurrentThread")
 	procTcl_ThreadQueueEvent  = modtcl86t.NewProc("Tcl_ThreadQueueEvent")
 	procTcl_ThreadAlert       = modtcl86t.NewProc("Tcl_ThreadAlert")
 	procTcl_CreateObjCommand  = modtcl86t.NewProc("Tcl_CreateObjCommand")
 	procTcl_CreateCommand     = modtcl86t.NewProc("Tcl_CreateCommand")
+	procTcl_SetObjResult      = modtcl86t.NewProc("Tcl_SetObjResult")
+	procTcl_WrongNumArgs      = modtcl86t.NewProc("Tcl_WrongNumArgs")
 	procTk_Init               = modtk86t.NewProc("Tk_Init")
 	procTk_MainLoop           = modtk86t.NewProc("Tk_MainLoop")
 )
@@ -117,6 +123,36 @@ func Tcl_GetStringFromObj(obj *Tcl_Obj, length *int) (ret *byte) {
 	return
 }
 
+func Tcl_NewWideIntObj(value int64) (obj *Tcl_Obj) {
+	r0, _, _ := syscall.Syscall(procTcl_NewWideIntObj.Addr(), 1, uintptr(value), 0, 0)
+	obj = (*Tcl_Obj)(unsafe.Pointer(r0))
+	return
+}
+
+func Tcl_NewDoubleObj(value float64) (obj *Tcl_Obj) {
+	r0, _, _ := syscall.Syscall(procTcl_NewDoubleObj.Addr(), 1, uintptr(value), 0, 0)
+	obj = (*Tcl_Obj)(unsafe.Pointer(r0))
+	return
+}
+
+func Tcl_NewBooleanObj(value bool) (obj *Tcl_Obj) {
+	var _p0 uint32
+	if value {
+		_p0 = 1
+	} else {
+		_p0 = 0
+	}
+	r0, _, _ := syscall.Syscall(procTcl_NewBooleanObj.Addr(), 1, uintptr(_p0), 0, 0)
+	obj = (*Tcl_Obj)(unsafe.Pointer(r0))
+	return
+}
+
+func Tcl_NewStringObj(bytes *byte, length int) (obj *Tcl_Obj) {
+	r0, _, _ := syscall.Syscall(procTcl_NewStringObj.Addr(), 2, uintptr(unsafe.Pointer(bytes)), uintptr(length), 0)
+	obj = (*Tcl_Obj)(unsafe.Pointer(r0))
+	return
+}
+
 func Tcl_Init(interp *Tcl_Interp) (r int) {
 	r0, _, _ := syscall.Syscall(procTcl_Init.Addr(), 1, uintptr(unsafe.Pointer(interp)), 0, 0)
 	r = int(r0)
@@ -148,6 +184,16 @@ func Tcl_CreateObjCommand(interp *Tcl_Interp, cmdName *byte, proc uintptr, clien
 func Tcl_CreateCommand(interp *Tcl_Interp, cmdName *byte, proc uintptr, clientData uintptr, deleteProc uintptr) (cmd *Tcl_Command) {
 	r0, _, _ := syscall.Syscall6(procTcl_CreateCommand.Addr(), 5, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(cmdName)), uintptr(proc), uintptr(clientData), uintptr(deleteProc), 0)
 	cmd = (*Tcl_Command)(unsafe.Pointer(r0))
+	return
+}
+
+func Tcl_SetObjResult(interp *Tcl_Interp, resultObjPtr *Tcl_Obj) {
+	syscall.Syscall(procTcl_SetObjResult.Addr(), 2, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(resultObjPtr)), 0)
+	return
+}
+
+func Tcl_WrongNumArgs(interp *Tcl_Interp, objc int, objv uintptr, message *byte) {
+	syscall.Syscall6(procTcl_WrongNumArgs.Addr(), 4, uintptr(unsafe.Pointer(interp)), uintptr(objc), uintptr(objv), uintptr(unsafe.Pointer(message)), 0, 0)
 	return
 }
 

@@ -7,7 +7,6 @@ package interp
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"unsafe"
 )
@@ -76,7 +75,7 @@ func _go_tcl_objcmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, objc C
 	}
 	err := globalCommandMap.Invoke(uintptr(clientData), args)
 	if err != nil {
-		log.Println(err)
+		return TCL_ERROR
 	}
 	return TCL_OK
 }
@@ -91,7 +90,7 @@ func _go_tcl_deletecmd_proc(clientData unsafe.Pointer) {
 func _go_tcl_actioncmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, objc C.int, objv unsafe.Pointer) C.int {
 	err := globalActionMap.Invoke(uintptr(clientData))
 	if err != nil {
-		log.Println(err)
+		return TCL_ERROR
 	}
 	return TCL_OK
 }
@@ -215,7 +214,6 @@ func (p *Interp) Eval(script string) error {
 	cs := C.CString(script)
 	defer C.free(unsafe.Pointer(cs))
 	if C.Tcl_Eval(p.interp, cs) != TCL_OK {
-		log.Println("error", p.GetStringResult())
 		return errors.New(p.GetStringResult())
 	}
 	return nil

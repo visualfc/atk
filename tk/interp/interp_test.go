@@ -4,6 +4,8 @@ package interp
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -45,5 +47,52 @@ func TestInterp(t *testing.T) {
 	}
 	if d != 1e12 {
 		t.Fatalf("EvalAsFloat64 %v", d)
+	}
+}
+
+func TestCommand(t *testing.T) {
+	interp, err := NewInterp()
+	defer interp.Destroy()
+	if err != nil {
+		t.Fatal(err)
+	}
+	interp.CreateCommand("go::join", func(args []string) (string, error) {
+		return strings.Join(args, ","), nil
+	})
+	s, err := interp.EvalAsString("go::join hello world")
+	if err != nil {
+		t.Fatal(err, s)
+	}
+	if s != "hello,world" {
+		t.Fatal(s)
+	}
+	interp.CreateCommand("go::sum", func(args []string) (string, error) {
+		var sum int
+		for _, arg := range args {
+			i, err := strconv.Atoi(arg)
+			if err != nil {
+				return "", err
+			}
+			sum += i
+		}
+		return strconv.Itoa(sum), nil
+	})
+	sum, err := interp.EvalAsInt("expr [go::sum 100 200 300]")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sum != 600 {
+		t.Fatal("CreateCommand")
+	}
+	var check_success bool
+	interp.CreateAction("go::action", func() {
+		check_success = true
+	})
+	err = interp.Eval("go::action")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !check_success {
+		t.Fatal("CreateAction")
 	}
 }
