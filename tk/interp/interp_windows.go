@@ -1,0 +1,267 @@
+// Copyright 2017 visualfc. All rights reserved.
+
+package interp
+
+//go:generate go run $GOROOT/src/syscall/mksyscall_windows.go -systemdll=false -output zinterp_windows.go interp_windows.go
+
+import (
+	"errors"
+	"fmt"
+	"log"
+	"os"
+	"syscall"
+	"unsafe"
+)
+
+import "C"
+
+type Tcl_Interp struct{}
+type Tcl_ThreadId struct{}
+type Tcl_Obj struct{}
+type Tcl_Command struct{}
+
+type Tcl_WideInt int64
+type Tcl_Double float64
+
+type Tcl_Event struct {
+	Proc    uintptr
+	NextPtr *Tcl_Event
+}
+
+// windows api calls
+
+//sys	Tcl_CreateInterp() (interp *Tcl_Interp) = tcl86t.Tcl_CreateInterp
+//sys	Tcl_DeleteInterp(interp *Tcl_Interp) = tcl86t.Tcl_DeleteInterp
+
+//sys	Tcl_Alloc(size uint) (r *Tcl_Event) = tcl86t.Tcl_Alloc
+//sys	Tcl_Eval(interp *Tcl_Interp, script *byte) (r int) = tcl86t.Tcl_Eval
+//sys	Tcl_GetStringResult(interp *Tcl_Interp) (ret *byte) = tcl86t.Tcl_GetStringResult
+//sys	Tcl_GetObjResult(interp *Tcl_Interp) (obj *Tcl_Obj) = tcl86t.Tcl_GetObjResult
+//sys	Tcl_GetWideIntFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_WideInt) (status int) = tcl86t.Tcl_GetWideIntFromObj
+//sys	Tcl_GetDoubleFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_Double) (status int) = tcl86t.Tcl_GetDoubleFromObj
+//sys	Tcl_GetBooleanFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *int) (status int) = tcl86t.Tcl_GetBooleanFromObj
+//sys	Tcl_GetStringFromObj(obj *Tcl_Obj, length *int) (ret *byte) = tcl86t.Tcl_GetStringFromObj
+//sys	Tcl_Init(interp *Tcl_Interp) (r int) = tcl86t.Tcl_Init
+//sys	Tcl_GetCurrentThread() (threadid *Tcl_ThreadId) = tcl86t.Tcl_GetCurrentThread
+//sys	Tcl_ThreadQueueEvent(threadId *Tcl_ThreadId, evPtr *Tcl_Event, positon Tcl_QueuePosition) = tcl86t.Tcl_ThreadQueueEvent
+//sys	Tcl_ThreadAlert(threadId *Tcl_ThreadId) = tcl86t.Tcl_ThreadAlert
+//sys	Tcl_CreateObjCommand(interp *Tcl_Interp, cmdName *byte, proc uintptr, clientData uintptr, deleteProc uintptr) (cmd *Tcl_Command) = tcl86t.Tcl_CreateObjCommand
+//sys	Tcl_CreateCommand(interp *Tcl_Interp, cmdName *byte, proc uintptr, clientData uintptr, deleteProc uintptr) (cmd *Tcl_Command) = tcl86t.Tcl_CreateCommand
+
+//sys	Tk_Init(interp *Tcl_Interp) (r int) = tk86t.Tk_Init
+//sys	Tk_MainLoop() = tk86t.Tk_MainLoop
+
+var (
+	mainLoopThreadId *Tcl_ThreadId
+)
+
+func _go_async_event_handler(ev *Tcl_Event, flags C.int) C.int {
+	if flags != TCL_ALL_EVENTS {
+		return 0
+	}
+	if fn, ok := globalAsyncEvent.Load(unsafe.Pointer(ev)); ok {
+		fn.(func())()
+		globalAsyncEvent.Delete(unsafe.Pointer(ev))
+	}
+	return 1
+}
+
+func IsMainThread() bool {
+	return Tcl_GetCurrentThread() == mainLoopThreadId
+}
+
+func async_send_event(tid *Tcl_ThreadId, fn func()) {
+	var ev *Tcl_Event
+	ev = Tcl_Alloc(uint(unsafe.Sizeof(*ev)))
+	ev.Proc = syscall.NewCallbackCDecl(_go_async_event_handler)
+	globalAsyncEvent.Store(unsafe.Pointer(ev), fn)
+	Tcl_ThreadQueueEvent(tid, ev, TCL_QUEUE_TAIL)
+	Tcl_ThreadAlert(tid)
+}
+
+func Async(fn func()) {
+	if fn == nil {
+		return
+	}
+	async_send_event(mainLoopThreadId, fn)
+}
+
+func MainLoop(fn func()) {
+	mainLoopThreadId = Tcl_GetCurrentThread()
+	if fn != nil {
+		fn()
+	}
+	Tk_MainLoop()
+	mainLoopThreadId = nil
+}
+
+type Interp struct {
+	interp *Tcl_Interp
+}
+
+func NewInterp() (*Interp, error) {
+	interp := Tcl_CreateInterp()
+	if interp == nil {
+		return nil, errors.New("Tcl_CreateInterp false")
+	}
+	if Tcl_Init(interp) != TCL_OK {
+		return nil, errors.New("Tcl_Init false")
+	}
+	if Tk_Init(interp) != TCL_OK {
+		return nil, errors.New("Tk_Init false")
+	}
+	return &Interp{interp}, nil
+}
+
+func (p *Interp) Destroy() error {
+	if p == nil || p.interp == nil {
+		return os.ErrInvalid
+	}
+	Tcl_DeleteInterp(p.interp)
+	p.interp = nil
+	return nil
+}
+
+func (p *Interp) GetStringResult() string {
+	r := Tcl_GetStringResult(p.interp)
+	return C.GoString((*C.char)(unsafe.Pointer(r)))
+}
+
+func (p *Interp) GetInt64Result() int64 {
+	obj := Tcl_GetObjResult(p.interp)
+	var out Tcl_WideInt
+	status := Tcl_GetWideIntFromObj(p.interp, obj, &out)
+	if status == TCL_OK {
+		return int64(out)
+	}
+	return 0
+}
+
+func (p *Interp) GetIntResult() int {
+	obj := Tcl_GetObjResult(p.interp)
+	var out Tcl_WideInt
+	status := Tcl_GetWideIntFromObj(p.interp, obj, &out)
+	if status == TCL_OK {
+		return int(out)
+	}
+	return 0
+}
+
+func (p *Interp) GetFloat64Result() float64 {
+	obj := Tcl_GetObjResult(p.interp)
+	var out Tcl_Double
+	status := Tcl_GetDoubleFromObj(p.interp, obj, &out)
+	if status == TCL_OK {
+		return float64(out)
+	}
+	return 0
+}
+
+func (p *Interp) GetBoolResult() bool {
+	obj := Tcl_GetObjResult(p.interp)
+	var out int
+	status := Tcl_GetBooleanFromObj(p.interp, obj, &out)
+	if status == TCL_OK {
+		return out == 1
+	}
+	return false
+}
+
+func (p *Interp) Eval(script string) error {
+	s, err := syscall.BytePtrFromString(script)
+	if err != nil {
+		return err
+	}
+	if Tcl_Eval(p.interp, s) != TCL_OK {
+		log.Println(p.GetStringResult())
+		return errors.New(p.GetStringResult())
+	}
+	return nil
+}
+
+//typedef int (Tcl_ObjCmdProc) (ClientData clientData, *Tcl_Interp *interp, int objc, struct *Tcl_Obj *const *objv);
+func _go_tcl_objcmd_proc(clientData uintptr, interp *Tcl_Interp, objc int, objv unsafe.Pointer) int {
+	objs := (*(*[1 << 20]*Tcl_Obj)(objv))[0:objc]
+	var args []string
+	for _, obj := range objs {
+		args = append(args, ObjToString(interp, obj))
+	}
+	globalCommandMap.Invoke(clientData, args)
+	return 1
+}
+
+func _go_tcl_action_proc(id uintptr, interp *Tcl_Interp, objc int, objv unsafe.Pointer) int {
+	globalActionMap.Invoke(id)
+	return TCL_OK
+}
+func _go_tcl_actiono_delete_proc(id uintptr) int {
+	globalActionMap.UnRegister(id)
+	return 0
+}
+
+//typedef void (Tcl_CmdDeleteProc) (ClientData clientData);
+func _go_tcl_cmddelete_proc(clientData uintptr) int {
+	globalCommandMap.UnRegister(clientData)
+	return 0
+}
+
+//Tcl_Command Tcl_CreateObjCommand(*Tcl_Interp *interp, const char *cmdName, Tcl_ObjCmdProc *proc, ClientData clientData, Tcl_CmdDeleteProc *deleteProc);
+func (p *Interp) CreateCommand(name string, fn func([]string)) (uintptr, error) {
+	s, err := syscall.BytePtrFromString(name)
+	if err != nil {
+		return 0, err
+	}
+	id := globalCommandMap.Register(fn)
+	cmd := Tcl_CreateObjCommand(p.interp, s, syscall.NewCallbackCDecl(_go_tcl_objcmd_proc), id, syscall.NewCallbackCDecl(_go_tcl_cmddelete_proc))
+	if cmd == nil {
+		return 0, fmt.Errorf("CreateObjCommand %s false", name)
+	}
+	return id, nil
+}
+
+func (p *Interp) InvokeCommand(id uintptr, args []string) error {
+	return globalCommandMap.Invoke(id, args)
+}
+
+func (p *Interp) CreateAction(name string, action func()) error {
+	s, err := syscall.BytePtrFromString(name)
+	if err != nil {
+		return err
+	}
+	id := globalActionMap.Register(action)
+	cmd := Tcl_CreateObjCommand(p.interp, s, syscall.NewCallbackCDecl(_go_tcl_action_proc), id, syscall.NewCallbackCDecl(_go_tcl_actiono_delete_proc))
+	if cmd == nil {
+		return fmt.Errorf("CreateObjCommand %s false", name)
+	}
+	return nil
+}
+
+func (p *Interp) CreateActionByType(typ string, action func()) (name string, err error) {
+	id := globalActionMap.Register(action)
+	name = fmt.Sprintf("_go_%v_%v", typ, id)
+	s, err := syscall.BytePtrFromString(name)
+	if err != nil {
+		return name, err
+	}
+	cmd := Tcl_CreateObjCommand(p.interp, s, syscall.NewCallbackCDecl(_go_tcl_action_proc), id, syscall.NewCallbackCDecl(_go_tcl_actiono_delete_proc))
+	if cmd == nil {
+		return name, fmt.Errorf("CreateObjCommand %s false", name)
+	}
+	return name, nil
+}
+
+func ObjToInt(interp *Tcl_Interp, obj *Tcl_Obj) int {
+	var out Tcl_WideInt
+	status := Tcl_GetWideIntFromObj(interp, obj, &out)
+	if status == TCL_OK {
+		return int(out)
+	}
+	return 0
+}
+
+func ObjToString(interp *Tcl_Interp, obj *Tcl_Obj) string {
+	var n int
+	out := Tcl_GetStringFromObj(obj, &n)
+	fmt.Println(out, n)
+	return C.GoStringN((*C.char)(unsafe.Pointer(out)), (C.int)(n))
+}
