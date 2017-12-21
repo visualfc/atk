@@ -58,6 +58,10 @@ static Tcl_Command _c_create_action_command(Tcl_Interp *interp, char *name, void
 	return Tcl_CreateObjCommand(interp,name,_c_tcl_actioncmd_proc,clientData,&_go_tcl_deleteaction_proc);
 }
 
+static void _c_wrong_num_args(Tcl_Interp *interp, int objc, void *objv, char *message)
+{
+	Tcl_WrongNumArgs(interp, objc, (Tcl_Obj**)objv, message)	;
+}
 
 */
 import "C"
@@ -73,9 +77,15 @@ func _go_tcl_objcmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, objc C
 	for _, obj := range objs {
 		args = append(args, ObjToString(interp, obj))
 	}
-	err := globalCommandMap.Invoke(uintptr(clientData), args)
+	result, err := globalCommandMap.Invoke(uintptr(clientData), args)
 	if err != nil {
+		cs := C.CString(err.Error())
+		defer C.free(unsafe.Pointer(cs))
+		C._c_wrong_num_args(interp, 1, objv, cs)
 		return TCL_ERROR
+	}
+	if result != "" {
+		C.Tcl_SetObjResult(interp, StringToObj(result))
 	}
 	return TCL_OK
 }
@@ -90,6 +100,9 @@ func _go_tcl_deletecmd_proc(clientData unsafe.Pointer) {
 func _go_tcl_actioncmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, objc C.int, objv unsafe.Pointer) C.int {
 	err := globalActionMap.Invoke(uintptr(clientData))
 	if err != nil {
+		cs := C.CString(err.Error())
+		defer C.free(unsafe.Pointer(cs))
+		C._c_wrong_num_args(interp, 1, objv, cs)
 		return TCL_ERROR
 	}
 	return TCL_OK
@@ -219,7 +232,7 @@ func (p *Interp) Eval(script string) error {
 	return nil
 }
 
-func (p *Interp) CreateCommand(name string, fn func([]string)) (uintptr, error) {
+func (p *Interp) CreateCommand(name string, fn func([]string) (string, error)) (uintptr, error) {
 	cs := C.CString(name)
 	defer C.free(unsafe.Pointer(cs))
 
@@ -231,7 +244,7 @@ func (p *Interp) CreateCommand(name string, fn func([]string)) (uintptr, error) 
 	return id, nil
 }
 
-func (p *Interp) InvokeCommand(id uintptr, args []string) error {
+func (p *Interp) InvokeCommand(id uintptr, args []string) (string, error) {
 	return globalCommandMap.Invoke(id, args)
 }
 
@@ -275,6 +288,15 @@ func ObjToInt(interp *C.Tcl_Interp, obj *C.Tcl_Obj) int {
 func ObjToString(interp *C.Tcl_Interp, obj *C.Tcl_Obj) string {
 	var n C.int
 	out := C.Tcl_GetStringFromObj(obj, &n)
-	fmt.Println(out, n)
 	return C.GoStringN(out, n)
+}
+
+func StringToObj(value string) *C.Tcl_Obj {
+	cs := C.CString(value)
+	defer C.free(unsafe.Pointer(cs))
+	return C.Tcl_NewStringObj(cs, C.int(len(value)))
+}
+
+func Int64ToObj(value int64) *C.Tcl_Obj {
+	return C.Tcl_NewWideIntObj(C.Tcl_WideInt(value))
 }
