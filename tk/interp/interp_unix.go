@@ -180,7 +180,10 @@ func (p *Interp) Destroy() error {
 }
 
 func (p *Interp) GetStringResult() string {
-	return C.GoString(C.Tcl_GetStringResult(p.interp))
+	obj := C.Tcl_GetObjResult(p.interp)
+	var out C.int
+	r := C.Tcl_GetStringFromObj(obj, &out)
+	return C.GoStringN(r, out)
 }
 
 func (p *Interp) GetIntResult() int {

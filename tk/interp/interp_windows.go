@@ -135,8 +135,10 @@ func (p *Interp) Destroy() error {
 //}
 
 func (p *Interp) GetStringResult() string {
-	r := Tcl_GetStringResult(p.interp)
-	return C.GoString((*C.char)(unsafe.Pointer(r)))
+	obj := Tcl_GetObjResult(p.interp)
+	var out int32
+	r := Tcl_GetStringFromObj(obj, &out)
+	return C.GoStringN((*C.char)(unsafe.Pointer(r)), C.int(out))
 }
 
 func (p *Interp) GetInt64Result() int64 {
