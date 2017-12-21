@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 var (
@@ -91,14 +92,15 @@ func TestCommand(t *testing.T) {
 	}
 }
 
-//func TestAsync(t *testing.T) {
-//	//var check_success bool
-//	MainLoop(func() {
-//		go func() {
-//			<-time.After(1e9)
-//			Async(func() {
-//				interp.Destroy()
-//			})
-//		}()
-//	})
-//}
+func TestAsync(t *testing.T) {
+	MainLoop(func() {
+		go func() {
+			fmt.Println("wait for 1 sec ...")
+			<-time.After(1e9)
+			Async(func() {
+				fmt.Println("call interp.Destroy")
+				interp.Destroy()
+			})
+		}()
+	})
+}

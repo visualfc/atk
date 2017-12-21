@@ -33,34 +33,34 @@ type Tcl_Event struct {
 //sys	Tcl_DeleteInterp(interp *Tcl_Interp) = tcl86t.Tcl_DeleteInterp
 
 //sys	Tcl_Alloc(size uint) (r *Tcl_Event) = tcl86t.Tcl_Alloc
-//sys	Tcl_Eval(interp *Tcl_Interp, script *byte) (r int) = tcl86t.Tcl_Eval
+//sys	Tcl_Eval(interp *Tcl_Interp, script *byte) (r int32) = tcl86t.Tcl_Eval
 //sys	Tcl_GetStringResult(interp *Tcl_Interp) (ret *byte) = tcl86t.Tcl_GetStringResult
 //sys	Tcl_GetObjResult(interp *Tcl_Interp) (obj *Tcl_Obj) = tcl86t.Tcl_GetObjResult
-//sys	Tcl_GetWideIntFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_WideInt) (status int) = tcl86t.Tcl_GetWideIntFromObj
-//sys	Tcl_GetDoubleFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_Double) (status int) = tcl86t.Tcl_GetDoubleFromObj
-//sys	Tcl_GetBooleanFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *int) (status int) = tcl86t.Tcl_GetBooleanFromObj
-//sys	Tcl_GetStringFromObj(obj *Tcl_Obj, length *int) (ret *byte) = tcl86t.Tcl_GetStringFromObj
+//sys	Tcl_GetWideIntFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_WideInt) (status int32) = tcl86t.Tcl_GetWideIntFromObj
+//sys	Tcl_GetDoubleFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_Double) (status int32) = tcl86t.Tcl_GetDoubleFromObj
+//sys	Tcl_GetBooleanFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *int32) (status int32) = tcl86t.Tcl_GetBooleanFromObj
+//sys	Tcl_GetStringFromObj(obj *Tcl_Obj, length *int32) (ret *byte) = tcl86t.Tcl_GetStringFromObj
 //sys	Tcl_NewWideIntObj(value int64) (obj *Tcl_Obj) = tcl86t.Tcl_NewWideIntObj
 //sys	Tcl_NewDoubleObj(value float64) (obj *Tcl_Obj) = tcl86t.Tcl_NewDoubleObj
 //sys	Tcl_NewBooleanObj(value bool) (obj *Tcl_Obj) = tcl86t.Tcl_NewBooleanObj
-//sys	Tcl_NewStringObj(bytes *byte, length int) (obj *Tcl_Obj) = tcl86t.Tcl_NewStringObj
-//sys	Tcl_Init(interp *Tcl_Interp) (r int) = tcl86t.Tcl_Init
+//sys	Tcl_NewStringObj(bytes *byte, length int32) (obj *Tcl_Obj) = tcl86t.Tcl_NewStringObj
+//sys	Tcl_Init(interp *Tcl_Interp) (r int32) = tcl86t.Tcl_Init
 //sys	Tcl_GetCurrentThread() (threadid *Tcl_ThreadId) = tcl86t.Tcl_GetCurrentThread
 //sys	Tcl_ThreadQueueEvent(threadId *Tcl_ThreadId, evPtr *Tcl_Event, positon Tcl_QueuePosition) = tcl86t.Tcl_ThreadQueueEvent
 //sys	Tcl_ThreadAlert(threadId *Tcl_ThreadId) = tcl86t.Tcl_ThreadAlert
 //sys	Tcl_CreateObjCommand(interp *Tcl_Interp, cmdName *byte, proc uintptr, clientData uintptr, deleteProc uintptr) (cmd *Tcl_Command) = tcl86t.Tcl_CreateObjCommand
 //sys	Tcl_CreateCommand(interp *Tcl_Interp, cmdName *byte, proc uintptr, clientData uintptr, deleteProc uintptr) (cmd *Tcl_Command) = tcl86t.Tcl_CreateCommand
 //sys	Tcl_SetObjResult(interp *Tcl_Interp, resultObjPtr *Tcl_Obj) = tcl86t.Tcl_SetObjResult
-//sys	Tcl_WrongNumArgs(interp *Tcl_Interp, objc int, objv uintptr, message *byte) = tcl86t.Tcl_WrongNumArgs
+//sys	Tcl_WrongNumArgs(interp *Tcl_Interp, objc int32, objv uintptr, message *byte) = tcl86t.Tcl_WrongNumArgs
 
-//sys	Tk_Init(interp *Tcl_Interp) (r int) = tk86t.Tk_Init
+//sys	Tk_Init(interp *Tcl_Interp) (r int32) = tk86t.Tk_Init
 //sys	Tk_MainLoop() = tk86t.Tk_MainLoop
 
 var (
 	mainLoopThreadId *Tcl_ThreadId
 )
 
-func _go_async_event_handler(ev *Tcl_Event, flags C.int) C.int {
+func _go_async_event_handler(ev *Tcl_Event, flags int32) int {
 	if flags != TCL_ALL_EVENTS {
 		return 0
 	}
@@ -129,6 +129,11 @@ func (p *Interp) Destroy() error {
 	return nil
 }
 
+//func BytePtrToString(data *byte) string {
+//	a := make([]byte, len(s)+1)
+//	copy(a, s)
+//}
+
 func (p *Interp) GetStringResult() string {
 	r := Tcl_GetStringResult(p.interp)
 	return C.GoString((*C.char)(unsafe.Pointer(r)))
@@ -166,7 +171,7 @@ func (p *Interp) GetFloat64Result() float64 {
 
 func (p *Interp) GetBoolResult() bool {
 	obj := Tcl_GetObjResult(p.interp)
-	var out int
+	var out int32
 	status := Tcl_GetBooleanFromObj(p.interp, obj, &out)
 	if status == TCL_OK {
 		return out == 1
@@ -279,7 +284,7 @@ func ObjToInt64(interp *Tcl_Interp, obj *Tcl_Obj) int64 {
 }
 
 func ObjToString(interp *Tcl_Interp, obj *Tcl_Obj) string {
-	var n int
+	var n int32
 	out := Tcl_GetStringFromObj(obj, &n)
 	return C.GoStringN((*C.char)(unsafe.Pointer(out)), (C.int)(n))
 }
@@ -289,7 +294,7 @@ func StringToObj(value string) *Tcl_Obj {
 	if err != nil {
 		return nil
 	}
-	return Tcl_NewStringObj(s, len(value))
+	return Tcl_NewStringObj(s, int32(len(value)))
 }
 
 func Int64ToObj(value int64) *Tcl_Obj {

@@ -81,9 +81,9 @@ func Tcl_Alloc(size uint) (r *Tcl_Event) {
 	return
 }
 
-func Tcl_Eval(interp *Tcl_Interp, script *byte) (r int) {
+func Tcl_Eval(interp *Tcl_Interp, script *byte) (r int32) {
 	r0, _, _ := syscall.Syscall(procTcl_Eval.Addr(), 2, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(script)), 0)
-	r = int(r0)
+	r = int32(r0)
 	return
 }
 
@@ -99,25 +99,25 @@ func Tcl_GetObjResult(interp *Tcl_Interp) (obj *Tcl_Obj) {
 	return
 }
 
-func Tcl_GetWideIntFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_WideInt) (status int) {
+func Tcl_GetWideIntFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_WideInt) (status int32) {
 	r0, _, _ := syscall.Syscall(procTcl_GetWideIntFromObj.Addr(), 3, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(obj)), uintptr(unsafe.Pointer(out)))
-	status = int(r0)
+	status = int32(r0)
 	return
 }
 
-func Tcl_GetDoubleFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_Double) (status int) {
+func Tcl_GetDoubleFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_Double) (status int32) {
 	r0, _, _ := syscall.Syscall(procTcl_GetDoubleFromObj.Addr(), 3, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(obj)), uintptr(unsafe.Pointer(out)))
-	status = int(r0)
+	status = int32(r0)
 	return
 }
 
-func Tcl_GetBooleanFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *int) (status int) {
+func Tcl_GetBooleanFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *int32) (status int32) {
 	r0, _, _ := syscall.Syscall(procTcl_GetBooleanFromObj.Addr(), 3, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(obj)), uintptr(unsafe.Pointer(out)))
-	status = int(r0)
+	status = int32(r0)
 	return
 }
 
-func Tcl_GetStringFromObj(obj *Tcl_Obj, length *int) (ret *byte) {
+func Tcl_GetStringFromObj(obj *Tcl_Obj, length *int32) (ret *byte) {
 	r0, _, _ := syscall.Syscall(procTcl_GetStringFromObj.Addr(), 2, uintptr(unsafe.Pointer(obj)), uintptr(unsafe.Pointer(length)), 0)
 	ret = (*byte)(unsafe.Pointer(r0))
 	return
@@ -147,15 +147,15 @@ func Tcl_NewBooleanObj(value bool) (obj *Tcl_Obj) {
 	return
 }
 
-func Tcl_NewStringObj(bytes *byte, length int) (obj *Tcl_Obj) {
+func Tcl_NewStringObj(bytes *byte, length int32) (obj *Tcl_Obj) {
 	r0, _, _ := syscall.Syscall(procTcl_NewStringObj.Addr(), 2, uintptr(unsafe.Pointer(bytes)), uintptr(length), 0)
 	obj = (*Tcl_Obj)(unsafe.Pointer(r0))
 	return
 }
 
-func Tcl_Init(interp *Tcl_Interp) (r int) {
+func Tcl_Init(interp *Tcl_Interp) (r int32) {
 	r0, _, _ := syscall.Syscall(procTcl_Init.Addr(), 1, uintptr(unsafe.Pointer(interp)), 0, 0)
-	r = int(r0)
+	r = int32(r0)
 	return
 }
 
@@ -192,14 +192,14 @@ func Tcl_SetObjResult(interp *Tcl_Interp, resultObjPtr *Tcl_Obj) {
 	return
 }
 
-func Tcl_WrongNumArgs(interp *Tcl_Interp, objc int, objv uintptr, message *byte) {
+func Tcl_WrongNumArgs(interp *Tcl_Interp, objc int32, objv uintptr, message *byte) {
 	syscall.Syscall6(procTcl_WrongNumArgs.Addr(), 4, uintptr(unsafe.Pointer(interp)), uintptr(objc), uintptr(objv), uintptr(unsafe.Pointer(message)), 0, 0)
 	return
 }
 
-func Tk_Init(interp *Tcl_Interp) (r int) {
+func Tk_Init(interp *Tcl_Interp) (r int32) {
 	r0, _, _ := syscall.Syscall(procTk_Init.Addr(), 1, uintptr(unsafe.Pointer(interp)), 0, 0)
-	r = int(r0)
+	r = int32(r0)
 	return
 }
 
