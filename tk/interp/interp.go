@@ -21,7 +21,7 @@ const (
 )
 
 const (
-	TCL_DONT_WAIT     = (1 << 1)
+	TCL_DONT_WAIT     = 1 << 1
 	TCL_WINDOW_EVENTS = 1 << 2
 	TCL_FILE_EVENTS   = 1 << 3
 	TCL_TIMER_EVENTS  = 1 << 4
@@ -85,7 +85,7 @@ func (m *CommandMap) Find(id uintptr) func([]string) (string, error) {
 func (m *CommandMap) Invoke(id uintptr, args []string) (string, error) {
 	fn, ok := m.fnMap[id]
 	if !ok {
-		return "", errors.New("Not found action")
+		return "", errors.New("Not found command")
 	}
 	return fn(args)
 }

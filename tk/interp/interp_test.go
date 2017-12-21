@@ -9,12 +9,11 @@ import (
 	"testing"
 )
 
+var (
+	interp, _ = NewInterp()
+)
+
 func TestInterp(t *testing.T) {
-	interp, err := NewInterp()
-	defer interp.Destroy()
-	if err != nil {
-		t.Fatal(err)
-	}
 	tcl_ver, _ := interp.EvalAsString("set tcl_version")
 	fmt.Println("tcl_version", tcl_ver)
 	tk_ver, _ := interp.EvalAsString("set tk_version")
@@ -51,11 +50,6 @@ func TestInterp(t *testing.T) {
 }
 
 func TestCommand(t *testing.T) {
-	interp, err := NewInterp()
-	defer interp.Destroy()
-	if err != nil {
-		t.Fatal(err)
-	}
 	interp.CreateCommand("go::join", func(args []string) (string, error) {
 		return strings.Join(args, ","), nil
 	})
@@ -96,3 +90,15 @@ func TestCommand(t *testing.T) {
 		t.Fatal("CreateAction")
 	}
 }
+
+//func TestAsync(t *testing.T) {
+//	//var check_success bool
+//	MainLoop(func() {
+//		go func() {
+//			<-time.After(1e9)
+//			Async(func() {
+//				interp.Destroy()
+//			})
+//		}()
+//	})
+//}

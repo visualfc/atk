@@ -79,6 +79,7 @@ func async_send_event(tid *Tcl_ThreadId, fn func()) {
 	var ev *Tcl_Event
 	ev = Tcl_Alloc(uint(unsafe.Sizeof(*ev)))
 	ev.Proc = syscall.NewCallbackCDecl(_go_async_event_handler)
+	ev.NextPtr = nil
 	globalAsyncEvent.Store(unsafe.Pointer(ev), fn)
 	Tcl_ThreadQueueEvent(tid, ev, TCL_QUEUE_TAIL)
 	Tcl_ThreadAlert(tid)
