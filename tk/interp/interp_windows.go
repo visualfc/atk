@@ -12,7 +12,8 @@ import (
 	"unsafe"
 )
 
-import "C"
+//NOTE: BytePtrToString replace cgo C.GoStringN
+//import "C"
 
 type Tcl_Interp struct{}
 type Tcl_ThreadId struct{}
@@ -129,16 +130,22 @@ func (p *Interp) Destroy() error {
 	return nil
 }
 
-//func BytePtrToString(data *byte) string {
-//	a := make([]byte, len(s)+1)
-//	copy(a, s)
-//}
+func BytePtrToString(data *byte, length int32) string {
+	if length == 0 {
+		return ""
+	}
+	p := (*[1 << 30]byte)(unsafe.Pointer(data))[:length]
+	a := make([]byte, length)
+	copy(a, p)
+	return string(a)
+}
 
 func (p *Interp) GetStringResult() string {
 	obj := Tcl_GetObjResult(p.interp)
-	var out int32
-	r := Tcl_GetStringFromObj(obj, &out)
-	return C.GoStringN((*C.char)(unsafe.Pointer(r)), C.int(out))
+	var n int32
+	out := Tcl_GetStringFromObj(obj, &n)
+	return BytePtrToString(out, n)
+	//return C.GoStringN((*C.char)(unsafe.Pointer(r)), C.int(out))
 }
 
 func (p *Interp) GetInt64Result() int64 {
@@ -226,6 +233,7 @@ func _go_tcl_action_proc(id uintptr, interp *Tcl_Interp, objc int, objv unsafe.P
 	}
 	return TCL_OK
 }
+
 func _go_tcl_actiono_delete_proc(id uintptr) int {
 	globalActionMap.UnRegister(id)
 	return 0
@@ -288,7 +296,8 @@ func ObjToInt64(interp *Tcl_Interp, obj *Tcl_Obj) int64 {
 func ObjToString(interp *Tcl_Interp, obj *Tcl_Obj) string {
 	var n int32
 	out := Tcl_GetStringFromObj(obj, &n)
-	return C.GoStringN((*C.char)(unsafe.Pointer(out)), (C.int)(n))
+	return BytePtrToString(out, n)
+	//return C.GoStringN((*C.char)(unsafe.Pointer(out)), (C.int)(n))
 }
 
 func StringToObj(value string) *Tcl_Obj {
