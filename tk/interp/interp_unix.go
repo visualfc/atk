@@ -162,7 +162,7 @@ func NewInterp() (*Interp, error) {
 	if interp == nil {
 		return nil, errors.New("Tcl_CreateInterp failed")
 	}
-	return &Interp{interp}, nil
+	return &Interp{interp, nil}, nil
 }
 
 func (p *Interp) InitTcl(tcl_library string) error {
