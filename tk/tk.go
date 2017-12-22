@@ -60,7 +60,7 @@ func SetErrorHandle(fn func(error)) {
 	}
 }
 
-func MainInterep() *interp.Interp {
+func MainInterp() *interp.Interp {
 	return mainInterp
 }
 
