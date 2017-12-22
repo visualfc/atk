@@ -14,85 +14,85 @@ func init() {
 }
 
 func TestWindow(t *testing.T) {
-	root := RootWindow()
-	if root.SetTitle("Hello").Title() != "Hello" {
+	mw := MainWindow()
+	if mw.SetTitle("Hello").Title() != "Hello" {
 		t.Errorf("SetTitle")
 	}
-	if root.SetAlpha(0.9).Alpha() != 0.9 {
+	if mw.SetAlpha(0.9).Alpha() != 0.9 {
 		t.Errorf("SetAlpha")
 	}
 
-	root.SetVisible(false)
-	if root.IsVisible() {
+	mw.SetVisible(false)
+	if mw.IsVisible() {
 		t.Errorf("SetVisible")
 	}
-	root.SetVisible(true)
-	if !root.IsVisible() {
+	mw.SetVisible(true)
+	if !mw.IsVisible() {
 		t.Errorf("SetVisible")
 	}
 
-	root.Iconify()
-	if !root.IsIconify() {
+	mw.Iconify()
+	if !mw.IsIconify() {
 		t.Errorf("Iconify")
 	}
-	root.ShowNormal()
+	mw.ShowNormal()
 
-	root.SetTopmost(true)
+	mw.SetTopmost(true)
 	Update()
-	if !root.IsTopmost() {
+	if !mw.IsTopmost() {
 		t.Errorf("SetTopmost")
 	}
-	root.SetTopmost(false)
+	mw.SetTopmost(false)
 
-	root.SetGeometry(100, 200, 300, 400)
-	x, y, w, h := root.Geometry()
+	mw.SetGeometry(100, 200, 300, 400)
+	x, y, w, h := mw.Geometry()
 	if x != 100 || y != 200 || w != 300 || h != 400 {
 		t.Errorf("Geometry")
 	}
-	root.SetPos(101, 202)
-	x, y = root.Pos()
+	mw.SetPos(101, 202)
+	x, y = mw.Pos()
 	if x != 101 || y != 202 {
 		t.Errorf("Pos")
 	}
-	root.SetSize(301, 302)
-	w, h = root.Size()
+	mw.SetSize(301, 302)
+	w, h = mw.Size()
 	if w != 301 || h != 302 {
 		t.Errorf("Size")
 	}
 
-	root.ShowMaximized()
-	if !root.IsMaximized() {
+	mw.ShowMaximized()
+	if !mw.IsMaximized() {
 		t.Errorf("IsMaximized")
 	}
-	root.ShowNormal()
+	mw.ShowNormal()
 
-	root.SetResizable(false, false)
-	enableW, enableH := root.IsResizable()
+	mw.SetResizable(false, false)
+	enableW, enableH := mw.IsResizable()
 	if enableW != false || enableH != false {
 		t.Errorf("Resizable")
 	}
-	root.SetResizable(true, true)
+	mw.SetResizable(true, true)
 
-	root.SetWidth(311).SetHeight(312)
-	if root.Width() != 311 || root.Height() != 312 {
+	mw.SetWidth(311).SetHeight(312)
+	if mw.Width() != 311 || mw.Height() != 312 {
 		t.Errorf("Width/Height")
 	}
 
-	root.SetFullScreen(true)
+	mw.SetFullScreen(true)
 	//Update()
-	if !root.IsFullScreen() {
+	if !mw.IsFullScreen() {
 		t.Errorf("IsFullScreen")
 	}
-	root.SetFullScreen(false)
+	mw.SetFullScreen(false)
 
-	root.SetMaximumSize(500, 600)
-	w, h = root.MaximumSize()
+	mw.SetMaximumSize(500, 600)
+	w, h = mw.MaximumSize()
 	if w != 500 || h != 600 {
 		t.Errorf("MaximumSize")
 	}
 
-	root.SetMinimumSize(200, 300)
-	w, h = root.MinimumSize()
+	mw.SetMinimumSize(200, 300)
+	w, h = mw.MinimumSize()
 	if w != 200 || h != 300 {
 		t.Errorf("MinimumSize")
 	}

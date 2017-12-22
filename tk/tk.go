@@ -13,7 +13,7 @@ type Size struct {
 
 var (
 	mainInterp     *interp.Interp
-	root           *Window
+	mainWindow     *Window
 	fnErrorHandle  func(error)
 	defaultMaxSize Size
 	defaultMinSize Size
@@ -43,13 +43,13 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 	if err != nil {
 		return err
 	}
-	root = RootWindow()
+	mainWindow = MainWindow()
 	var w, h int
-	w, h = root.MaximumSize()
+	w, h = mainWindow.MaximumSize()
 	defaultMaxSize = Size{w, h}
-	w, h = root.MinimumSize()
+	w, h = mainWindow.MinimumSize()
 	defaultMinSize = Size{w, h}
-	root.Hide()
+	mainWindow.Hide()
 	return nil
 }
 

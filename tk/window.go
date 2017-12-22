@@ -274,6 +274,6 @@ func (w *Window) Destroy() error {
 	return eval(fmt.Sprintf("destroy %v", w.id))
 }
 
-func RootWindow() *Window {
+func MainWindow() *Window {
 	return &Window{"."}
 }
