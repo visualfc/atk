@@ -126,6 +126,14 @@ func (interp *Interp) EvalAsFloat64(script string) (float64, error) {
 	return interp.GetFloat64Result(), nil
 }
 
+func (interp *Interp) EvalAsBool(script string) (bool, error) {
+	err := interp.Eval(script)
+	if err != nil {
+		return false, err
+	}
+	return interp.GetBoolResult(), nil
+}
+
 func (interp *Interp) TclVersion() string {
 	ver, _ := interp.EvalAsString("set tcl_version")
 	return ver
@@ -134,4 +142,8 @@ func (interp *Interp) TclVersion() string {
 func (interp *Interp) TkVersion() string {
 	ver, _ := interp.EvalAsString("set tk_version")
 	return ver
+}
+
+func (interp *Interp) SetErrorHandle(fn func(error)) {
+	interp.fnErrorHandle = fn
 }

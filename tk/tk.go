@@ -14,6 +14,7 @@ type Size struct {
 var (
 	mainInterp     *interp.Interp
 	root           *Window
+	fnErrorHandle  func(error)
 	defaultMaxSize Size
 	defaultMinSize Size
 )
@@ -33,6 +34,7 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 	if err != nil {
 		return err
 	}
+	mainInterp.SetErrorHandle(fnErrorHandle)
 	err = mainInterp.InitTcl(tcl_library)
 	if err != nil {
 		return err
@@ -51,6 +53,13 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 	return nil
 }
 
+func SetErrorHandle(fn func(error)) {
+	fnErrorHandle = fn
+	if mainInterp != nil {
+		mainInterp.SetErrorHandle(fn)
+	}
+}
+
 func TclVersion() (ver string) {
 	return mainInterp.TclVersion()
 }
@@ -59,24 +68,40 @@ func TkVersion() (ver string) {
 	return mainInterp.TkVersion()
 }
 
+func MainLoop(fn func()) {
+	interp.MainLoop(fn)
+}
+
+func Async(fn func()) {
+	interp.Async(fn)
+}
+
+func Update() {
+	eval("update")
+}
+
+func Quit() {
+	eval("destroy .")
+}
+
 func eval(script string) error {
 	return mainInterp.Eval(script)
 }
 
 func evalAsString(script string) (string, error) {
-	err := mainInterp.Eval(script)
-	if err != nil {
-		return "", err
-	}
-	return mainInterp.GetStringResult(), nil
+	return mainInterp.EvalAsString(script)
 }
 
 func evalAsInt(script string) (int, error) {
-	err := mainInterp.Eval(script)
-	if err != nil {
-		return 0, err
-	}
-	return mainInterp.GetIntResult(), nil
+	return mainInterp.EvalAsInt(script)
+}
+
+func evalAsFloat64(script string) (float64, error) {
+	return mainInterp.EvalAsFloat64(script)
+}
+
+func evalAsBool(script string) (bool, error) {
+	return mainInterp.EvalAsBool(script)
 }
 
 func parserTwoInt(s string) (n1 int, n2 int) {
@@ -91,33 +116,9 @@ func parserTwoInt(s string) (n1 int, n2 int) {
 	return
 }
 
-func evalAsFloat64(script string) (float64, error) {
-	err := mainInterp.Eval(script)
-	if err != nil {
-		return 0, err
-	}
-	return mainInterp.GetFloat64Result(), nil
-}
-
-func evalAsBool(script string) (bool, error) {
-	err := mainInterp.Eval(script)
-	if err != nil {
-		return false, err
-	}
-	return mainInterp.GetBoolResult(), nil
-}
-
 func boolToInt(b bool) int {
 	if b {
 		return 1
 	}
 	return 0
-}
-
-func MainLoop(fn func()) {
-	interp.MainLoop(fn)
-}
-
-func Async(fn func()) {
-	interp.Async(fn)
 }

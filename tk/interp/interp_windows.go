@@ -103,7 +103,8 @@ func MainLoop(fn func()) {
 }
 
 type Interp struct {
-	interp *Tcl_Interp
+	interp        *Tcl_Interp
+	fnErrorHandle func(error)
 }
 
 func NewInterp() (*Interp, error) {
@@ -115,7 +116,7 @@ func NewInterp() (*Interp, error) {
 	if interp == nil {
 		return nil, errors.New("Tcl_CreateInterp failed")
 	}
-	return &Interp{interp}, nil
+	return &Interp{interp, nil}, nil
 }
 
 func (p *Interp) InitTcl(tcl_library string) error {
@@ -123,7 +124,11 @@ func (p *Interp) InitTcl(tcl_library string) error {
 		p.Eval(fmt.Sprintf("set tcl_library {%s}", tcl_library))
 	}
 	if Tcl_Init(p.interp) != TCL_OK {
-		return errors.New("Tcl_Init failed")
+		err := errors.New("Tcl_Init failed")
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
+		return err
 	}
 	return nil
 }
@@ -131,13 +136,20 @@ func (p *Interp) InitTcl(tcl_library string) error {
 func (p *Interp) InitTk(tk_library string) error {
 	err := modtk86t.Load()
 	if err != nil {
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
 		return err
 	}
 	if tk_library != "" {
 		p.Eval(fmt.Sprintf("set tk_library {%s}", tk_library))
 	}
 	if Tk_Init(p.interp) != TCL_OK {
-		return errors.New("Tk_Init failed")
+		err := errors.New("Tk_Init failed")
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
+		return err
 	}
 	return nil
 }
@@ -215,7 +227,11 @@ func (p *Interp) Eval(script string) error {
 		return err
 	}
 	if Tcl_Eval(p.interp, s) != TCL_OK {
-		return errors.New(p.GetStringResult())
+		err := errors.New(p.GetStringResult())
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
+		return err
 	}
 	return nil
 }
@@ -269,7 +285,11 @@ func (p *Interp) CreateCommand(name string, fn func([]string) (string, error)) (
 	id := globalCommandMap.Register(fn)
 	cmd := Tcl_CreateObjCommand(p.interp, s, syscall.NewCallbackCDecl(_go_tcl_objcmd_proc), id, syscall.NewCallbackCDecl(_go_tcl_cmddelete_proc))
 	if cmd == nil {
-		return 0, fmt.Errorf("CreateObjCommand %s failed", name)
+		err := fmt.Errorf("CreateCommand %v failed", name)
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
+		return 0, err
 	}
 	return id, nil
 }
@@ -278,17 +298,21 @@ func (p *Interp) InvokeCommand(id uintptr, args []string) (string, error) {
 	return globalCommandMap.Invoke(id, args)
 }
 
-func (p *Interp) CreateAction(name string, action func()) error {
+func (p *Interp) CreateAction(name string, action func()) (uintptr, error) {
 	s, err := syscall.BytePtrFromString(name)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	id := globalActionMap.Register(action)
 	cmd := Tcl_CreateObjCommand(p.interp, s, syscall.NewCallbackCDecl(_go_tcl_action_proc), id, syscall.NewCallbackCDecl(_go_tcl_actiono_delete_proc))
 	if cmd == nil {
-		return fmt.Errorf("CreateObjCommand %s failed", name)
+		err := fmt.Errorf("CreateAction %v failed", name)
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
+		return 0, err
 	}
-	return nil
+	return id, nil
 }
 
 func (p *Interp) CreateActionByType(typ string, action func()) (name string, err error) {
@@ -300,7 +324,11 @@ func (p *Interp) CreateActionByType(typ string, action func()) (name string, err
 	}
 	cmd := Tcl_CreateObjCommand(p.interp, s, syscall.NewCallbackCDecl(_go_tcl_action_proc), id, syscall.NewCallbackCDecl(_go_tcl_actiono_delete_proc))
 	if cmd == nil {
-		return name, fmt.Errorf("CreateObjCommand %s failed", name)
+		err := fmt.Errorf("CreateActionByType %s failed", typ)
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
+		return name, err
 	}
 	return name, nil
 }

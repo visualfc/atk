@@ -21,14 +21,6 @@ func init() {
 	globalWindowInfoMap["."] = &WindowInfo{0, 0, 200, 200}
 }
 
-func Update() {
-	eval("update")
-}
-
-func Quit() {
-	eval("destroy .")
-}
-
 type Window struct {
 	id string
 }

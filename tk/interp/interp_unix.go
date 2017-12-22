@@ -153,7 +153,8 @@ func MainLoop(fn func()) {
 }
 
 type Interp struct {
-	interp *C.Tcl_Interp
+	interp        *C.Tcl_Interp
+	fnErrorHandle func(error)
 }
 
 func NewInterp() (*Interp, error) {
@@ -169,7 +170,11 @@ func (p *Interp) InitTcl(tcl_library string) error {
 		p.Eval(fmt.Sprintf("set tcl_library {%s}", tcl_library))
 	}
 	if C.Tcl_Init(p.interp) != TCL_OK {
-		return errors.New("Tcl_Init failed")
+		err := errors.New("Tcl_Init failed")
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
+		return err
 	}
 	return nil
 }
@@ -179,7 +184,11 @@ func (p *Interp) InitTk(tk_library string) error {
 		p.Eval(fmt.Sprintf("set tk_library {%s}", tk_library))
 	}
 	if C.Tk_Init(p.interp) != TCL_OK {
-		return errors.New("Tk_Init failed")
+		err := errors.New("Tk_Init failed")
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
+		return err
 	}
 	return nil
 }
@@ -244,7 +253,11 @@ func (p *Interp) Eval(script string) error {
 	cs := C.CString(script)
 	defer C.free(unsafe.Pointer(cs))
 	if C.Tcl_Eval(p.interp, cs) != TCL_OK {
-		return errors.New(p.GetStringResult())
+		err := errors.New(p.GetStringResult())
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
+		return err
 	}
 	return nil
 }
@@ -256,7 +269,11 @@ func (p *Interp) CreateCommand(name string, fn func([]string) (string, error)) (
 	id := globalCommandMap.Register(fn)
 	cmd := C._c_create_obj_command(p.interp, cs, unsafe.Pointer(id))
 	if cmd == nil {
-		return 0, errors.New("CreateCommand failed")
+		err := fmt.Errorf("CreateCommand %v failed", name)
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
+		return 0, err
 	}
 	return id, nil
 }
@@ -272,7 +289,11 @@ func (p *Interp) CreateAction(name string, fn func()) (uintptr, error) {
 	id := globalActionMap.Register(fn)
 	cmd := C._c_create_action_command(p.interp, cs, unsafe.Pointer(id))
 	if cmd == nil {
-		return 0, errors.New("CreateAction failed")
+		err := fmt.Errorf("CreateAction %v failed", name)
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
+		return 0, err
 	}
 	return id, nil
 }
@@ -284,7 +305,11 @@ func (p *Interp) CreateActionByType(typ string, fn func()) (string, error) {
 	defer C.free(unsafe.Pointer(cs))
 	cmd := C._c_create_action_command(p.interp, cs, unsafe.Pointer(id))
 	if cmd == nil {
-		return "", errors.New("CreateAction failed")
+		err := fmt.Errorf("CreateAction %v failed", typ)
+		if p.fnErrorHandle != nil {
+			p.fnErrorHandle(err)
+		}
+		return "", err
 	}
 	return name, nil
 }
