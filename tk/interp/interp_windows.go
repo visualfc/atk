@@ -107,6 +107,10 @@ type Interp struct {
 }
 
 func NewInterp() (*Interp, error) {
+	err := modtcl86t.Load()
+	if err != nil {
+		return nil, err
+	}
 	interp := Tcl_CreateInterp()
 	if interp == nil {
 		return nil, errors.New("Tcl_CreateInterp failed")
@@ -125,6 +129,10 @@ func (p *Interp) InitTcl(tcl_library string) error {
 }
 
 func (p *Interp) InitTk(tk_library string) error {
+	err := modtk86t.Load()
+	if err != nil {
+		return err
+	}
 	if tk_library != "" {
 		p.Eval(fmt.Sprintf("set tk_library {%s}", tk_library))
 	}
