@@ -4,6 +4,7 @@ package interp
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"testing"
@@ -11,15 +12,23 @@ import (
 )
 
 var (
-	interp, _ = NewInterp()
+	interp *Interp
 )
 
-func TestInterp(t *testing.T) {
-	tcl_ver, _ := interp.EvalAsString("set tcl_version")
-	fmt.Println("tcl_version", tcl_ver)
-	tk_ver, _ := interp.EvalAsString("set tk_version")
-	fmt.Println("tk_version", tk_ver)
+func init() {
+	var err error
+	interp, err = NewInterp()
+	if err != nil {
+		panic(err)
+	}
+	err = interp.InitTcl("")
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println("tcl_version", interp.TclVersion())
+}
 
+func TestInterp(t *testing.T) {
 	a, err := interp.EvalAsString("set a {hello}\nset a")
 	if err != nil {
 		t.Fatal(err)
@@ -92,13 +101,17 @@ func TestCommand(t *testing.T) {
 	}
 }
 
-func TestAsync(t *testing.T) {
+func TestTkSync(t *testing.T) {
+	err := interp.InitTk("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("tk_version", interp.TkVersion())
 	MainLoop(func() {
 		go func() {
-			fmt.Println("wait for 1 sec ...")
+			fmt.Println("run tk mainloop wait 1 sec async destroy")
 			<-time.After(1e9)
 			Async(func() {
-				fmt.Println("call interp.Destroy")
 				interp.Destroy()
 			})
 		}()

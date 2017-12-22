@@ -111,14 +111,27 @@ func NewInterp() (*Interp, error) {
 	if interp == nil {
 		return nil, errors.New("Tcl_CreateInterp failed")
 	}
-	i := &Interp{interp}
-	if Tcl_Init(interp) != TCL_OK {
-		return i, errors.New("Tcl_Init failed")
+	return &Interp{interp}, nil
+}
+
+func (p *Interp) InitTcl(tcl_library string) error {
+	if tcl_library != "" {
+		p.Eval(fmt.Sprintf("set tcl_library {%s}", tcl_library))
 	}
-	if Tk_Init(interp) != TCL_OK {
-		return i, errors.New("Tk_Init failed")
+	if Tcl_Init(p.interp) != TCL_OK {
+		return errors.New("Tcl_Init failed")
 	}
-	return i, nil
+	return nil
+}
+
+func (p *Interp) InitTk(tk_library string) error {
+	if tk_library != "" {
+		p.Eval(fmt.Sprintf("set tk_library {%s}", tk_library))
+	}
+	if Tk_Init(p.interp) != TCL_OK {
+		return errors.New("Tk_Init failed")
+	}
+	return nil
 }
 
 func (p *Interp) Destroy() error {
