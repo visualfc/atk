@@ -24,32 +24,39 @@ type Widget interface {
 	Id() WidgetId
 }
 
-func Init() (err error) {
+func Init() error {
+	return InitEx("", "")
+}
+
+func InitEx(tcl_library string, tk_library string) (err error) {
 	mainInterp, err = interp.NewInterp()
-	if err == nil {
-		root = RootWindow()
-		var w, h int
-		w, h = root.MaximumSize()
-		defaultMaxSize = Size{w, h}
-		//		if runtime.GOOS == "darwin" && h < w {
-		//			h = w
-		//			root.SetMaximumSize(w, h)
-		//		}
-		w, h = root.MinimumSize()
-		defaultMinSize = Size{w, h}
-		root.Hide()
+	if err != nil {
+		return err
 	}
-	return
+	err = mainInterp.InitTcl(tcl_library)
+	if err != nil {
+		return err
+	}
+	err = mainInterp.InitTk(tk_library)
+	if err != nil {
+		return err
+	}
+	root = RootWindow()
+	var w, h int
+	w, h = root.MaximumSize()
+	defaultMaxSize = Size{w, h}
+	w, h = root.MinimumSize()
+	defaultMinSize = Size{w, h}
+	root.Hide()
+	return nil
 }
 
 func TclVersion() (ver string) {
-	ver, _ = evalAsString("set tcl_version")
-	return
+	return mainInterp.TclVersion()
 }
 
 func TkVersion() (ver string) {
-	ver, _ = evalAsString("set tk_version")
-	return
+	return mainInterp.TkVersion()
 }
 
 func eval(script string) error {
