@@ -60,6 +60,10 @@ func SetErrorHandle(fn func(error)) {
 	}
 }
 
+func MainInterep() *interp.Interp {
+	return mainInterp
+}
+
 func TclVersion() (ver string) {
 	return mainInterp.TclVersion()
 }
