@@ -249,10 +249,17 @@ func (w *Window) MinimumSize() (int, int) {
 	return parserTwoInt(s)
 }
 
+func (w *Window) ScreenSize() (width int, height int) {
+	width, _ = evalAsInt(fmt.Sprintf("winfo screenwidth %v", w.id))
+	height, _ = evalAsInt(fmt.Sprintf("winfo screenheight %v", w.id))
+	return
+}
+
 func (w *Window) Center() *Window {
-	x, y, width, height := w.Geometry()
-	x = (defaultMaxSize.Width - width) / 2
-	y = (defaultMaxSize.Height - height) / 2
+	sw, sh := w.ScreenSize()
+	width, height := w.Size()
+	x := (sw - width) / 2
+	y := (sh - height) / 2
 	return w.Move(x, y)
 }
 
