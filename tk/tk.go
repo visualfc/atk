@@ -43,6 +43,9 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 	if err != nil {
 		return err
 	}
+	//hide console for macOS bundle
+	mainInterp.Eval("if {[info commands console] == \"console\"} {console hide}")
+
 	mainWindow = MainWindow()
 	var w, h int
 	w, h = mainWindow.MaximumSize()
