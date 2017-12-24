@@ -105,8 +105,11 @@ func TestObj(t *testing.T) {
 	if NewStringObj("string", interp).ToString() != "string" {
 		t.Fatalf("string obj")
 	}
-	if NewFloat64Obj(1e16, interp).ToFloat64() != 1e16 {
-		t.Fatal("float64 obj")
+	if f := NewFloat64Obj(1e16, interp).ToFloat64(); f != 1e16 {
+		t.Fatal("float64 obj", f)
+	}
+	if f := NewFloat64Obj(1.123456789123456789, interp).ToFloat64(); f != 1.123456789123456789 {
+		t.Fatal("float64 obj", f)
 	}
 	if NewInt64Obj(1e12, interp).ToInt64() != 1e12 {
 		t.Fatalf("int64 obj")

@@ -13,6 +13,7 @@ import (
 )
 
 //NOTE: BytePtrToString replace cgo C.GoStringN
+
 //import "C"
 
 type Tcl_Interp struct{}
@@ -38,12 +39,14 @@ type Tcl_Event struct {
 //sys	Tcl_GetStringResult(interp *Tcl_Interp) (ret *byte) = tcl86t.Tcl_GetStringResult
 //sys	Tcl_GetObjResult(interp *Tcl_Interp) (obj *Tcl_Obj) = tcl86t.Tcl_GetObjResult
 //sys	Tcl_GetWideIntFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_WideInt) (status int32) = tcl86t.Tcl_GetWideIntFromObj
+//sys	Tcl_GetLongFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *int) (status int32) = tcl86t.Tcl_GetLongFromObj
 //sys	Tcl_GetDoubleFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_Double) (status int32) = tcl86t.Tcl_GetDoubleFromObj
 //sys	Tcl_GetBooleanFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *int32) (status int32) = tcl86t.Tcl_GetBooleanFromObj
 //sys	Tcl_GetStringFromObj(obj *Tcl_Obj, length *int32) (ret *byte) = tcl86t.Tcl_GetStringFromObj
-//sys	Tcl_NewWideIntObj(value int64) (obj *Tcl_Obj) = tcl86t.Tcl_NewWideIntObj
-//sys	Tcl_NewDoubleObj(value float64) (obj *Tcl_Obj) = tcl86t.Tcl_NewDoubleObj
-//sys	Tcl_NewBooleanObj(value bool) (obj *Tcl_Obj) = tcl86t.Tcl_NewBooleanObj
+//sys	Tcl_NewWideIntObj(value Tcl_WideInt) (obj *Tcl_Obj) = tcl86t.Tcl_NewWideIntObj
+//sys	Tcl_NewLongObj(value int) (obj *Tcl_Obj) = tcl86t.Tcl_NewLongObj
+//sys	Tcl_NewDoubleObj(value Tcl_Double) (obj *Tcl_Obj) = tcl86t.Tcl_NewDoubleObj
+//sys	Tcl_NewBooleanObj(value int32) (obj *Tcl_Obj) = tcl86t.Tcl_NewBooleanObj
 //sys	Tcl_NewStringObj(bytes *byte, length int32) (obj *Tcl_Obj) = tcl86t.Tcl_NewStringObj
 //sys	Tcl_Init(interp *Tcl_Interp) (r int32) = tcl86t.Tcl_Init
 //sys	Tcl_GetCurrentThread() (threadid *Tcl_ThreadId) = tcl86t.Tcl_GetCurrentThread
@@ -173,52 +176,9 @@ func BytePtrToString(data *byte, length int32) string {
 	return string(a)
 }
 
-func (p *Interp) GetStringResult() string {
+func (p *Interp) GetObjResult() *Obj {
 	obj := Tcl_GetObjResult(p.interp)
-	var n int32
-	out := Tcl_GetStringFromObj(obj, &n)
-	return BytePtrToString(out, n)
-	//return C.GoStringN((*C.char)(unsafe.Pointer(r)), C.int(out))
-}
-
-func (p *Interp) GetInt64Result() int64 {
-	obj := Tcl_GetObjResult(p.interp)
-	var out Tcl_WideInt
-	status := Tcl_GetWideIntFromObj(p.interp, obj, &out)
-	if status == TCL_OK {
-		return int64(out)
-	}
-	return 0
-}
-
-func (p *Interp) GetIntResult() int {
-	obj := Tcl_GetObjResult(p.interp)
-	var out Tcl_WideInt
-	status := Tcl_GetWideIntFromObj(p.interp, obj, &out)
-	if status == TCL_OK {
-		return int(out)
-	}
-	return 0
-}
-
-func (p *Interp) GetFloat64Result() float64 {
-	obj := Tcl_GetObjResult(p.interp)
-	var out Tcl_Double
-	status := Tcl_GetDoubleFromObj(p.interp, obj, &out)
-	if status == TCL_OK {
-		return float64(out)
-	}
-	return 0
-}
-
-func (p *Interp) GetBoolResult() bool {
-	obj := Tcl_GetObjResult(p.interp)
-	var out int32
-	status := Tcl_GetBooleanFromObj(p.interp, obj, &out)
-	if status == TCL_OK {
-		return out == 1
-	}
-	return false
+	return &Obj{obj, p.interp}
 }
 
 func (p *Interp) Eval(script string) error {
@@ -333,13 +293,85 @@ func (p *Interp) CreateActionByType(typ string, action func()) (name string, err
 	return name, nil
 }
 
-func ObjToInt64(interp *Tcl_Interp, obj *Tcl_Obj) int64 {
+type Obj struct {
+	obj    *Tcl_Obj
+	interp *Tcl_Interp
+}
+
+func NewRawObj(obj *Tcl_Obj, interp *Tcl_Interp) *Obj {
+	return &Obj{obj, interp}
+}
+
+func (o *Obj) ToFloat64() float64 {
+	var out Tcl_Double
+	status := Tcl_GetDoubleFromObj(o.interp, o.obj, &out)
+	if status == TCL_OK {
+		return float64(out)
+	}
+	return 0
+}
+
+func (o *Obj) ToInt64() int64 {
 	var out Tcl_WideInt
-	status := Tcl_GetWideIntFromObj(interp, obj, &out)
+	status := Tcl_GetWideIntFromObj(o.interp, o.obj, &out)
 	if status == TCL_OK {
 		return int64(out)
 	}
 	return 0
+}
+
+func (o *Obj) ToInt() int {
+	var out int
+	status := Tcl_GetLongFromObj(o.interp, o.obj, &out)
+	if status == TCL_OK {
+		return out
+	}
+	return 0
+}
+
+func (o *Obj) ToBool() bool {
+	var out int32
+	status := Tcl_GetBooleanFromObj(o.interp, o.obj, &out)
+	if status == TCL_OK {
+		return out == 1
+	}
+	return false
+}
+
+func (o *Obj) ToString() string {
+	var n int32
+	out := Tcl_GetStringFromObj(o.obj, &n)
+	return BytePtrToString(out, n)
+}
+
+func NewStringObj(value string, p *Interp) *Obj {
+	s, err := syscall.BytePtrFromString(value)
+	if err != nil {
+		return nil
+	}
+	return &Obj{Tcl_NewStringObj(s, int32(len(value))), p.interp}
+}
+
+//NOTE: Tcl_NewDoubleObj test error on windows
+func NewFloat64Obj(value float64, p *Interp) *Obj {
+	//return &Obj{Tcl_NewDoubleObj(Tcl_Double(value)), p.interp}
+	return NewStringObj(fmt.Sprintf("%v", value), p)
+}
+
+func NewInt64Obj(value int64, p *Interp) *Obj {
+	return &Obj{Tcl_NewWideIntObj(Tcl_WideInt(value)), p.interp}
+}
+
+func NewIntObj(value int, p *Interp) *Obj {
+	return &Obj{Tcl_NewLongObj(value), p.interp}
+}
+
+func NewBoolObj(value bool, p *Interp) *Obj {
+	var v int32
+	if value {
+		v = 1
+	}
+	return &Obj{Tcl_NewBooleanObj(v), p.interp}
 }
 
 func ObjToString(interp *Tcl_Interp, obj *Tcl_Obj) string {
@@ -355,8 +387,4 @@ func StringToObj(value string) *Tcl_Obj {
 		return nil
 	}
 	return Tcl_NewStringObj(s, int32(len(value)))
-}
-
-func Int64ToObj(value int64) *Tcl_Obj {
-	return Tcl_NewWideIntObj(value)
 }
