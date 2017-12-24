@@ -209,7 +209,7 @@ func (p *Interp) GetObjResult() *Obj {
 func (p *Interp) Eval(script string) error {
 	cs := C.CString(script)
 	defer C.free(unsafe.Pointer(cs))
-	if C.Tcl_Eval(p.interp, cs) != TCL_OK {
+	if C.Tcl_EvalEx(p.interp, cs, C.int(len(script)), 0) != TCL_OK {
 		err := errors.New(p.GetStringResult())
 		if p.fnErrorHandle != nil {
 			p.fnErrorHandle(err)
