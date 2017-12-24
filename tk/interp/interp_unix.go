@@ -75,7 +75,7 @@ func _go_tcl_objcmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, objc C
 	objs := (*(*[1 << 20]*C.Tcl_Obj)(objv))[1:objc]
 	var args []string
 	for _, obj := range objs {
-		args = append(args, ObjToString(interp, obj))
+		args = append(args, NewRawObj(obj, interp).ToString())
 	}
 	result, err := globalCommandMap.Invoke(uintptr(clientData), args)
 	if err != nil {
@@ -202,51 +202,8 @@ func (p *Interp) Destroy() error {
 	return nil
 }
 
-func (p *Interp) GetStringResult() string {
-	obj := C.Tcl_GetObjResult(p.interp)
-	var out C.int
-	r := C.Tcl_GetStringFromObj(obj, &out)
-	return C.GoStringN(r, out)
-}
-
-func (p *Interp) GetIntResult() int {
-	obj := C.Tcl_GetObjResult(p.interp)
-	var out C.Tcl_WideInt
-	status := C.Tcl_GetWideIntFromObj(p.interp, obj, &out)
-	if status == C.TCL_OK {
-		return int(out)
-	}
-	return 0
-}
-
-func (p *Interp) GetInt64Result() int64 {
-	obj := C.Tcl_GetObjResult(p.interp)
-	var out C.Tcl_WideInt
-	status := C.Tcl_GetWideIntFromObj(p.interp, obj, &out)
-	if status == C.TCL_OK {
-		return int64(out)
-	}
-	return 0
-}
-
-func (p *Interp) GetFloat64Result() float64 {
-	obj := C.Tcl_GetObjResult(p.interp)
-	var out C.double
-	status := C.Tcl_GetDoubleFromObj(p.interp, obj, &out)
-	if status == C.TCL_OK {
-		return float64(out)
-	}
-	return 0
-}
-
-func (p *Interp) GetBoolResult() bool {
-	obj := C.Tcl_GetObjResult(p.interp)
-	var out C.int
-	status := C.Tcl_GetBooleanFromObj(p.interp, obj, &out)
-	if status == C.TCL_OK {
-		return out == 1
-	}
-	return false
+func (p *Interp) GetObjResult() *Obj {
+	return &Obj{C.Tcl_GetObjResult(p.interp), p.interp}
 }
 
 func (p *Interp) Eval(script string) error {
@@ -318,13 +275,81 @@ func (p *Interp) InvokeAction(id uintptr) error {
 	return globalActionMap.Invoke(id)
 }
 
-func ObjToInt(interp *C.Tcl_Interp, obj *C.Tcl_Obj) int {
+type Obj struct {
+	obj    *C.Tcl_Obj
+	interp *C.Tcl_Interp
+}
+
+func NewRawObj(obj *C.Tcl_Obj, interp *C.Tcl_Interp) *Obj {
+	return &Obj{obj, interp}
+}
+
+func (o *Obj) ToFloat64() float64 {
+	var out C.double
+	status := C.Tcl_GetDoubleFromObj(o.interp, o.obj, &out)
+	if status == C.TCL_OK {
+		return float64(out)
+	}
+	return 0
+}
+
+func (o *Obj) ToInt64() int64 {
 	var out C.Tcl_WideInt
-	status := C.Tcl_GetWideIntFromObj(interp, obj, &out)
+	status := C.Tcl_GetWideIntFromObj(o.interp, o.obj, &out)
+	if status == TCL_OK {
+		return int64(out)
+	}
+	return 0
+}
+
+func (o *Obj) ToInt() int {
+	var out C.long
+	status := C.Tcl_GetLongFromObj(o.interp, o.obj, &out)
 	if status == TCL_OK {
 		return int(out)
 	}
 	return 0
+}
+
+func (o *Obj) ToBool() bool {
+	var out C.int
+	status := C.Tcl_GetBooleanFromObj(o.interp, o.obj, &out)
+	if status == C.TCL_OK {
+		return out == 1
+	}
+	return false
+}
+
+func (o *Obj) ToString() string {
+	var n C.int
+	out := C.Tcl_GetStringFromObj(o.obj, &n)
+	return C.GoStringN(out, n)
+}
+
+func NewStringObj(value string, p *Interp) *Obj {
+	cs := C.CString(value)
+	defer C.free(unsafe.Pointer(cs))
+	return &Obj{C.Tcl_NewStringObj(cs, C.int(len(value))), p.interp}
+}
+
+func NewFloat64Obj(value float64, p *Interp) *Obj {
+	return &Obj{C.Tcl_NewDoubleObj(C.double(value)), p.interp}
+}
+
+func NewInt64Obj(value int64, p *Interp) *Obj {
+	return &Obj{C.Tcl_NewWideIntObj(C.Tcl_WideInt(value)), p.interp}
+}
+
+func NewIntObj(value int, p *Interp) *Obj {
+	return &Obj{C.Tcl_NewLongObj(C.long(value)), p.interp}
+}
+
+func NewBoolObj(value bool, p *Interp) *Obj {
+	var v C.int
+	if value {
+		v = 1
+	}
+	return &Obj{C.Tcl_NewBooleanObj(v), p.interp}
 }
 
 func ObjToString(interp *C.Tcl_Interp, obj *C.Tcl_Obj) string {
@@ -337,8 +362,4 @@ func StringToObj(value string) *C.Tcl_Obj {
 	cs := C.CString(value)
 	defer C.free(unsafe.Pointer(cs))
 	return C.Tcl_NewStringObj(cs, C.int(len(value)))
-}
-
-func Int64ToObj(value int64) *C.Tcl_Obj {
-	return C.Tcl_NewWideIntObj(C.Tcl_WideInt(value))
 }

@@ -147,3 +147,23 @@ func (interp *Interp) TkVersion() string {
 func (interp *Interp) SetErrorHandle(fn func(error)) {
 	interp.fnErrorHandle = fn
 }
+
+func (p *Interp) GetStringResult() string {
+	return p.GetObjResult().ToString()
+}
+
+func (p *Interp) GetIntResult() int {
+	return p.GetObjResult().ToInt()
+}
+
+func (p *Interp) GetInt64Result() int64 {
+	return p.GetObjResult().ToInt64()
+}
+
+func (p *Interp) GetFloat64Result() float64 {
+	return p.GetObjResult().ToFloat64()
+}
+
+func (p *Interp) GetBoolResult() bool {
+	return p.GetObjResult().ToBool()
+}

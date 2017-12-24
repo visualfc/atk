@@ -101,6 +101,24 @@ func TestCommand(t *testing.T) {
 	}
 }
 
+func TestObj(t *testing.T) {
+	if NewStringObj("string", interp).ToString() != "string" {
+		t.Fatalf("string obj")
+	}
+	if NewFloat64Obj(1e16, interp).ToFloat64() != 1e16 {
+		t.Fatal("float64 obj")
+	}
+	if NewInt64Obj(1e12, interp).ToInt64() != 1e12 {
+		t.Fatalf("int64 obj")
+	}
+	if NewIntObj(1024, interp).ToInt() != 1024 {
+		t.Fatalf("int obj")
+	}
+	if NewBoolObj(true, interp).ToBool() != true {
+		t.Fatalf("bool boj")
+	}
+}
+
 func TestTkSync(t *testing.T) {
 	err := interp.InitTk("")
 	if err != nil {
