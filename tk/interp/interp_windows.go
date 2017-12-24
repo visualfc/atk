@@ -36,6 +36,7 @@ type Tcl_Event struct {
 
 //sys	Tcl_Alloc(size uint) (r *Tcl_Event) = tcl86t.Tcl_Alloc
 //sys	Tcl_Eval(interp *Tcl_Interp, script *byte) (r int32) = tcl86t.Tcl_Eval
+//sys	Tcl_EvalEx(interp *Tcl_Interp, script *byte, length int32, flags int32) (r int32) = tcl86t.Tcl_EvalEx
 //sys	Tcl_GetStringResult(interp *Tcl_Interp) (ret *byte) = tcl86t.Tcl_GetStringResult
 //sys	Tcl_GetObjResult(interp *Tcl_Interp) (obj *Tcl_Obj) = tcl86t.Tcl_GetObjResult
 //sys	Tcl_GetWideIntFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_WideInt) (status int32) = tcl86t.Tcl_GetWideIntFromObj
@@ -186,7 +187,7 @@ func (p *Interp) Eval(script string) error {
 	if err != nil {
 		return err
 	}
-	if Tcl_Eval(p.interp, s) != TCL_OK {
+	if Tcl_EvalEx(p.interp, s, int32(len(script)), 0) != TCL_OK {
 		err := errors.New(p.GetStringResult())
 		if p.fnErrorHandle != nil {
 			p.fnErrorHandle(err)

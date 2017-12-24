@@ -42,6 +42,7 @@ var (
 	procTcl_DeleteInterp      = modtcl86t.NewProc("Tcl_DeleteInterp")
 	procTcl_Alloc             = modtcl86t.NewProc("Tcl_Alloc")
 	procTcl_Eval              = modtcl86t.NewProc("Tcl_Eval")
+	procTcl_EvalEx            = modtcl86t.NewProc("Tcl_EvalEx")
 	procTcl_GetStringResult   = modtcl86t.NewProc("Tcl_GetStringResult")
 	procTcl_GetObjResult      = modtcl86t.NewProc("Tcl_GetObjResult")
 	procTcl_GetWideIntFromObj = modtcl86t.NewProc("Tcl_GetWideIntFromObj")
@@ -85,6 +86,12 @@ func Tcl_Alloc(size uint) (r *Tcl_Event) {
 
 func Tcl_Eval(interp *Tcl_Interp, script *byte) (r int32) {
 	r0, _, _ := syscall.Syscall(procTcl_Eval.Addr(), 2, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(script)), 0)
+	r = int32(r0)
+	return
+}
+
+func Tcl_EvalEx(interp *Tcl_Interp, script *byte, length int32, flags int32) (r int32) {
+	r0, _, _ := syscall.Syscall6(procTcl_EvalEx.Addr(), 4, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(script)), uintptr(length), uintptr(flags), 0, 0)
 	r = int32(r0)
 	return
 }
