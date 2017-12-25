@@ -4,7 +4,6 @@ package interp
 
 import (
 	"errors"
-	"sync"
 )
 
 const (
@@ -30,7 +29,6 @@ const (
 )
 
 var (
-	globalAsyncEvent sync.Map
 	globalCommandMap = NewCommandMap()
 	globalActionMap  = NewActionMap()
 )
