@@ -294,7 +294,7 @@ func MainWindow() *Window {
 
 func NewWindow(id string) *Window {
 	id = MakeWidgetId(id, nil)
-	err := eval(fmt.Sprintf("toplevel %v", id))
+	err := eval(fmt.Sprintf("tk::toplevel %v", id))
 	if err != nil {
 		if fnErrorHandle != nil {
 			fnErrorHandle(err)
