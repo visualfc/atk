@@ -4,6 +4,7 @@ package tk
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -68,9 +69,7 @@ func ChildrenOfWidget(w Widget) (list []Widget) {
 		offset := len(id)
 		for k, v := range globalWidgetMap {
 			if strings.HasPrefix(k, id) {
-				if k == id {
-					continue
-				} else if strings.Index(k[offset:], ".") >= 0 {
+				if strings.Index(k[offset:], ".") >= 0 {
 					continue
 				}
 				list = append(list, v)
@@ -78,6 +77,42 @@ func ChildrenOfWidget(w Widget) (list []Widget) {
 		}
 	}
 	return
+}
+
+func removeWidget(id string) {
+	if id == "." {
+		globalWidgetMap = make(map[string]Widget)
+	} else {
+		delete(globalWidgetMap, id)
+		id = id + "."
+		var list []string
+		for k, _ := range globalWidgetMap {
+			if strings.HasPrefix(k, id) {
+				list = append(list, k)
+			}
+		}
+		for _, k := range list {
+			delete(globalWidgetMap, k)
+		}
+	}
+}
+
+func IsValidWidget(w Widget) bool {
+	if w == nil {
+		return false
+	}
+	_, ok := globalWidgetMap[w.Id()]
+	return ok
+}
+
+func DestroyWidget(w Widget) error {
+	if !IsValidWidget(w) {
+		return os.ErrInvalid
+	}
+	id := w.Id()
+	eval(fmt.Sprintln("destroy %v", id))
+	removeWidget(id)
+	return nil
 }
 
 var (

@@ -3,6 +3,7 @@
 package tk
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -16,6 +17,16 @@ func (w *TestWidget) Id() string {
 
 func (w *TestWidget) Type() string {
 	return "Test"
+}
+
+func (w *TestWidget) String() string {
+	return fmt.Sprintf("TestWidget:%v", w.id)
+}
+
+func NewTestWidget(parent Widget, id string) *TestWidget {
+	w := &TestWidget{MakeWidgetId(id, parent)}
+	RegisterWidget(w)
+	return w
 }
 
 func TestWidgetId(t *testing.T) {
@@ -53,16 +64,12 @@ func findOfList(w Widget, list []Widget) bool {
 }
 
 func TestWidgetParent(t *testing.T) {
-	a1 := &TestWidget{".a1"}
-	a2 := &TestWidget{".a2"}
-	b1 := &TestWidget{".a1.b1"}
-	c1 := &TestWidget{".a1.b1.c1"}
-	c2 := &TestWidget{".a1.b1.c2"}
-	RegisterWidget(a1)
-	RegisterWidget(a2)
-	RegisterWidget(b1)
-	RegisterWidget(c1)
-	RegisterWidget(c2)
+	a1 := NewTestWidget(nil, "a1")
+	a2 := NewTestWidget(nil, "a2")
+	b1 := NewTestWidget(a1, "b1")
+	c1 := NewTestWidget(b1, "c1")
+	c2 := NewTestWidget(b1, "c2")
+	c3 := NewTestWidget(b1, "c3")
 	if p := ParentOfWidget(a1); p != MainWindow() {
 		t.Fatal("ParentWidget", p)
 	}
@@ -77,7 +84,20 @@ func TestWidgetParent(t *testing.T) {
 		t.Fatal("ChildrenOfWidget", list)
 	}
 	list = ChildrenOfWidget(b1)
-	if len(list) != 2 || !findOfList(c1, list) || !findOfList(c2, list) {
+	if len(list) != 3 || !findOfList(c1, list) || !findOfList(c2, list) || !findOfList(c3, list) {
 		t.Fatal("ChildrenOfWidget", list)
+	}
+	DestroyWidget(c3)
+	list = ChildrenOfWidget(b1)
+	if len(list) != 2 {
+		t.Fatal("DestroyWidget", list)
+	}
+	DestroyWidget(a1)
+	list = ChildrenOfWidget(mainWindow)
+	if len(list) != 1 {
+		t.Fatal("DestroyWidget", list)
+	}
+	if IsValidWidget(c1) {
+		t.Fatal("IsValidWidget", a2)
 	}
 }
