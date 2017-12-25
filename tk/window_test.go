@@ -44,18 +44,18 @@ func TestWindow(t *testing.T) {
 	}
 	mw.SetTopmost(false)
 
-	mw.SetGeometry(100, 200, 300, 400)
-	x, y, w, h := mw.Geometry()
+	mw.SetGeometryN(100, 200, 300, 400)
+	x, y, w, h := mw.GeometryN()
 	if x != 100 || y != 200 || w != 300 || h != 400 {
 		t.Error("Geometry", x, y, w, h)
 	}
-	mw.SetPos(101, 202)
-	x, y = mw.Pos()
+	mw.SetPosN(101, 202)
+	x, y = mw.PosN()
 	if x != 101 || y != 202 {
 		t.Error("Pos", x, y)
 	}
-	mw.SetSize(301, 302)
-	w, h = mw.Size()
+	mw.SetSizeN(301, 302)
+	w, h = mw.SizeN()
 	if w != 301 || h != 302 {
 		t.Error("Size", w, h)
 	}

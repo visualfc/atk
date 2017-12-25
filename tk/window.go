@@ -17,9 +17,6 @@ var (
 	globalWindowInfoMap = make(map[string]*WindowInfo)
 )
 
-func init() {
-}
-
 type Window struct {
 	id string
 }
@@ -72,13 +69,17 @@ func (w *Window) IsTopmost() bool {
 	return r
 }
 
-func (w *Window) SetGeometry(x int, y int, width int, height int) *Window {
+func (w *Window) SetGeometryN(x int, y int, width int, height int) *Window {
 	globalWindowInfoMap[w.id] = &WindowInfo{x, y, width, height}
 	eval(fmt.Sprintf("wm geometry %v %vx%v+%v+%v", w.id, width, height, x, y))
 	return w
 }
 
-func (w *Window) Geometry() (x int, y int, width int, height int) {
+func (w *Window) SetGeometry(v Geometry) *Window {
+	return w.SetGeometryN(v.X, v.Y, v.Width, v.Height)
+}
+
+func (w *Window) GeometryN() (x int, y int, width int, height int) {
 	if !w.IsVisible() {
 		if info, ok := globalWindowInfoMap[w.id]; ok {
 			return info.X, info.Y, info.Width, info.Height
@@ -102,57 +103,88 @@ func (w *Window) Geometry() (x int, y int, width int, height int) {
 	return
 }
 
-func (w *Window) Move(x int, y int) *Window {
-	return w.SetPos(x, y)
+func (w *Window) Geometry() Geometry {
+	x, y, width, height := w.GeometryN()
+	return Geometry{x, y, width, height}
 }
 
-func (w *Window) SetPos(x int, y int) *Window {
+func (w *Window) MoveN(x int, y int) *Window {
+	return w.SetPosN(x, y)
+}
+
+func (w *Window) Move(pos Pos) *Window {
+	return w.SetPosN(pos.X, pos.Y)
+}
+
+func (w *Window) SetPosN(x int, y int) *Window {
 	globalWindowInfoMap[w.id].X = x
 	globalWindowInfoMap[w.id].Y = y
 	eval(fmt.Sprintf("wm geometry %v +%v+%v", w.id, x, y))
 	return w
 }
 
-func (w *Window) Pos() (x int, y int) {
-	x, y, _, _ = w.Geometry()
+func (w *Window) SetPos(pos Pos) *Window {
+	return w.SetPosN(pos.X, pos.Y)
+}
+
+func (w *Window) PosN() (x int, y int) {
+	x, y, _, _ = w.GeometryN()
 	return
 }
 
-func (w *Window) Resize(width int, height int) *Window {
-	return w.SetSize(width, height)
+func (w *Window) Pos() Pos {
+	x, y, _, _ := w.GeometryN()
+	return Pos{x, y}
 }
 
-func (w *Window) SetSize(width int, height int) *Window {
+func (w *Window) ResizeN(width int, height int) *Window {
+	return w.SetSizeN(width, height)
+}
+
+func (w *Window) Resize(sz Size) *Window {
+	return w.SetSizeN(sz.Width, sz.Height)
+}
+
+func (w *Window) SetSizeN(width int, height int) *Window {
 	globalWindowInfoMap[w.id].Width = width
 	globalWindowInfoMap[w.id].Height = height
 	eval(fmt.Sprintf("wm geometry %v %vx%v", w.id, width, height))
 	return w
 }
 
-func (w *Window) Size() (width int, height int) {
-	_, _, width, height = w.Geometry()
+func (w *Window) SetSize(sz Size) *Window {
+	return w.SetSizeN(sz.Width, sz.Height)
+}
+
+func (w *Window) SizeN() (width int, height int) {
+	_, _, width, height = w.GeometryN()
 	return
 }
 
+func (w *Window) Size() Size {
+	_, _, width, height := w.GeometryN()
+	return Size{width, height}
+}
+
 func (w *Window) SetWidth(width int) *Window {
-	_, _, _, height := w.Geometry()
-	w.SetSize(width, height)
+	_, _, _, height := w.GeometryN()
+	w.SetSizeN(width, height)
 	return w
 }
 
 func (w *Window) Width() (width int) {
-	_, _, width, _ = w.Geometry()
+	_, _, width, _ = w.GeometryN()
 	return
 }
 
 func (w *Window) SetHeight(height int) *Window {
-	_, _, width, _ := w.Geometry()
-	w.SetSize(width, height)
+	_, _, width, _ := w.GeometryN()
+	w.SetSizeN(width, height)
 	return w
 }
 
 func (w *Window) Height() (height int) {
-	_, _, _, height = w.Geometry()
+	_, _, _, height = w.GeometryN()
 	return
 }
 
@@ -260,10 +292,10 @@ func (w *Window) ScreenSize() (width int, height int) {
 
 func (w *Window) Center() *Window {
 	sw, sh := w.ScreenSize()
-	width, height := w.Size()
+	width, height := w.SizeN()
 	x := (sw - width) / 2
 	y := (sh - height) / 2
-	return w.Move(x, y)
+	return w.MoveN(x, y)
 }
 
 func (w *Window) OnClose(fn func()) error {

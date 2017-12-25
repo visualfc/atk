@@ -2,6 +2,23 @@
 
 package tk
 
+type Pos struct {
+	X int
+	Y int
+}
+
+type Size struct {
+	Width  int
+	Height int
+}
+
+type Geometry struct {
+	X      int
+	Y      int
+	Width  int
+	Height int
+}
+
 func NewGenInt64Func(id int64) func() <-chan int64 {
 	ch := make(chan int64)
 	go func(i int64) {

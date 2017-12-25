@@ -6,11 +6,6 @@ import (
 	"github.com/visualfc/go-tk/tk/interp"
 )
 
-type Size struct {
-	Width  int
-	Height int
-}
-
 var (
 	mainInterp     *interp.Interp
 	mainWindow     *Window
