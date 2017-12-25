@@ -1,6 +1,6 @@
 // Copyright 2017 visualfc. All rights reserved.
 
-// +build !go1.9
+// +build !go1.9,!go1.10
 
 package interp
 
