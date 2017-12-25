@@ -25,8 +25,8 @@ type Window struct {
 	id string
 }
 
-func (w *Window) Id() WidgetId {
-	return WidgetId(w.id)
+func (w *Window) Id() string {
+	return w.id
 }
 
 func (w *Window) SetTitle(title string) *Window {
@@ -282,5 +282,9 @@ func (w *Window) Destroy() error {
 }
 
 func MainWindow() *Window {
-	return &Window{"."}
+	return mainWindow
+}
+
+func NewWindow(id string) *Window {
+	return &Window{id}
 }

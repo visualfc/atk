@@ -19,12 +19,6 @@ var (
 	defaultMinSize Size
 )
 
-type WidgetId string
-
-type Widget interface {
-	Id() WidgetId
-}
-
 func Init() error {
 	return InitEx("", "")
 }
@@ -46,7 +40,9 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 	//hide console for macOS bundle
 	mainInterp.Eval("if {[info commands console] == \"console\"} {console hide}")
 
-	mainWindow = MainWindow()
+	mainWindow = &Window{"."}
+	RegisterWidget(mainWindow)
+
 	var w, h int
 	w, h = mainWindow.MaximumSize()
 	defaultMaxSize = Size{w, h}
