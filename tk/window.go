@@ -18,7 +18,6 @@ var (
 )
 
 func init() {
-	globalWindowInfoMap["."] = &WindowInfo{0, 0, 200, 200}
 }
 
 type Window struct {
@@ -281,10 +280,26 @@ func (w *Window) Destroy() error {
 	return eval(fmt.Sprintf("destroy %v", w.id))
 }
 
+func (w *Window) registerWindowInfo() {
+	globalWindowInfoMap[w.id] = &WindowInfo{0, 0, 200, 200}
+}
+
 func MainWindow() *Window {
 	return mainWindow
 }
 
 func NewWindow(id string) *Window {
-	return &Window{id}
+	id = MakeWidgetId(id, nil)
+	err := eval(fmt.Sprintf("toplevel %v", id))
+	if err != nil {
+		if fnErrorHandle != nil {
+			fnErrorHandle(err)
+		}
+		return nil
+	}
+	w := &Window{id}
+	w.Hide()
+	w.registerWindowInfo()
+	RegisterWidget(w)
+	return w
 }

@@ -41,6 +41,7 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 	mainInterp.Eval("if {[info commands console] == \"console\"} {console hide}")
 
 	mainWindow = &Window{"."}
+	mainWindow.registerWindowInfo()
 	RegisterWidget(mainWindow)
 
 	var w, h int
