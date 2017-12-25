@@ -30,18 +30,18 @@ func init() {
 }
 
 func TestInterp(t *testing.T) {
-	a, err := interp.EvalAsString("set a {hello}\nset a")
+	a, err := interp.EvalAsString("set a {hello world}\nset a")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if a != "hello" {
-		t.Fatal("EvalAsString")
+	if a != "hello world" {
+		t.Fatal("EvalAsString", a)
 	}
-	b, err := interp.EvalAsInt64("set b 1000000000000\nexpr $b")
+	b, err := interp.EvalAsInt64(fmt.Sprintf("set b %v\nexpr $b", int64(math.MaxInt64)))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if b != 1e12 {
+	if b != int64(math.MaxInt64) {
 		t.Fatal("EvalAsInt64", b)
 	}
 	c, err := interp.EvalAsInt("set c 100\nexpr $c")
