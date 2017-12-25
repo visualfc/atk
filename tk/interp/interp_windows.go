@@ -367,11 +367,11 @@ func NewIntObj(value int, p *Interp) *Obj {
 }
 
 func NewBoolObj(value bool, p *Interp) *Obj {
-	var v int32
 	if value {
-		v = 1
+		return &Obj{Tcl_NewBooleanObj(1), p.interp}
+	} else {
+		return &Obj{Tcl_NewBooleanObj(0), p.interp}
 	}
-	return &Obj{Tcl_NewBooleanObj(v), p.interp}
 }
 
 func ObjToString(interp *Tcl_Interp, obj *Tcl_Obj) string {

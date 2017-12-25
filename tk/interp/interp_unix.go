@@ -75,7 +75,7 @@ func _go_tcl_objcmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, objc C
 	objs := (*(*[1 << 20]*C.Tcl_Obj)(objv))[1:objc]
 	var args []string
 	for _, obj := range objs {
-		args = append(args, NewRawObj(obj, interp).ToString())
+		args = append(args, ObjToString(interp, obj))
 	}
 	result, err := globalCommandMap.Invoke(uintptr(clientData), args)
 	if err != nil {
@@ -340,11 +340,11 @@ func NewIntObj(value int, p *Interp) *Obj {
 }
 
 func NewBoolObj(value bool, p *Interp) *Obj {
-	var v C.int
 	if value {
-		v = 1
+		return &Obj{C.Tcl_NewBooleanObj(1), p.interp}
+	} else {
+		return &Obj{C.Tcl_NewBooleanObj(0), p.interp}
 	}
-	return &Obj{C.Tcl_NewBooleanObj(v), p.interp}
 }
 
 func ObjToString(interp *C.Tcl_Interp, obj *C.Tcl_Obj) string {
