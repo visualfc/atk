@@ -14,6 +14,10 @@ func (w *TestWidget) Id() string {
 	return w.id
 }
 
+func (w *TestWidget) Type() string {
+	return "Test"
+}
+
 func TestWidgetId(t *testing.T) {
 	var id string
 	parent := &TestWidget{".base"}

@@ -11,6 +11,7 @@ type WidgetId string
 
 type Widget interface {
 	Id() string
+	Type() string
 }
 
 var (
