@@ -303,12 +303,7 @@ func (o *Obj) ToInt64() int64 {
 }
 
 func (o *Obj) ToInt() int {
-	var out C.long
-	status := C.Tcl_GetLongFromObj(o.interp, o.obj, &out)
-	if status == TCL_OK {
-		return int(out)
-	}
-	return 0
+	return int(o.ToInt64())
 }
 
 func (o *Obj) ToBool() bool {
@@ -341,7 +336,7 @@ func NewInt64Obj(value int64, p *Interp) *Obj {
 }
 
 func NewIntObj(value int, p *Interp) *Obj {
-	return &Obj{C.Tcl_NewLongObj(C.long(value)), p.interp}
+	return &Obj{C.Tcl_NewWideIntObj(C.Tcl_WideInt(value)), p.interp}
 }
 
 func NewBoolObj(value bool, p *Interp) *Obj {
