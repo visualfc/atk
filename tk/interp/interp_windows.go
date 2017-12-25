@@ -40,12 +40,12 @@ type Tcl_Event struct {
 //sys	Tcl_GetStringResult(interp *Tcl_Interp) (ret *byte) = tcl86t.Tcl_GetStringResult
 //sys	Tcl_GetObjResult(interp *Tcl_Interp) (obj *Tcl_Obj) = tcl86t.Tcl_GetObjResult
 //sys	Tcl_GetWideIntFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_WideInt) (status int32) = tcl86t.Tcl_GetWideIntFromObj
-//sys	Tcl_GetLongFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *int) (status int32) = tcl86t.Tcl_GetLongFromObj
+//-sys	Tcl_GetLongFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *int) (status int32) = tcl86t.Tcl_GetLongFromObj
 //sys	Tcl_GetDoubleFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_Double) (status int32) = tcl86t.Tcl_GetDoubleFromObj
 //sys	Tcl_GetBooleanFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *int32) (status int32) = tcl86t.Tcl_GetBooleanFromObj
 //sys	Tcl_GetStringFromObj(obj *Tcl_Obj, length *int32) (ret *byte) = tcl86t.Tcl_GetStringFromObj
 //sys	Tcl_NewWideIntObj(value Tcl_WideInt) (obj *Tcl_Obj) = tcl86t.Tcl_NewWideIntObj
-//sys	Tcl_NewLongObj(value int) (obj *Tcl_Obj) = tcl86t.Tcl_NewLongObj
+//-sys	Tcl_NewLongObj(value int) (obj *Tcl_Obj) = tcl86t.Tcl_NewLongObj
 //sys	Tcl_NewDoubleObj(value Tcl_Double) (obj *Tcl_Obj) = tcl86t.Tcl_NewDoubleObj
 //sys	Tcl_NewBooleanObj(value int32) (obj *Tcl_Obj) = tcl86t.Tcl_NewBooleanObj
 //sys	Tcl_NewStringObj(bytes *byte, length int32) (obj *Tcl_Obj) = tcl86t.Tcl_NewStringObj
@@ -322,12 +322,7 @@ func (o *Obj) ToInt64() int64 {
 }
 
 func (o *Obj) ToInt() int {
-	var out int
-	status := Tcl_GetLongFromObj(o.interp, o.obj, &out)
-	if status == TCL_OK {
-		return out
-	}
-	return 0
+	return int(o.ToInt64())
 }
 
 func (o *Obj) ToBool() bool {
@@ -359,12 +354,16 @@ func NewFloat64Obj(value float64, p *Interp) *Obj {
 	return NewStringObj(fmt.Sprintf("%v", value), p)
 }
 
+//NOTE: Tcl_NewWideIntObj test error on windows 32 bit
 func NewInt64Obj(value int64, p *Interp) *Obj {
-	return &Obj{Tcl_NewWideIntObj(Tcl_WideInt(value)), p.interp}
+	return NewStringObj(fmt.Sprintf("%v", value), p)
+	//return &Obj{Tcl_NewWideIntObj(Tcl_WideInt(value)), p.interp}
 }
 
+//NOTE: use int to string for amd64/i386
 func NewIntObj(value int, p *Interp) *Obj {
-	return &Obj{Tcl_NewLongObj(value), p.interp}
+	return NewStringObj(fmt.Sprintf("%v", value), p)
+	//	return &Obj{Tcl_NewLongObj(value), p.interp}
 }
 
 func NewBoolObj(value bool, p *Interp) *Obj {

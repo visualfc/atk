@@ -5,6 +5,7 @@ package interp
 import (
 	"fmt"
 	"log"
+	"math"
 	"strconv"
 	"strings"
 	"testing"
@@ -34,28 +35,28 @@ func TestInterp(t *testing.T) {
 		t.Fatal(err)
 	}
 	if a != "hello" {
-		t.Fatalf("EvalAsString")
+		t.Fatal("EvalAsString")
 	}
 	b, err := interp.EvalAsInt64("set b 1000000000000\nexpr $b")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if b != 1e12 {
-		t.Fatalf("EvalAsInt64 %v", b)
+		t.Fatal("EvalAsInt64", b)
 	}
 	c, err := interp.EvalAsInt("set c 100\nexpr $c")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if c != 100 {
-		t.Fatalf("EvalAsInt")
+		t.Fatal("EvalAsInt")
 	}
 	d, err := interp.EvalAsFloat64("set d 1e12\nexpr $d")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if d != 1e12 {
-		t.Fatalf("EvalAsFloat64 %v", d)
+		t.Fatal("EvalAsFloat64", d)
 	}
 }
 
@@ -103,22 +104,31 @@ func TestCommand(t *testing.T) {
 
 func TestObj(t *testing.T) {
 	if NewStringObj("string", interp).ToString() != "string" {
-		t.Fatalf("string obj")
+		t.Fatal("string obj")
 	}
-	if f := NewFloat64Obj(1e16, interp).ToFloat64(); f != 1e16 {
+	if f := NewFloat64Obj(math.MaxFloat64, interp).ToFloat64(); f != math.MaxFloat64 {
+		t.Fatal("float64 obj", f)
+	}
+	if f := NewFloat64Obj(-math.MaxFloat64, interp).ToFloat64(); f != -math.MaxFloat64 {
 		t.Fatal("float64 obj", f)
 	}
 	if f := NewFloat64Obj(1.123456789123456789, interp).ToFloat64(); f != 1.123456789123456789 {
 		t.Fatal("float64 obj", f)
 	}
-	if NewInt64Obj(1e12, interp).ToInt64() != 1e12 {
-		t.Fatalf("int64 obj")
+	if f := NewInt64Obj(math.MaxInt64, interp).ToInt64(); f != math.MaxInt64 {
+		t.Fatal("int64 obj", f)
 	}
-	if NewIntObj(1024, interp).ToInt() != 1024 {
-		t.Fatalf("int obj")
+	if f := NewInt64Obj(math.MinInt64, interp).ToInt64(); f != math.MinInt64 {
+		t.Fatal("int64 obj", f)
+	}
+	if f := NewIntObj(math.MaxInt32, interp).ToInt(); f != math.MaxInt32 {
+		t.Fatal("int obj", f)
+	}
+	if f := NewIntObj(math.MinInt32, interp).ToInt(); f != math.MinInt32 {
+		t.Fatal("int obj", f)
 	}
 	if NewBoolObj(true, interp).ToBool() != true {
-		t.Fatalf("bool boj")
+		t.Fatal("bool boj")
 	}
 }
 

@@ -46,12 +46,10 @@ var (
 	procTcl_GetStringResult   = modtcl86t.NewProc("Tcl_GetStringResult")
 	procTcl_GetObjResult      = modtcl86t.NewProc("Tcl_GetObjResult")
 	procTcl_GetWideIntFromObj = modtcl86t.NewProc("Tcl_GetWideIntFromObj")
-	procTcl_GetLongFromObj    = modtcl86t.NewProc("Tcl_GetLongFromObj")
 	procTcl_GetDoubleFromObj  = modtcl86t.NewProc("Tcl_GetDoubleFromObj")
 	procTcl_GetBooleanFromObj = modtcl86t.NewProc("Tcl_GetBooleanFromObj")
 	procTcl_GetStringFromObj  = modtcl86t.NewProc("Tcl_GetStringFromObj")
 	procTcl_NewWideIntObj     = modtcl86t.NewProc("Tcl_NewWideIntObj")
-	procTcl_NewLongObj        = modtcl86t.NewProc("Tcl_NewLongObj")
 	procTcl_NewDoubleObj      = modtcl86t.NewProc("Tcl_NewDoubleObj")
 	procTcl_NewBooleanObj     = modtcl86t.NewProc("Tcl_NewBooleanObj")
 	procTcl_NewStringObj      = modtcl86t.NewProc("Tcl_NewStringObj")
@@ -114,12 +112,6 @@ func Tcl_GetWideIntFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_WideInt) (
 	return
 }
 
-func Tcl_GetLongFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *int) (status int32) {
-	r0, _, _ := syscall.Syscall(procTcl_GetLongFromObj.Addr(), 3, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(obj)), uintptr(unsafe.Pointer(out)))
-	status = int32(r0)
-	return
-}
-
 func Tcl_GetDoubleFromObj(interp *Tcl_Interp, obj *Tcl_Obj, out *Tcl_Double) (status int32) {
 	r0, _, _ := syscall.Syscall(procTcl_GetDoubleFromObj.Addr(), 3, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(obj)), uintptr(unsafe.Pointer(out)))
 	status = int32(r0)
@@ -140,12 +132,6 @@ func Tcl_GetStringFromObj(obj *Tcl_Obj, length *int32) (ret *byte) {
 
 func Tcl_NewWideIntObj(value Tcl_WideInt) (obj *Tcl_Obj) {
 	r0, _, _ := syscall.Syscall(procTcl_NewWideIntObj.Addr(), 1, uintptr(value), 0, 0)
-	obj = (*Tcl_Obj)(unsafe.Pointer(r0))
-	return
-}
-
-func Tcl_NewLongObj(value int) (obj *Tcl_Obj) {
-	r0, _, _ := syscall.Syscall(procTcl_NewLongObj.Addr(), 1, uintptr(value), 0, 0)
 	obj = (*Tcl_Obj)(unsafe.Pointer(r0))
 	return
 }
