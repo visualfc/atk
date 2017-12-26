@@ -54,7 +54,7 @@ func PackOptAnchorEast() *pack_option {
 }
 
 func PackOptExpand(b bool) *pack_option {
-	return &pack_option{"expand", b}
+	return &pack_option{"expand", boolToInt(b)}
 }
 
 func PackOptFillVertically() *pack_option {
