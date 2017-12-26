@@ -35,7 +35,8 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 	//hide console for macOS bundle
 	mainInterp.Eval("if {[info commands console] == \"console\"} {console hide}")
 
-	mainWindow = &Window{"."}
+	mainWindow = &Window{}
+	mainWindow.SetInternalId(".")
 	mainWindow.registerWindowInfo()
 	RegisterWidget(mainWindow)
 

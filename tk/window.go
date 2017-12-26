@@ -18,11 +18,7 @@ var (
 )
 
 type Window struct {
-	id string
-}
-
-func (w *Window) Id() string {
-	return w.id
+	BaseWidget
 }
 
 func (w *Window) Type() string {
@@ -325,7 +321,7 @@ func MainWindow() *Window {
 }
 
 func NewWindow(id string) *Window {
-	id = MakeWidgetId(id, nil)
+	id = MakeWidgetId(nil, id)
 	err := eval(fmt.Sprintf("tk::toplevel %v", id))
 	if err != nil {
 		if fnErrorHandle != nil {
@@ -333,7 +329,8 @@ func NewWindow(id string) *Window {
 		}
 		return nil
 	}
-	w := &Window{id}
+	w := &Window{}
+	w.SetInternalId(id)
 	w.Hide()
 	w.registerWindowInfo()
 	RegisterWidget(w)

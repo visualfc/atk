@@ -8,11 +8,56 @@ import (
 	"strings"
 )
 
-type WidgetId string
-
 type Widget interface {
 	Id() string
 	Type() string
+	Parent() Widget
+	Children() []Widget
+	IsValid() bool
+	Destroy() error
+	DestroyChildren() error
+}
+
+type BaseWidget struct {
+	id string
+}
+
+func (w *BaseWidget) SetInternalId(id string) {
+	w.id = id
+}
+
+func (w *BaseWidget) Id() string {
+	return w.id
+}
+
+func (w *BaseWidget) Type() string {
+	return "BaseWidget"
+}
+
+func (w *BaseWidget) Parent() Widget {
+	return ParentOfWidget(w)
+}
+
+func (w *BaseWidget) Children() []Widget {
+	return ChildrenOfWidget(w)
+}
+
+func (w *BaseWidget) IsValid() bool {
+	return IsValidWidget(w)
+}
+
+func (w *BaseWidget) Destroy() error {
+	return DestroyWidget(w)
+}
+
+func (w *BaseWidget) DestroyChildren() error {
+	if !IsValidWidget(w) {
+		return os.ErrInvalid
+	}
+	for _, child := range w.Children() {
+		DestroyWidget(child)
+	}
+	return nil
 }
 
 var (
@@ -119,7 +164,7 @@ var (
 	fnGenWidgetId = NewGenInt64Func(1024)
 )
 
-func MakeWidgetId(id string, parent Widget) string {
+func MakeWidgetId(parent Widget, id string) string {
 	if len(id) == 0 {
 		id = fmt.Sprintf("gotk_id%v", <-fnGenWidgetId())
 	} else if id[0] == '.' {
