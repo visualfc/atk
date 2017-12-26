@@ -342,13 +342,13 @@ func MainWindow() *Window {
 }
 
 func NewWindow(id string) *Window {
-	id = MakeWidgetId(nil, id)
-	err := eval(fmt.Sprintf("tk::toplevel %v", id))
+	iid := MakeWidgetId(nil, id)
+	err := eval(fmt.Sprintf("tk::toplevel %v", iid))
 	if err != nil {
 		return nil
 	}
 	w := &Window{}
-	w.SetInternalId(id)
+	w.SetInternalId(iid)
 	w.Hide()
 	w.registerWindowInfo()
 	RegisterWidget(w)

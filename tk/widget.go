@@ -197,8 +197,15 @@ func MakeWidgetId(parent Widget, id string) string {
 	} else if id[0] == '.' {
 		return id
 	}
+	id = strings.ToLower(id)
+	id = strings.Replace(id, " ", "_", -1)
 	if parent != nil {
-		return string(parent.Id()) + "." + id
+		pid := parent.Id()
+		if pid == "." {
+			return "." + id
+		} else {
+			return parent.Id() + "." + id
+		}
 	}
 	return "." + id
 }
