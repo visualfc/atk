@@ -264,7 +264,7 @@ func (p *Interp) InvokeCommand(id uintptr, args []string) (string, error) {
 	return globalCommandMap.Invoke(id, args)
 }
 
-func (p *Interp) CreateAction(name string, action func()) (uintptr, error) {
+func (p *Interp) CreateAction(name string, action func([]string)) (uintptr, error) {
 	s, err := syscall.BytePtrFromString(name)
 	if err != nil {
 		return 0, err
