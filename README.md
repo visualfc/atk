@@ -1,2 +1,2 @@
-# go-tk
-go-tk is a tcl/tk golang binding
+# Go Tk
+Go Tk is a tcl/tk golang binding
