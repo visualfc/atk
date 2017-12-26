@@ -98,7 +98,12 @@ func _go_tcl_deletecmd_proc(clientData unsafe.Pointer) {
 
 //export _go_tcl_actioncmd_proc
 func _go_tcl_actioncmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, objc C.int, objv unsafe.Pointer) C.int {
-	err := globalActionMap.Invoke(uintptr(clientData))
+	objs := (*(*[1 << 20]*C.Tcl_Obj)(objv))[1:objc]
+	var args []string
+	for _, obj := range objs {
+		args = append(args, ObjToString(interp, obj))
+	}
+	err := globalActionMap.Invoke(uintptr(clientData), args)
 	if err != nil {
 		cs := C.CString(err.Error())
 		defer C.free(unsafe.Pointer(cs))
@@ -239,7 +244,7 @@ func (p *Interp) InvokeCommand(id uintptr, args []string) (string, error) {
 	return globalCommandMap.Invoke(id, args)
 }
 
-func (p *Interp) CreateAction(name string, fn func()) (uintptr, error) {
+func (p *Interp) CreateAction(name string, fn func([]string)) (uintptr, error) {
 	cs := C.CString(name)
 	defer C.free(unsafe.Pointer(cs))
 
@@ -255,24 +260,8 @@ func (p *Interp) CreateAction(name string, fn func()) (uintptr, error) {
 	return id, nil
 }
 
-func (p *Interp) CreateActionByType(typ string, fn func()) (string, error) {
-	id := globalActionMap.Register(fn)
-	name := fmt.Sprintf("_go_%v_%v", typ, id)
-	cs := C.CString(name)
-	defer C.free(unsafe.Pointer(cs))
-	cmd := C._c_create_action_command(p.interp, cs, unsafe.Pointer(id))
-	if cmd == nil {
-		err := fmt.Errorf("CreateAction %v failed", typ)
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
-		return "", err
-	}
-	return name, nil
-}
-
-func (p *Interp) InvokeAction(id uintptr) error {
-	return globalActionMap.Invoke(id)
+func (p *Interp) InvokeAction(id uintptr, args []string) error {
+	return globalActionMap.Invoke(id, args)
 }
 
 type Obj struct {

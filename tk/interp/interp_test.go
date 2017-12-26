@@ -90,7 +90,7 @@ func TestCommand(t *testing.T) {
 		t.Fatal("CreateCommand")
 	}
 	var check_success bool
-	interp.CreateAction("go::action", func() {
+	interp.CreateAction("go::action", func(args []string) {
 		check_success = true
 	})
 	err = interp.Eval("go::action")

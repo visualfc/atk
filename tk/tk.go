@@ -3,6 +3,8 @@
 package tk
 
 import (
+	"runtime"
+
 	"github.com/visualfc/go-tk/tk/interp"
 )
 
@@ -61,6 +63,8 @@ func TkVersion() (ver string) {
 }
 
 func MainLoop(fn func()) {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
 	interp.MainLoop(fn)
 }
 

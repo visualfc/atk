@@ -34,15 +34,15 @@ var (
 )
 
 type ActionMap struct {
-	fnMap map[uintptr]func()
+	fnMap map[uintptr]func([]string)
 	id    uintptr
 }
 
 func NewActionMap() *ActionMap {
-	return &ActionMap{make(map[uintptr]func()), 1}
+	return &ActionMap{make(map[uintptr]func([]string)), 1}
 }
 
-func (m *ActionMap) Register(fn func()) uintptr {
+func (m *ActionMap) Register(fn func([]string)) uintptr {
 	m.id = m.id + 1
 	m.fnMap[m.id] = fn
 	return m.id
@@ -52,12 +52,12 @@ func (m *ActionMap) UnRegister(id uintptr) {
 	delete(m.fnMap, id)
 }
 
-func (m *ActionMap) Invoke(id uintptr) error {
+func (m *ActionMap) Invoke(id uintptr, args []string) error {
 	fn, ok := m.fnMap[id]
 	if !ok {
 		return errors.New("Not found action")
 	}
-	fn()
+	fn(args)
 	return nil
 }
 

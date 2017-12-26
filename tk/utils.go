@@ -2,7 +2,10 @@
 
 package tk
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 type Pos struct {
 	X int
@@ -45,6 +48,14 @@ func NewGenIntFunc(id int) func() <-chan int {
 	return func() <-chan int {
 		return ch
 	}
+}
+
+var (
+	makeActionFunc = NewGenIntFunc(1024)
+)
+
+func MakeActionName() string {
+	return fmt.Sprintf("gotk_action_%v", <-makeActionFunc())
 }
 
 var (

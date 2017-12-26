@@ -223,7 +223,12 @@ func _go_tcl_cmddelete_proc(clientData uintptr) int {
 }
 
 func _go_tcl_action_proc(id uintptr, interp *Tcl_Interp, objc int, objv unsafe.Pointer) int {
-	err := globalActionMap.Invoke(id)
+	objs := (*(*[1 << 20]*Tcl_Obj)(objv))[1:objc]
+	var args []string
+	for _, obj := range objs {
+		args = append(args, ObjToString(interp, obj))
+	}
+	err := globalActionMap.Invoke(id, args)
 	if err != nil {
 		cs, _ := syscall.BytePtrFromString(err.Error())
 		Tcl_WrongNumArgs(interp, 1, uintptr(objv), cs)
@@ -276,22 +281,8 @@ func (p *Interp) CreateAction(name string, action func()) (uintptr, error) {
 	return id, nil
 }
 
-func (p *Interp) CreateActionByType(typ string, action func()) (name string, err error) {
-	id := globalActionMap.Register(action)
-	name = fmt.Sprintf("_go_%v_%v", typ, id)
-	s, err := syscall.BytePtrFromString(name)
-	if err != nil {
-		return name, err
-	}
-	cmd := Tcl_CreateObjCommand(p.interp, s, syscall.NewCallbackCDecl(_go_tcl_action_proc), id, syscall.NewCallbackCDecl(_go_tcl_actiono_delete_proc))
-	if cmd == nil {
-		err := fmt.Errorf("CreateActionByType %s failed", typ)
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
-		return name, err
-	}
-	return name, nil
+func (p *Interp) InvokeAction(id uintptr, args []string) error {
+	return globalActionMap.Invoke(id, args)
 }
 
 type Obj struct {

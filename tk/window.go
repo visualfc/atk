@@ -318,7 +318,8 @@ func (w *Window) Center() *Window {
 }
 
 func (w *Window) OnClose(fn func() (accept bool)) error {
-	fnName, err := mainInterp.CreateActionByType("window_close", func() {
+	actName := MakeActionName()
+	_, err := mainInterp.CreateAction(actName, func([]string) {
 		if fn != nil {
 			if fn() {
 				w.Destroy()
@@ -330,7 +331,7 @@ func (w *Window) OnClose(fn func() (accept bool)) error {
 	if err != nil {
 		return err
 	}
-	return eval(fmt.Sprintf("wm protocol %v WM_DELETE_WINDOW %v", w.id, fnName))
+	return eval(fmt.Sprintf("wm protocol %v WM_DELETE_WINDOW %v", w.id, actName))
 }
 
 func (w *Window) registerWindowInfo() {
