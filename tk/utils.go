@@ -55,7 +55,7 @@ var (
 )
 
 func MakeActionName() string {
-	return fmt.Sprintf("gotk_action_%v", <-makeActionFunc())
+	return fmt.Sprintf("go_action_%v", <-makeActionFunc())
 }
 
 var (
