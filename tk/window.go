@@ -317,10 +317,12 @@ func (w *Window) Center() *Window {
 	return w.MoveN(x, y)
 }
 
-func (w *Window) OnClose(fn func()) error {
+func (w *Window) OnClose(fn func() (accept bool)) error {
 	fnName, err := mainInterp.CreateActionByType("window_close", func() {
 		if fn != nil {
-			fn()
+			if fn() {
+				w.Destroy()
+			}
 		} else {
 			w.Destroy()
 		}
