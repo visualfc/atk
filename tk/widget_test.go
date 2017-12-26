@@ -64,6 +64,8 @@ func findOfList(w Widget, list []Widget) bool {
 func TestWidgetParent(t *testing.T) {
 	a1 := NewTestWidget(nil, "a1")
 	a2 := NewTestWidget(nil, "a2")
+	defer a1.Destroy()
+	defer a2.Destroy()
 	a1_b1 := NewTestWidget(a1, "b1")
 	a1_b1_c1 := NewTestWidget(a1_b1, "c1")
 	a1_b1_c2 := NewTestWidget(a1_b1, "c2")

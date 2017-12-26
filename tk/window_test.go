@@ -85,14 +85,14 @@ func TestWindow(t *testing.T) {
 	}
 	mw.SetFullScreen(false)
 
-	mw.SetMaximumSize(500, 600)
-	w, h = mw.MaximumSize()
+	mw.SetMaximumSizeN(500, 600)
+	w, h = mw.MaximumSizeN()
 	if w != 500 || h != 600 {
 		t.Error("MaximumSize")
 	}
 
-	mw.SetMinimumSize(200, 300)
-	w, h = mw.MinimumSize()
+	mw.SetMinimumSizeN(200, 300)
+	w, h = mw.MinimumSizeN()
 	if w != 200 || h != 300 {
 		t.Error("MinimumSize")
 	}

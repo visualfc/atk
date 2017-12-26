@@ -22,6 +22,10 @@ type BaseWidget struct {
 	id string
 }
 
+func (w *BaseWidget) String() string {
+	return fmt.Sprintf("Widget{%v %p}", w.id, w)
+}
+
 func (w *BaseWidget) SetInternalId(id string) {
 	w.id = id
 }

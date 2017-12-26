@@ -260,34 +260,57 @@ func (w *Window) Deiconify() *Window {
 	return w
 }
 
-func (w *Window) SetMaximumSize(width int, height int) *Window {
+func (w *Window) SetMaximumSizeN(width int, height int) *Window {
 	eval(fmt.Sprintf("wm maxsize %v %v %v", w.id, width, height))
 	return w
 }
 
-func (w *Window) MaximumSize() (int, int) {
+func (w *Window) SetMaximumSize(sz Size) *Window {
+	return w.SetMaximumSizeN(sz.Width, sz.Height)
+}
+
+func (w *Window) MaximumSizeN() (int, int) {
 	s, _ := evalAsString(fmt.Sprintf("wm maxsize %v", w.id))
 	return parserTwoInt(s)
 }
 
-func (w *Window) SetMinimumSize(width int, height int) *Window {
+func (w *Window) MaximumSize() Size {
+	width, height := w.MaximumSizeN()
+	return Size{width, height}
+}
+
+func (w *Window) SetMinimumSizeN(width int, height int) *Window {
 	eval(fmt.Sprintf("wm minsize %v %v %v", w.id, width, height))
 	return w
 }
 
-func (w *Window) MinimumSize() (int, int) {
+func (w *Window) SetMinimumSize(sz Size) *Window {
+	return w.SetMinimumSizeN(sz.Width, sz.Height)
+}
+
+func (w *Window) MinimumSizeN() (int, int) {
 	s, _ := evalAsString(fmt.Sprintf("wm minsize %v", w.id))
 	return parserTwoInt(s)
 }
 
-func (w *Window) ScreenSize() (width int, height int) {
+func (w *Window) MinimumSize() Size {
+	width, height := w.MinimumSizeN()
+	return Size{width, height}
+}
+
+func (w *Window) ScreenSizeN() (width int, height int) {
 	width, _ = evalAsInt(fmt.Sprintf("winfo screenwidth %v", w.id))
 	height, _ = evalAsInt(fmt.Sprintf("winfo screenheight %v", w.id))
 	return
 }
 
+func (w *Window) ScreenSize() Size {
+	width, height := w.ScreenSizeN()
+	return Size{width, height}
+}
+
 func (w *Window) Center() *Window {
-	sw, sh := w.ScreenSize()
+	sw, sh := w.ScreenSizeN()
 	width, height := w.SizeN()
 	x := (sw - width) / 2
 	y := (sh - height) / 2
@@ -306,10 +329,6 @@ func (w *Window) OnClose(fn func()) error {
 		return err
 	}
 	return eval(fmt.Sprintf("wm protocol %v WM_DELETE_WINDOW %v", w.id, fnName))
-}
-
-func (w *Window) Destroy() error {
-	return eval(fmt.Sprintf("destroy %v", w.id))
 }
 
 func (w *Window) registerWindowInfo() {

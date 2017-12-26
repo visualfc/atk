@@ -7,11 +7,9 @@ import (
 )
 
 var (
-	mainInterp     *interp.Interp
-	mainWindow     *Window
-	fnErrorHandle  func(error)
-	defaultMaxSize Size
-	defaultMinSize Size
+	mainInterp    *interp.Interp
+	mainWindow    *Window
+	fnErrorHandle func(error)
 )
 
 func Init() error {
@@ -39,12 +37,6 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 	mainWindow.SetInternalId(".")
 	mainWindow.registerWindowInfo()
 	RegisterWidget(mainWindow)
-
-	var w, h int
-	w, h = mainWindow.MaximumSize()
-	defaultMaxSize = Size{w, h}
-	w, h = mainWindow.MinimumSize()
-	defaultMinSize = Size{w, h}
 	mainWindow.Hide()
 	return nil
 }
