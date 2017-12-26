@@ -73,7 +73,7 @@ func Update() {
 }
 
 func Quit() {
-	eval("destroy .")
+	DestroyWidget(mainWindow)
 }
 
 func eval(script string) error {
