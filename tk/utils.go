@@ -2,6 +2,8 @@
 
 package tk
 
+import "sync"
+
 type Pos struct {
 	X int
 	Y int
@@ -43,4 +45,17 @@ func NewGenIntFunc(id int) func() <-chan int {
 	return func() <-chan int {
 		return ch
 	}
+}
+
+var (
+	testOnce sync.Once
+)
+
+func InitTest() {
+	testOnce.Do(func() {
+		err := Init()
+		if err != nil {
+			panic(err)
+		}
+	})
 }

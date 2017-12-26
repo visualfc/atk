@@ -7,10 +7,7 @@ import (
 )
 
 func init() {
-	err := Init()
-	if err != nil {
-		panic(err)
-	}
+	InitTest()
 }
 
 func TestWindow(t *testing.T) {

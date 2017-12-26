@@ -23,7 +23,12 @@ type BaseWidget struct {
 }
 
 func (w *BaseWidget) String() string {
-	return fmt.Sprintf("Widget{%v %p}", w.id, w)
+	iw := globalWidgetMap[w.id]
+	if iw != nil {
+		return fmt.Sprintf("%v{%v %p}", iw.Type(), w.id, w)
+	} else {
+		return fmt.Sprintf("Widget{%v %p}", w.id, w)
+	}
 }
 
 func (w *BaseWidget) SetInternalId(id string) {
@@ -73,6 +78,10 @@ func RegisterWidget(w Widget) {
 		return
 	}
 	globalWidgetMap[w.Id()] = w
+}
+
+func FindWidget(id string) Widget {
+	return globalWidgetMap[id]
 }
 
 func LookupWidget(id string) (w Widget, ok bool) {
@@ -162,6 +171,20 @@ func DestroyWidget(w Widget) error {
 	eval(fmt.Sprintln("destroy %v", id))
 	removeWidget(id)
 	return nil
+}
+
+func dumpWidgetHelp(w Widget, offset string, space string, ar *[]string) {
+	s := fmt.Sprintf("%v%v", space, w)
+	*ar = append(*ar, s)
+	for _, child := range w.Children() {
+		dumpWidgetHelp(child, offset, space+offset, ar)
+	}
+}
+
+func DumpWidget(w Widget, offset string) string {
+	var ar []string
+	dumpWidgetHelp(w, offset, "", &ar)
+	return strings.Join(ar, "\n")
 }
 
 var (

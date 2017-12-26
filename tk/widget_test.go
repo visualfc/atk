@@ -3,20 +3,19 @@
 package tk
 
 import (
-	"fmt"
 	"testing"
 )
+
+func init() {
+	InitTest()
+}
 
 type TestWidget struct {
 	BaseWidget
 }
 
 func (w *TestWidget) Type() string {
-	return "Test"
-}
-
-func (w *TestWidget) String() string {
-	return fmt.Sprintf("TestWidget:%v", w.id)
+	return "TestWidget"
 }
 
 func NewTestWidget(parent Widget, id string) *TestWidget {
@@ -74,6 +73,7 @@ func TestWidgetParent(t *testing.T) {
 	a2_b1_c1 := NewTestWidget(a2_b1, "c1")
 	a2_b1_c2 := NewTestWidget(a2_b1, "c2")
 	a2_b1_c3 := NewTestWidget(a2_b1, "c3")
+
 	if p := ParentOfWidget(a1); p != MainWindow() {
 		t.Fatal("ParentWidget", p)
 	}
