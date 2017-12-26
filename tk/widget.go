@@ -193,7 +193,7 @@ var (
 
 func MakeWidgetId(parent Widget, id string) string {
 	if len(id) == 0 {
-		id = fmt.Sprintf("gotk_id%v", <-fnGenWidgetId())
+		id = fmt.Sprintf("go_widget%v", <-fnGenWidgetId())
 	} else if id[0] == '.' {
 		return id
 	}
