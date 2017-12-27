@@ -45,18 +45,11 @@ func FontOptOverstrike() *font_option {
 	return &font_option{"overstrike", 1}
 }
 
-type FontDescription struct {
-	info string
-}
-
-func (f *FontDescription) String() string {
-	return f.info
-}
-
 type Font interface {
 	Id() string
 	IsValid() bool
 	String() string
+	Description() string
 	Family() string
 	Size() int
 	IsBold() bool
@@ -78,8 +71,12 @@ func (f *BaseFont) IsValid() bool {
 }
 
 func (w *BaseFont) String() string {
+	return fmt.Sprintf("Font{%v}", w.id)
+}
+
+func (w *BaseFont) Description() string {
 	if w.id == "" {
-		return "invalid"
+		return ""
 	}
 	r, _ := evalAsString(fmt.Sprintf("font actual %v", w.id))
 	return r
@@ -122,7 +119,7 @@ func (w *BaseFont) MeasureTextWidth(text string) int {
 
 func (w *BaseFont) Clone() *UserFont {
 	iid := makeFontName()
-	script := fmt.Sprintf("font create %v %v", iid, w.String())
+	script := fmt.Sprintf("font create %v %v", iid, w.Description())
 	if eval(script) != nil {
 		return nil
 	}
@@ -162,19 +159,6 @@ func NewUserFont(family string, size int, options ...*font_option) *UserFont {
 	return &UserFont{BaseFont{iid}}
 }
 
-func NewUserFontFromDescription(fd *FontDescription) *UserFont {
-	iid := makeFontName()
-	script := fmt.Sprintf("font create %v", iid)
-	if fd != nil {
-		script += " " + fd.String()
-	}
-	err := eval(script)
-	if err != nil {
-		return nil
-	}
-	return &UserFont{BaseFont{iid}}
-}
-
 func NewUserFontFromClone(font Font) *UserFont {
 	if font == nil {
 		return nil
@@ -182,7 +166,7 @@ func NewUserFontFromClone(font Font) *UserFont {
 	iid := makeFontName()
 	script := fmt.Sprintf("font create %v", iid)
 	if font != nil {
-		script += " " + font.String()
+		script += " " + font.Description()
 	}
 	err := eval(script)
 	if err != nil {
