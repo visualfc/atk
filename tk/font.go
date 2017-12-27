@@ -13,7 +13,7 @@ var (
 )
 
 func makeFontName() string {
-	return fmt.Sprintf("go_font_%v", <-makeActionFunc())
+	return fmt.Sprintf(".go_font_%v", <-makeActionFunc())
 }
 
 type font_option struct {
