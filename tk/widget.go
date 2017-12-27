@@ -25,9 +25,9 @@ type BaseWidget struct {
 func (w *BaseWidget) String() string {
 	iw := globalWidgetMap[w.id]
 	if iw != nil {
-		return fmt.Sprintf("%v{%v %p}", iw.Type(), w.id, w)
+		return fmt.Sprintf("%v{%v}", iw.Type(), w.id)
 	} else {
-		return fmt.Sprintf("Widget{%v %p}", w.id, w)
+		return fmt.Sprintf("Widget{%v}", w.id)
 	}
 }
 
@@ -193,7 +193,7 @@ var (
 
 func MakeWidgetId(parent Widget, id string) string {
 	if len(id) == 0 {
-		id = fmt.Sprintf("go_widget%v", <-fnGenWidgetId())
+		id = fmt.Sprintf("go_widget_%v", <-fnGenWidgetId())
 	} else if id[0] == '.' {
 		return id
 	}

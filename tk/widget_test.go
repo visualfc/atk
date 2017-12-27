@@ -29,11 +29,11 @@ func TestWidgetId(t *testing.T) {
 	var id string
 	parent := NewTestWidget(nil, ".base")
 	id = MakeWidgetId(nil, "")
-	if id != ".go_widget1025" {
+	if id != ".go_widget_1025" {
 		t.Fatal(id)
 	}
 	id = MakeWidgetId(parent, "")
-	if id != ".base.go_widget1026" {
+	if id != ".base.go_widget_1026" {
 		t.Fatal(id)
 	}
 	id = MakeWidgetId(parent, ".idtest")
