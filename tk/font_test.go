@@ -11,7 +11,7 @@ func init() {
 }
 
 func TestFont(t *testing.T) {
-	font := NewFont("", 18, FontOptBold(), FontOptItalic(), FontOptUnderline(), FontOptOverstrike())
+	font := NewUserFont("", 18, FontOptBold(), FontOptItalic(), FontOptUnderline(), FontOptOverstrike())
 	defer font.Destroy()
 
 	if v := font.SetFamily("Courier").Family(); v != "Courier" {

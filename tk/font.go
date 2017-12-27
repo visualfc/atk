@@ -12,7 +12,7 @@ var (
 	fnGenFontId = NewGenIntFunc(1024)
 )
 
-func MakeFontName() string {
+func makeFontName() string {
 	return fmt.Sprintf("go_font_%v", <-makeActionFunc())
 }
 
@@ -45,6 +45,26 @@ func FontOptOverstrike() *font_option {
 	return &font_option{"overstrike", 1}
 }
 
+type FontDescription struct {
+	info string
+}
+
+func (f *FontDescription) String() string {
+	return f.info
+}
+
+type Font interface {
+	Id() string
+	IsValid() bool
+	String() string
+	Family() string
+	Size() int
+	IsBold() bool
+	IsItalic() bool
+	IsUnderline() bool
+	IsOverstrike() bool
+}
+
 type BaseFont struct {
 	id string
 }
@@ -58,6 +78,9 @@ func (f *BaseFont) IsValid() bool {
 }
 
 func (w *BaseFont) String() string {
+	if w.id == "" {
+		return "invalid"
+	}
 	r, _ := evalAsString(fmt.Sprintf("font actual %v", w.id))
 	return r
 }
@@ -97,20 +120,20 @@ func (w *BaseFont) MeasureTextWidth(text string) int {
 	return r
 }
 
-func (w *BaseFont) Clone() *Font {
-	iid := MakeFontName()
+func (w *BaseFont) Clone() *UserFont {
+	iid := makeFontName()
 	script := fmt.Sprintf("font create %v %v", iid, w.String())
 	if eval(script) != nil {
 		return nil
 	}
-	return &Font{BaseFont{iid}}
+	return &UserFont{BaseFont{iid}}
 }
 
-type Font struct {
+type UserFont struct {
 	BaseFont
 }
 
-func (f *Font) Destroy() error {
+func (f *UserFont) Destroy() error {
 	if f.id == "" {
 		return os.ErrInvalid
 	}
@@ -119,7 +142,7 @@ func (f *Font) Destroy() error {
 	return nil
 }
 
-func NewFont(family string, size int, options ...*font_option) *Font {
+func NewUserFont(family string, size int, options ...*font_option) *UserFont {
 	var optList []string
 	for _, opt := range options {
 		if opt == nil {
@@ -127,28 +150,58 @@ func NewFont(family string, size int, options ...*font_option) *Font {
 		}
 		optList = append(optList, fmt.Sprintf("-%v {%v}", opt.key, opt.value))
 	}
-	iid := MakeFontName()
+	iid := makeFontName()
 	script := fmt.Sprintf("font create %v -family {%v} -size %v", iid, family, size)
 	if len(optList) > 0 {
 		script += " " + strings.Join(optList, " ")
 	}
-	if eval(script) != nil {
+	err := eval(script)
+	if err != nil {
 		return nil
 	}
-	return &Font{BaseFont{iid}}
+	return &UserFont{BaseFont{iid}}
 }
 
-func (w *Font) SetFamily(family string) *Font {
+func NewUserFontFromDescription(fd *FontDescription) *UserFont {
+	iid := makeFontName()
+	script := fmt.Sprintf("font create %v", iid)
+	if fd != nil {
+		script += " " + fd.String()
+	}
+	err := eval(script)
+	if err != nil {
+		return nil
+	}
+	return &UserFont{BaseFont{iid}}
+}
+
+func NewUserFontFromClone(font Font) *UserFont {
+	if font == nil {
+		return nil
+	}
+	iid := makeFontName()
+	script := fmt.Sprintf("font create %v", iid)
+	if font != nil {
+		script += " " + font.String()
+	}
+	err := eval(script)
+	if err != nil {
+		return nil
+	}
+	return &UserFont{BaseFont{iid}}
+}
+
+func (w *UserFont) SetFamily(family string) *UserFont {
 	eval(fmt.Sprintf("font configure %v -family {%v}", w.id, family))
 	return w
 }
 
-func (w *Font) SetSize(size int) *Font {
+func (w *UserFont) SetSize(size int) *UserFont {
 	eval(fmt.Sprintf("font configure %v -size {%v}", w.id, size))
 	return w
 }
 
-func (w *Font) SetBold(bold bool) *Font {
+func (w *UserFont) SetBold(bold bool) *UserFont {
 	var v string
 	if bold {
 		v = "bold"
@@ -159,7 +212,7 @@ func (w *Font) SetBold(bold bool) *Font {
 	return w
 }
 
-func (w *Font) SetItalic(italic bool) *Font {
+func (w *UserFont) SetItalic(italic bool) *UserFont {
 	var v string
 	if italic {
 		v = "italic"
@@ -170,12 +223,12 @@ func (w *Font) SetItalic(italic bool) *Font {
 	return w
 }
 
-func (w *Font) SetUnderline(underline bool) *Font {
+func (w *UserFont) SetUnderline(underline bool) *UserFont {
 	eval(fmt.Sprintf("font configure %v -underline {%v}", w.id, boolToInt(underline)))
 	return w
 }
 
-func (w *Font) SetOverstrike(overstrike bool) *Font {
+func (w *UserFont) SetOverstrike(overstrike bool) *UserFont {
 	eval(fmt.Sprintf("font configure %v -overstrike {%v}", w.id, boolToInt(overstrike)))
 	return w
 }
@@ -188,22 +241,27 @@ func FontFamilieList() []string {
 	return SplitTkList(s)
 }
 
-type DefaultFontType int
+//tk system default font
+type SysFont struct {
+	BaseFont
+}
+
+type SysFontType int
 
 const (
-	DefaultGuiFont DefaultFontType = 0
-	DefaultTextFont
-	DefaultFixedFont
-	DefaultMenuFont
-	DefaultHeadingFont
-	DefaultCaptionFont
-	DefaultSmallCaptionFont
-	DefaultIconFont
-	DefaultTooltipFont
+	SysDefaultFont SysFontType = 0
+	SysTextFont
+	SysFixedFont
+	SysMenuFont
+	SysHeadingFont
+	SysCaptionFont
+	SysSmallCaptionFont
+	SysIconFont
+	SysTooltipFont
 )
 
 var (
-	defaultFontList = []string{
+	sysFontNameList = []string{
 		"TKDefaultFont",
 		"TKTextFont",
 		"TKFixedFont",
@@ -214,11 +272,18 @@ var (
 		"TKIconFont",
 		"TKTooltipFont",
 	}
+	sysFontList []*SysFont
 )
 
-func DefaultFont(typ DefaultFontType) *BaseFont {
-	if int(typ) >= 0 && int(typ) < len(defaultFontList) {
-		return &BaseFont{defaultFontList[typ]}
+func init() {
+	for _, name := range sysFontNameList {
+		sysFontList = append(sysFontList, &SysFont{BaseFont{name}})
+	}
+}
+
+func LoadSysFont(typ SysFontType) *SysFont {
+	if int(typ) >= 0 && int(typ) < len(sysFontList) {
+		return sysFontList[typ]
 	}
 	return nil
 }
