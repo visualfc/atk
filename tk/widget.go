@@ -186,26 +186,3 @@ func DumpWidget(w Widget, offset string) string {
 	dumpWidgetHelp(w, offset, "", &ar)
 	return strings.Join(ar, "\n")
 }
-
-var (
-	fnGenWidgetId = NewGenInt64Func(1024)
-)
-
-func MakeWidgetId(parent Widget, id string) string {
-	if len(id) == 0 {
-		id = fmt.Sprintf("go_widget_%v", <-fnGenWidgetId())
-	} else if id[0] == '.' {
-		return id
-	}
-	id = strings.ToLower(id)
-	id = strings.Replace(id, " ", "_", -1)
-	if parent != nil {
-		pid := parent.Id()
-		if pid == "." {
-			return "." + id
-		} else {
-			return parent.Id() + "." + id
-		}
-	}
-	return "." + id
-}

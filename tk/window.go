@@ -318,7 +318,7 @@ func (w *Window) Center() *Window {
 }
 
 func (w *Window) OnClose(fn func() (accept bool)) error {
-	actName := MakeActionName()
+	actName := MakeActionId()
 	_, err := mainInterp.CreateAction(actName, func([]string) {
 		if fn != nil {
 			if fn() {

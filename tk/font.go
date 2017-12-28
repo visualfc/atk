@@ -8,14 +8,6 @@ import (
 	"strings"
 )
 
-var (
-	fnGenFontId = NewGenIntFunc(1024)
-)
-
-func makeFontName() string {
-	return fmt.Sprintf(".go_font_%v", <-makeActionFunc())
-}
-
 type font_option struct {
 	key   string
 	value interface{}
@@ -118,7 +110,7 @@ func (w *BaseFont) MeasureTextWidth(text string) int {
 }
 
 func (w *BaseFont) Clone() *UserFont {
-	iid := makeFontName()
+	iid := MakeFontId()
 	script := fmt.Sprintf("font create %v %v", iid, w.Description())
 	if eval(script) != nil {
 		return nil
@@ -147,7 +139,7 @@ func NewUserFont(family string, size int, options ...*font_option) *UserFont {
 		}
 		optList = append(optList, fmt.Sprintf("-%v {%v}", opt.key, opt.value))
 	}
-	iid := makeFontName()
+	iid := MakeFontId()
 	script := fmt.Sprintf("font create %v -family {%v} -size %v", iid, family, size)
 	if len(optList) > 0 {
 		script += " " + strings.Join(optList, " ")
@@ -163,7 +155,7 @@ func NewUserFontFromClone(font Font) *UserFont {
 	if font == nil {
 		return nil
 	}
-	iid := makeFontName()
+	iid := MakeFontId()
 	script := fmt.Sprintf("font create %v", iid)
 	if font != nil {
 		script += " " + font.Description()

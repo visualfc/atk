@@ -57,12 +57,12 @@ func PackOptExpand(b bool) *pack_option {
 	return &pack_option{"expand", boolToInt(b)}
 }
 
-func PackOptFillVertically() *pack_option {
+func PackOptFillVertical() *pack_option {
 	return &pack_option{"fill", "x"}
 }
 
-func PackOptFillHorizontally() *pack_option {
-	return &pack_option{"fill", "x"}
+func PackOptFillHorizontal() *pack_option {
+	return &pack_option{"fill", "y"}
 }
 
 func PackOptFillBoth() *pack_option {

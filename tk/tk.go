@@ -99,22 +99,3 @@ func evalAsFloat64(script string) (float64, error) {
 func evalAsBool(script string) (bool, error) {
 	return mainInterp.EvalAsBool(script)
 }
-
-func parserTwoInt(s string) (n1 int, n2 int) {
-	var p = &n1
-	for _, r := range s {
-		if r == ' ' {
-			p = &n2
-		} else {
-			*p = *p*10 + int(r-'0')
-		}
-	}
-	return
-}
-
-func boolToInt(b bool) int {
-	if b {
-		return 1
-	}
-	return 0
-}
