@@ -8,6 +8,19 @@ import (
 	"strings"
 )
 
+type Font interface {
+	Id() string
+	IsValid() bool
+	String() string
+	Description() string
+	Family() string
+	Size() int
+	IsBold() bool
+	IsItalic() bool
+	IsUnderline() bool
+	IsOverstrike() bool
+}
+
 type font_option struct {
 	key   string
 	value interface{}
@@ -35,19 +48,6 @@ func FontOptUnderline() *font_option {
 
 func FontOptOverstrike() *font_option {
 	return &font_option{"overstrike", 1}
-}
-
-type Font interface {
-	Id() string
-	IsValid() bool
-	String() string
-	Description() string
-	Family() string
-	Size() int
-	IsBold() bool
-	IsItalic() bool
-	IsUnderline() bool
-	IsOverstrike() bool
 }
 
 type BaseFont struct {
