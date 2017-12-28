@@ -263,3 +263,14 @@ func LoadSysFont(typ SysFontType) *SysFont {
 	}
 	return nil
 }
+
+func parserFontResult(r string, err error) Font {
+	if err != nil {
+		return nil
+	}
+	if strings.HasPrefix(r, ".go_font") {
+		return &UserFont{BaseFont{r}}
+	} else {
+		return &SysFont{BaseFont{r}}
+	}
+}

@@ -19,22 +19,38 @@ type Geometry struct {
 	Height int
 }
 
-type Aligment int
+type Alignment int
 
 const (
-	AligmentCenter Aligment = 0
-	AligmentLeft            = 1
-	AligmentRight           = 2
+	AlignmentCenter  Alignment = 0
+	AlignmentLeft              = 1
+	AlignmentRight             = 2
+	AlignmentInvalid Alignment = -1
 )
 
-func (v Aligment) String() string {
+func (v Alignment) String() string {
 	switch v {
-	case AligmentCenter:
+	case AlignmentCenter:
 		return "center"
-	case AligmentLeft:
+	case AlignmentLeft:
 		return "left"
-	case AligmentRight:
+	case AlignmentRight:
 		return "right"
 	}
 	return ""
+}
+
+func parserAlignmentResult(r string, err error) Alignment {
+	if err != nil {
+		return -1
+	}
+	switch r {
+	case "center":
+		return AlignmentCenter
+	case "left":
+		return AlignmentLeft
+	case "right":
+		return AlignmentRight
+	}
+	return -1
 }
