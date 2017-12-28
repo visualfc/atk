@@ -83,3 +83,40 @@ func parserBorderStyleResult(r string, err error) BorderStyle {
 	}
 	return -1
 }
+
+type Anchor int
+
+const (
+	AnchorCenter = iota
+	AnchorNorth
+	AnchorEast
+	AnchorSouth
+	AnchorWest
+	AnchorNorthEast
+	AnchorNorthWest
+	AnchorSouthEast
+	AnchorSouthWest
+)
+
+var (
+	anchorName = []string{"center", "n", "e", "s", "w", "ne", "nw", "se", "sw"}
+)
+
+func (v Anchor) String() string {
+	if v >= 0 && int(v) < len(anchorName) {
+		return anchorName[v]
+	}
+	return ""
+}
+
+func parserAnchorResult(r string, err error) Anchor {
+	if err != nil {
+		return -1
+	}
+	for n, s := range anchorName {
+		if s == r {
+			return Anchor(n)
+		}
+	}
+	return -1
+}

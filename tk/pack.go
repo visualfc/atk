@@ -21,6 +21,14 @@ func PackOptPady(pady int) *pack_option {
 	return &pack_option{"pady", pady}
 }
 
+func PackOptIpadx(padx int) *pack_option {
+	return &pack_option{"ipadx", padx}
+}
+
+func PackOptIpady(pady int) *pack_option {
+	return &pack_option{"ipady", pady}
+}
+
 func PackOptSideTop() *pack_option {
 	return &pack_option{"side", "top"}
 }
@@ -37,20 +45,12 @@ func PackOptSideRight() *pack_option {
 	return &pack_option{"side", "right"}
 }
 
-func PackOptAnchorNorth() *pack_option {
-	return &pack_option{"anchor", "n"}
-}
-
-func PackOptAnchorSouth() *pack_option {
-	return &pack_option{"anchor", "s"}
-}
-
-func PackOptAnchorWest() *pack_option {
-	return &pack_option{"anchor", "w"}
-}
-
-func PackOptAnchorEast() *pack_option {
-	return &pack_option{"anchor", "e"}
+func PackOptAnchor(anchor Anchor) *pack_option {
+	v := anchor.String()
+	if v == "" {
+		return nil
+	}
+	return &pack_option{"anchor", v}
 }
 
 func PackOptExpand(b bool) *pack_option {
@@ -69,6 +69,13 @@ func PackOptFillBoth() *pack_option {
 	return &pack_option{"fill", "both"}
 }
 
+func PackOptBefore(w Widget) *pack_option {
+	if !IsValidWidget(w) {
+		return nil
+	}
+	return &pack_option{"before", w.Id()}
+}
+
 func PackOptAfter(w Widget) *pack_option {
 	if !IsValidWidget(w) {
 		return nil
@@ -83,8 +90,18 @@ func PackOptInMaster(w Widget) *pack_option {
 	return &pack_option{"in", w.Id()}
 }
 
-func Pack(w Widget, options ...*pack_option) error {
-	if !IsValidWidget(w) {
+func Pack(widget Widget, options ...*pack_option) error {
+	return PackList([]Widget{widget}, options...)
+}
+
+func PackList(widgets []Widget, options ...*pack_option) error {
+	var idList []string
+	for _, w := range widgets {
+		if IsValidWidget(w) {
+			idList = append(idList, w.Id())
+		}
+	}
+	if len(idList) == 0 {
 		return os.ErrInvalid
 	}
 	var optList []string
@@ -94,8 +111,9 @@ func Pack(w Widget, options ...*pack_option) error {
 		}
 		optList = append(optList, fmt.Sprintf("-%v {%v}", opt.key, opt.value))
 	}
+	script := fmt.Sprintf("pack %v", strings.Join(idList, " "))
 	if len(optList) > 0 {
-		return eval(fmt.Sprintf("pack %v %v", w.Id(), strings.Join(optList, " ")))
+		script += " " + strings.Join(optList, " ")
 	}
-	return eval(fmt.Sprintf("pack %v", w.Id()))
+	return eval(script)
 }
