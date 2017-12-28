@@ -22,20 +22,18 @@ type Geometry struct {
 type Alignment int
 
 const (
-	AlignmentCenter  Alignment = 0
-	AlignmentLeft              = 1
-	AlignmentRight             = 2
-	AlignmentInvalid Alignment = -1
+	AlignmentCenter Alignment = iota
+	AlignmentLeft
+	AlignmentRight
+)
+
+var (
+	alignmentName = []string{"center", "left", "right"}
 )
 
 func (v Alignment) String() string {
-	switch v {
-	case AlignmentCenter:
-		return "center"
-	case AlignmentLeft:
-		return "left"
-	case AlignmentRight:
-		return "right"
+	if v >= 0 && int(v) < len(alignmentName) {
+		return alignmentName[v]
 	}
 	return ""
 }
@@ -44,13 +42,44 @@ func parserAlignmentResult(r string, err error) Alignment {
 	if err != nil {
 		return -1
 	}
-	switch r {
-	case "center":
-		return AlignmentCenter
-	case "left":
-		return AlignmentLeft
-	case "right":
-		return AlignmentRight
+	for n, s := range alignmentName {
+		if s == r {
+			return Alignment(n)
+		}
+	}
+	return -1
+}
+
+type BorderStyle int
+
+const (
+	BorderStyleFlat BorderStyle = iota
+	BorderStyleGroove
+	BorderStyleRaised
+	BorderStyleRidge
+	BorderStyleSolid
+	BorderStyleSunken
+)
+
+var (
+	borderStyleName = []string{"flat", "groove", "raised", "ridge", "solid", "sunken"}
+)
+
+func (v BorderStyle) String() string {
+	if v >= 0 && int(v) < len(borderStyleName) {
+		return borderStyleName[v]
+	}
+	return ""
+}
+
+func parserBorderStyleResult(r string, err error) BorderStyle {
+	if err != nil {
+		return -1
+	}
+	for n, s := range borderStyleName {
+		if s == r {
+			return BorderStyle(n)
+		}
 	}
 	return -1
 }
