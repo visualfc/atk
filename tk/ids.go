@@ -34,18 +34,38 @@ func NewGenIntFunc(id int) func() <-chan int {
 }
 
 var (
-	fnGenFontId   = NewGenIntFunc(1024)
-	fnGenActionId = NewGenIntFunc(1024)
-	fnGenWidgetId = NewGenInt64Func(1024)
+	fnGenFontId   = NewGenIntFunc(0)
+	fnGenActionId = NewGenIntFunc(0)
+	fnGenWidgetId = NewGenIntFunc(0)
+	fnGetWindowId = NewGenIntFunc(0)
 )
 
 func MakeActionId() string {
-	return fmt.Sprintf("go_action_%v", <-fnGenActionId())
+	return fmt.Sprintf("action_%v", <-fnGenActionId())
+}
+
+func MakeWindowId(parent Widget, id string) string {
+	if len(id) == 0 {
+		id = fmt.Sprintf("window_%v", <-fnGetWindowId())
+	} else if id[0] == '.' {
+		return id
+	}
+	id = strings.ToLower(id)
+	id = strings.Replace(id, " ", "_", -1)
+	if parent != nil {
+		pid := parent.Id()
+		if pid == "." {
+			return "." + id
+		} else {
+			return parent.Id() + "." + id
+		}
+	}
+	return "." + id
 }
 
 func MakeWidgetId(parent Widget, id string) string {
 	if len(id) == 0 {
-		id = fmt.Sprintf("go_widget_%v", <-fnGenWidgetId())
+		id = fmt.Sprintf("widget_%v", <-fnGenWidgetId())
 	} else if id[0] == '.' {
 		return id
 	}
@@ -63,5 +83,5 @@ func MakeWidgetId(parent Widget, id string) string {
 }
 
 func MakeFontId() string {
-	return fmt.Sprintf(".go_font_%v", <-fnGenActionId())
+	return fmt.Sprintf(".font_%v", <-fnGenActionId())
 }

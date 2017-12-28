@@ -4,6 +4,7 @@ package tk
 
 import (
 	"fmt"
+	"strings"
 )
 
 type WindowInfo struct {
@@ -342,9 +343,52 @@ func MainWindow() *Window {
 	return mainWindow
 }
 
-func NewWindow(id string) *Window {
-	iid := MakeWidgetId(nil, id)
-	err := eval(fmt.Sprintf("tk::toplevel %v", iid))
+type window_option struct {
+	key   string
+	value interface{}
+}
+
+func WindowOptId(id string) *window_option {
+	return &window_option{"id", id}
+}
+
+func WindowOptBorderWidth(width int) *window_option {
+	return &window_option{"borderwidth", width}
+}
+
+func WindowOptBorderStyle(style BorderStyle) *window_option {
+	return &window_option{"relief", style}
+}
+
+func WindowOptPadx(padx int) *window_option {
+	return &window_option{"padx", padx}
+}
+
+func WindowOptPady(pady int) *window_option {
+	return &window_option{"pady", pady}
+}
+
+func NewWindow(options ...*window_option) *Window {
+	var iid string
+	var optList []string
+	for _, opt := range options {
+		if opt == nil {
+			continue
+		}
+		if opt.key == "id" {
+			if v, ok := opt.value.(string); ok {
+				iid = v
+			}
+			continue
+		}
+		optList = append(optList, fmt.Sprintf("-%v {%v}", opt.key, opt.value))
+	}
+	iid = MakeWindowId(nil, iid)
+	script := fmt.Sprintf("tk::toplevel %v", iid)
+	if len(optList) > 0 {
+		script += " " + strings.Join(optList, " ")
+	}
+	err := eval(script)
 	if err != nil {
 		return nil
 	}

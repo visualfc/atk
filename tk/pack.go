@@ -76,6 +76,13 @@ func PackOptAfter(w Widget) *pack_option {
 	return &pack_option{"after", w.Id()}
 }
 
+func PackOptInMaster(w Widget) *pack_option {
+	if !IsValidWidget(w) {
+		return nil
+	}
+	return &pack_option{"in", w.Id()}
+}
+
 func Pack(w Widget, options ...*pack_option) error {
 	if !IsValidWidget(w) {
 		return os.ErrInvalid

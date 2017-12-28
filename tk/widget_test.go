@@ -3,6 +3,7 @@
 package tk
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -29,11 +30,11 @@ func TestWidgetId(t *testing.T) {
 	var id string
 	parent := NewTestWidget(nil, ".base")
 	id = MakeWidgetId(nil, "")
-	if id != ".go_widget_1025" {
+	if !strings.HasPrefix(id, ".widget_") {
 		t.Fatal(id)
 	}
 	id = MakeWidgetId(parent, "")
-	if id != ".base.go_widget_1026" {
+	if !strings.HasPrefix(id, ".base.widget_") {
 		t.Fatal(id)
 	}
 	id = MakeWidgetId(parent, ".idtest")
