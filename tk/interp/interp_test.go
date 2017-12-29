@@ -27,6 +27,11 @@ func init() {
 		log.Println(err)
 	}
 	fmt.Println("tcl_version", interp.TclVersion())
+	err = interp.InitTk("")
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println("tk_version", interp.TkVersion())
 }
 
 func TestInterp(t *testing.T) {
@@ -132,12 +137,51 @@ func TestObj(t *testing.T) {
 	}
 }
 
-func TestTkSync(t *testing.T) {
-	err := interp.InitTk("")
+func TestPhoto(t *testing.T) {
+	err := interp.Eval("image create photo myimg -file $tk_library/images/pwrdLogo200.gif")
+	if err != nil {
+		t.Log("skip test photo", err)
+		return
+	}
+	photo := FindPhoto(interp, "myimg")
+	if photo == nil {
+		t.Fatal("FindPhoto")
+	}
+	w, h := photo.Size()
+	if w != 130 || h != 200 {
+		t.Fatal("Size", w, h)
+	}
+	err = photo.SetSize(100, 150)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println("tk_version", interp.TkVersion())
+	goImage := photo.ToImage()
+	if goImage == nil {
+		t.Fatal("ToImage")
+	}
+	err = interp.Eval("image create photo myimg2")
+	if err != nil {
+		t.Fatal("create photo false")
+	}
+	photo2 := FindPhoto(interp, "myimg2")
+	if photo2 == nil {
+		t.Fatal("FindPhoto")
+	}
+	err = photo2.PutImage(goImage)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = photo2.PutZoomedImage(goImage, 1, 2, 3, 6)
+	if err != nil {
+		t.Fatal(err)
+	}
+	w2, h2 := photo2.Size()
+	if w2 != 100 || h2 != 150 {
+		t.Fatal("Size")
+	}
+}
+
+func TestTkSync(t *testing.T) {
 	MainLoop(func() {
 		go func() {
 			fmt.Println("run tk mainloop wait 1 sec async destroy")
