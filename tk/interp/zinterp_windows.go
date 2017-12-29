@@ -38,31 +38,39 @@ var (
 	modtcl86t = syscall.NewLazyDLL("tcl86t.dll")
 	modtk86t  = syscall.NewLazyDLL("tk86t.dll")
 
-	procTcl_CreateInterp      = modtcl86t.NewProc("Tcl_CreateInterp")
-	procTcl_DeleteInterp      = modtcl86t.NewProc("Tcl_DeleteInterp")
-	procTcl_Alloc             = modtcl86t.NewProc("Tcl_Alloc")
-	procTcl_Eval              = modtcl86t.NewProc("Tcl_Eval")
-	procTcl_EvalEx            = modtcl86t.NewProc("Tcl_EvalEx")
-	procTcl_GetStringResult   = modtcl86t.NewProc("Tcl_GetStringResult")
-	procTcl_GetObjResult      = modtcl86t.NewProc("Tcl_GetObjResult")
-	procTcl_GetWideIntFromObj = modtcl86t.NewProc("Tcl_GetWideIntFromObj")
-	procTcl_GetDoubleFromObj  = modtcl86t.NewProc("Tcl_GetDoubleFromObj")
-	procTcl_GetBooleanFromObj = modtcl86t.NewProc("Tcl_GetBooleanFromObj")
-	procTcl_GetStringFromObj  = modtcl86t.NewProc("Tcl_GetStringFromObj")
-	procTcl_NewWideIntObj     = modtcl86t.NewProc("Tcl_NewWideIntObj")
-	procTcl_NewDoubleObj      = modtcl86t.NewProc("Tcl_NewDoubleObj")
-	procTcl_NewBooleanObj     = modtcl86t.NewProc("Tcl_NewBooleanObj")
-	procTcl_NewStringObj      = modtcl86t.NewProc("Tcl_NewStringObj")
-	procTcl_Init              = modtcl86t.NewProc("Tcl_Init")
-	procTcl_GetCurrentThread  = modtcl86t.NewProc("Tcl_GetCurrentThread")
-	procTcl_ThreadQueueEvent  = modtcl86t.NewProc("Tcl_ThreadQueueEvent")
-	procTcl_ThreadAlert       = modtcl86t.NewProc("Tcl_ThreadAlert")
-	procTcl_CreateObjCommand  = modtcl86t.NewProc("Tcl_CreateObjCommand")
-	procTcl_CreateCommand     = modtcl86t.NewProc("Tcl_CreateCommand")
-	procTcl_SetObjResult      = modtcl86t.NewProc("Tcl_SetObjResult")
-	procTcl_WrongNumArgs      = modtcl86t.NewProc("Tcl_WrongNumArgs")
-	procTk_Init               = modtk86t.NewProc("Tk_Init")
-	procTk_MainLoop           = modtk86t.NewProc("Tk_MainLoop")
+	procTcl_CreateInterp       = modtcl86t.NewProc("Tcl_CreateInterp")
+	procTcl_DeleteInterp       = modtcl86t.NewProc("Tcl_DeleteInterp")
+	procTcl_Alloc              = modtcl86t.NewProc("Tcl_Alloc")
+	procTcl_Eval               = modtcl86t.NewProc("Tcl_Eval")
+	procTcl_EvalEx             = modtcl86t.NewProc("Tcl_EvalEx")
+	procTcl_GetStringResult    = modtcl86t.NewProc("Tcl_GetStringResult")
+	procTcl_GetObjResult       = modtcl86t.NewProc("Tcl_GetObjResult")
+	procTcl_GetWideIntFromObj  = modtcl86t.NewProc("Tcl_GetWideIntFromObj")
+	procTcl_GetDoubleFromObj   = modtcl86t.NewProc("Tcl_GetDoubleFromObj")
+	procTcl_GetBooleanFromObj  = modtcl86t.NewProc("Tcl_GetBooleanFromObj")
+	procTcl_GetStringFromObj   = modtcl86t.NewProc("Tcl_GetStringFromObj")
+	procTcl_NewWideIntObj      = modtcl86t.NewProc("Tcl_NewWideIntObj")
+	procTcl_NewDoubleObj       = modtcl86t.NewProc("Tcl_NewDoubleObj")
+	procTcl_NewBooleanObj      = modtcl86t.NewProc("Tcl_NewBooleanObj")
+	procTcl_NewStringObj       = modtcl86t.NewProc("Tcl_NewStringObj")
+	procTcl_Init               = modtcl86t.NewProc("Tcl_Init")
+	procTcl_GetCurrentThread   = modtcl86t.NewProc("Tcl_GetCurrentThread")
+	procTcl_ThreadQueueEvent   = modtcl86t.NewProc("Tcl_ThreadQueueEvent")
+	procTcl_ThreadAlert        = modtcl86t.NewProc("Tcl_ThreadAlert")
+	procTcl_CreateObjCommand   = modtcl86t.NewProc("Tcl_CreateObjCommand")
+	procTcl_CreateCommand      = modtcl86t.NewProc("Tcl_CreateCommand")
+	procTcl_SetObjResult       = modtcl86t.NewProc("Tcl_SetObjResult")
+	procTcl_WrongNumArgs       = modtcl86t.NewProc("Tcl_WrongNumArgs")
+	procTk_Init                = modtk86t.NewProc("Tk_Init")
+	procTk_MainLoop            = modtk86t.NewProc("Tk_MainLoop")
+	procTk_FindPhoto           = modtk86t.NewProc("Tk_FindPhoto")
+	procTk_PhotoBlank          = modtk86t.NewProc("Tk_PhotoBlank")
+	procTk_PhotoSetSize        = modtk86t.NewProc("Tk_PhotoSetSize")
+	procTk_PhotoGetSize        = modtk86t.NewProc("Tk_PhotoGetSize")
+	procTk_PhotoExpand         = modtk86t.NewProc("Tk_PhotoExpand")
+	procTk_PhotoGetImage       = modtk86t.NewProc("Tk_PhotoGetImage")
+	procTk_PhotoPutBlock       = modtk86t.NewProc("Tk_PhotoPutBlock")
+	procTk_PhotoPutZoomedBlock = modtk86t.NewProc("Tk_PhotoPutZoomedBlock")
 )
 
 func Tcl_CreateInterp() (interp *Tcl_Interp) {
@@ -206,5 +214,51 @@ func Tk_Init(interp *Tcl_Interp) (r int32) {
 
 func Tk_MainLoop() {
 	syscall.Syscall(procTk_MainLoop.Addr(), 0, 0, 0, 0)
+	return
+}
+
+func Tk_FindPhoto(interp *Tcl_Interp, imageName *byte) (handle *Tk_PhotoHandle) {
+	r0, _, _ := syscall.Syscall(procTk_FindPhoto.Addr(), 2, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(imageName)), 0)
+	handle = (*Tk_PhotoHandle)(unsafe.Pointer(r0))
+	return
+}
+
+func Tk_PhotoBlank(handle *Tk_PhotoHandle) {
+	syscall.Syscall(procTk_PhotoBlank.Addr(), 1, uintptr(unsafe.Pointer(handle)), 0, 0)
+	return
+}
+
+func Tk_PhotoSetSize(interp *Tcl_Interp, handle *Tk_PhotoHandle, width int32, height int32) (status int32) {
+	r0, _, _ := syscall.Syscall6(procTk_PhotoSetSize.Addr(), 4, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(handle)), uintptr(width), uintptr(height), 0, 0)
+	status = int32(r0)
+	return
+}
+
+func Tk_PhotoGetSize(hanlde *Tk_PhotoHandle, widthPtr *int32, heightPtr *int32) {
+	syscall.Syscall(procTk_PhotoGetSize.Addr(), 3, uintptr(unsafe.Pointer(hanlde)), uintptr(unsafe.Pointer(widthPtr)), uintptr(unsafe.Pointer(heightPtr)))
+	return
+}
+
+func Tk_PhotoExpand(interp *Tcl_Interp, handle *Tk_PhotoHandle, width int32, height int32) (status int32) {
+	r0, _, _ := syscall.Syscall6(procTk_PhotoExpand.Addr(), 4, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(handle)), uintptr(width), uintptr(height), 0, 0)
+	status = int32(r0)
+	return
+}
+
+func Tk_PhotoGetImage(handle *Tk_PhotoHandle, blockPtr *Tk_PhotoImageBlock) (status int32) {
+	r0, _, _ := syscall.Syscall(procTk_PhotoGetImage.Addr(), 2, uintptr(unsafe.Pointer(handle)), uintptr(unsafe.Pointer(blockPtr)), 0)
+	status = int32(r0)
+	return
+}
+
+func Tk_PhotoPutBlock(interp *Tcl_Interp, handle *Tk_PhotoHandle, blockPtr *Tk_PhotoImageBlock, x int32, y int32, width int32, height int32, compRule int32) (status int32) {
+	r0, _, _ := syscall.Syscall9(procTk_PhotoPutBlock.Addr(), 8, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(handle)), uintptr(unsafe.Pointer(blockPtr)), uintptr(x), uintptr(y), uintptr(width), uintptr(height), uintptr(compRule), 0)
+	status = int32(r0)
+	return
+}
+
+func Tk_PhotoPutZoomedBlock(interp *Tcl_Interp, handle *Tk_PhotoHandle, blockPtr *Tk_PhotoImageBlock, x int32, y int32, width int32, height int32, zoomX int32, zoomY int32, subsampleX int32, subsampleY int32, compRule int32) (status int32) {
+	r0, _, _ := syscall.Syscall12(procTk_PhotoPutZoomedBlock.Addr(), 12, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(handle)), uintptr(unsafe.Pointer(blockPtr)), uintptr(x), uintptr(y), uintptr(width), uintptr(height), uintptr(zoomX), uintptr(zoomY), uintptr(subsampleX), uintptr(subsampleY), uintptr(compRule))
+	status = int32(r0)
 	return
 }

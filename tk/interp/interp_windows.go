@@ -7,6 +7,8 @@ package interp
 import (
 	"errors"
 	"fmt"
+	"image"
+	"image/draw"
 	"os"
 	"syscall"
 	"unsafe"
@@ -20,6 +22,7 @@ type Tcl_Interp struct{}
 type Tcl_ThreadId struct{}
 type Tcl_Obj struct{}
 type Tcl_Command struct{}
+type Tk_PhotoHandle struct{}
 
 type Tcl_WideInt int64
 type Tcl_Double float64
@@ -27,6 +30,15 @@ type Tcl_Double float64
 type Tcl_Event struct {
 	Proc    uintptr
 	NextPtr *Tcl_Event
+}
+
+type Tk_PhotoImageBlock struct {
+	pixelPtr  *byte
+	width     int32
+	height    int32
+	pitch     int32
+	pixelSize int32
+	offset    [4]int32
 }
 
 // windows api calls
@@ -60,6 +72,14 @@ type Tcl_Event struct {
 
 //sys	Tk_Init(interp *Tcl_Interp) (r int32) = tk86t.Tk_Init
 //sys	Tk_MainLoop() = tk86t.Tk_MainLoop
+//sys	Tk_FindPhoto(interp *Tcl_Interp, imageName *byte) (handle *Tk_PhotoHandle) = tk86t.Tk_FindPhoto
+//sys	Tk_PhotoBlank(handle *Tk_PhotoHandle) = tk86t.Tk_PhotoBlank
+//sys	Tk_PhotoSetSize(interp *Tcl_Interp,handle *Tk_PhotoHandle, width int32, height int32) (status int32) = tk86t.Tk_PhotoSetSize
+//sys	Tk_PhotoGetSize(hanlde *Tk_PhotoHandle, widthPtr *int32, heightPtr *int32) = tk86t.Tk_PhotoGetSize
+//sys	Tk_PhotoExpand(interp *Tcl_Interp,handle *Tk_PhotoHandle, width int32, height int32) (status int32) = tk86t.Tk_PhotoExpand
+//sys	Tk_PhotoGetImage(handle *Tk_PhotoHandle, blockPtr *Tk_PhotoImageBlock) (status int32) = tk86t.Tk_PhotoGetImage
+//sys	Tk_PhotoPutBlock(interp *Tcl_Interp, handle *Tk_PhotoHandle,blockPtr *Tk_PhotoImageBlock, x int32, y int32, width int32, height int32, compRule int32) (status int32) = tk86t.Tk_PhotoPutBlock
+//sys	Tk_PhotoPutZoomedBlock(interp *Tcl_Interp, handle *Tk_PhotoHandle,blockPtr *Tk_PhotoImageBlock, x int32, y int32, width int32, height int32, zoomX int32, zoomY int32, subsampleX int32, subsampleY int32, compRule int32) (status int32) = tk86t.Tk_PhotoPutZoomedBlock
 
 var (
 	mainLoopThreadId *Tcl_ThreadId
@@ -378,4 +398,115 @@ func StringToObj(value string) *Tcl_Obj {
 		return nil
 	}
 	return Tcl_NewStringObj(s, int32(len(value)))
+}
+
+type Photo struct {
+	handle *Tk_PhotoHandle
+	interp *Interp
+}
+
+func FindPhoto(interp *Interp, imageName string) *Photo {
+	cs, err := syscall.BytePtrFromString(imageName)
+	if err != nil {
+		return nil
+	}
+	handle := Tk_FindPhoto(interp.interp, cs)
+	if handle == nil {
+		return nil
+	}
+	return &Photo{handle, interp}
+}
+
+func (p *Photo) Blank() {
+	Tk_PhotoBlank(p.handle)
+}
+
+func (p *Photo) SetSize(width int, height int) error {
+	status := Tk_PhotoSetSize(p.interp.interp, p.handle, int32(width), int32(height))
+	if status != TCL_OK {
+		return p.interp.GetErrorResult()
+	}
+	return nil
+}
+
+func (p *Photo) Size() (int, int) {
+	var width, height int32
+	Tk_PhotoGetSize(p.handle, &width, &height)
+	return int(width), int(height)
+}
+
+func (p *Photo) Expand(width int, height int) error {
+	status := Tk_PhotoExpand(p.interp.interp, p.handle, int32(width), int32(height))
+	if status != TCL_OK {
+		return p.interp.GetErrorResult()
+	}
+	return nil
+}
+
+func (p *Photo) ToImage() image.Image {
+	var block Tk_PhotoImageBlock
+	Tk_PhotoGetImage(p.handle, &block)
+	if block.width == 0 || block.height == 0 {
+		return nil
+	}
+	r := image.Rect(0, 0, int(block.width), int(block.height))
+	//pix := C.GoBytes(unsafe.Pointer(block.pixelPtr), C.int(4*block.width*block.height))
+	//pix := make([]uint8
+	img := image.NewNRGBA(r)
+	data := (*([1 << 20]byte))(unsafe.Pointer(block.pixelPtr))[:4*block.width*block.height]
+	copy(img.Pix, data)
+	return img
+}
+
+const (
+	TK_PHOTO_COMPOSITE_OVERLAY = 0
+	TK_PHOTO_COMPOSITE_SET     = 1
+)
+
+func (p *Photo) PutImage(img image.Image) error {
+	dstImage, ok := img.(*image.NRGBA)
+	if !ok {
+		dstImage = image.NewNRGBA(img.Bounds())
+		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+	}
+	block := Tk_PhotoImageBlock{
+		&dstImage.Pix[0],
+		int32(dstImage.Rect.Max.X),
+		int32(dstImage.Rect.Max.Y),
+		int32(dstImage.Stride),
+		4,
+		[...]int32{0, 1, 2, 0},
+	}
+	status := Tk_PhotoPutBlock(p.interp.interp, p.handle, &block, 0, 0,
+		int32(dstImage.Rect.Max.X), int32(dstImage.Rect.Max.Y),
+		TK_PHOTO_COMPOSITE_SET)
+	if status != TCL_OK {
+		return p.interp.GetErrorResult()
+	}
+	return nil
+}
+
+func (p *Photo) PutZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsampleY int) error {
+	dstImage, ok := img.(*image.NRGBA)
+	if !ok {
+		dstImage = image.NewNRGBA(img.Bounds())
+		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+	}
+
+	block := Tk_PhotoImageBlock{
+		&dstImage.Pix[0],
+		int32(dstImage.Rect.Max.X),
+		int32(dstImage.Rect.Max.Y),
+		int32(dstImage.Stride),
+		4,
+		[...]int32{0, 1, 2, 0},
+	}
+	status := Tk_PhotoPutZoomedBlock(p.interp.interp, p.handle, &block,
+		0, 0, int32(dstImage.Rect.Max.X), int32(dstImage.Rect.Max.Y),
+		int32(zoomX), int32(zoomY), int32(subsampleX), int32(subsampleY),
+		TK_PHOTO_COMPOSITE_SET)
+	if status != TCL_OK {
+		return p.interp.GetErrorResult()
+	}
+	return nil
 }
