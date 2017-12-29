@@ -408,8 +408,12 @@ func (p *Photo) PutImage(img image.Image) error {
 		dstImage = image.NewNRGBA(img.Bounds())
 		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
 	}
-	pixelPtr := C.CBytes(dstImage.Pix)
+	if len(dstImage.Pix) == 0 {
+		return os.ErrInvalid
+	}
+	pixelPtr := toCBytes(dstImage.Pix)
 	defer C.free(pixelPtr)
+
 	block := C.Tk_PhotoImageBlock{
 		(*C.uchar)(pixelPtr),
 		C.int(dstImage.Rect.Max.X),
@@ -433,8 +437,11 @@ func (p *Photo) PutZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsam
 		dstImage = image.NewNRGBA(img.Bounds())
 		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
 	}
+	if len(dstImage.Pix) == 0 {
+		return os.ErrInvalid
+	}
 
-	pixelPtr := C.CBytes(dstImage.Pix)
+	pixelPtr := toCBytes(dstImage.Pix)
 	defer C.free(pixelPtr)
 
 	block := C.Tk_PhotoImageBlock{
