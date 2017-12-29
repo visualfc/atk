@@ -165,3 +165,7 @@ func (p *Interp) GetFloat64Result() float64 {
 func (p *Interp) GetBoolResult() bool {
 	return p.GetObjResult().ToBool()
 }
+
+func (p *Interp) GetErrorResult() error {
+	return errors.New(p.GetObjResult().ToString())
+}

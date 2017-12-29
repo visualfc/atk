@@ -7,6 +7,8 @@ package interp
 import (
 	"errors"
 	"fmt"
+	"image"
+	"image/draw"
 	"os"
 	"unsafe"
 )
@@ -346,4 +348,109 @@ func StringToObj(value string) *C.Tcl_Obj {
 	cs := C.CString(value)
 	defer C.free(unsafe.Pointer(cs))
 	return C.Tcl_NewStringObj(cs, C.int(len(value)))
+}
+
+type Photo struct {
+	handle C.Tk_PhotoHandle
+	interp *Interp
+}
+
+func FindPhoto(interp *Interp, imageName string) *Photo {
+	cs := C.CString(imageName)
+	defer C.free(unsafe.Pointer(cs))
+	handle := C.Tk_FindPhoto(interp.interp, cs)
+	if handle == nil {
+		return nil
+	}
+	return &Photo{handle, interp}
+}
+
+func (p *Photo) Blank() {
+	C.Tk_PhotoBlank(p.handle)
+}
+
+func (p *Photo) SetSize(width int, height int) error {
+	status := C.Tk_PhotoSetSize(p.interp.interp, p.handle, C.int(width), C.int(height))
+	if status != C.TCL_OK {
+		return p.interp.GetErrorResult()
+	}
+	return nil
+}
+
+func (p *Photo) Size() (int, int) {
+	var width, height C.int
+	C.Tk_PhotoGetSize(p.handle, &width, &height)
+	return int(width), int(height)
+}
+
+func (p *Photo) Expand(width int, height int) error {
+	status := C.Tk_PhotoExpand(p.interp.interp, p.handle, C.int(width), C.int(height))
+	if status != C.TCL_OK {
+		return p.interp.GetErrorResult()
+	}
+	return nil
+}
+
+func (p *Photo) ToImage() image.Image {
+	var block C.Tk_PhotoImageBlock
+	C.Tk_PhotoGetImage(p.handle, &block)
+	if block.width == 0 || block.height == 0 {
+		return nil
+	}
+	r := image.Rect(0, 0, int(block.width), int(block.height))
+	pix := C.GoBytes(unsafe.Pointer(block.pixelPtr), C.int(4*block.width*block.height))
+	return &image.NRGBA{pix, 4 * int(block.width), r}
+}
+
+func (p *Photo) PutImage(img image.Image) error {
+	dstImage, ok := img.(*image.NRGBA)
+	if !ok {
+		dstImage = image.NewNRGBA(img.Bounds())
+		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+	}
+	pixelPtr := C.CBytes(dstImage.Pix)
+	defer C.free(pixelPtr)
+	block := C.Tk_PhotoImageBlock{
+		(*C.uchar)(pixelPtr),
+		C.int(dstImage.Rect.Max.X),
+		C.int(dstImage.Rect.Max.Y),
+		C.int(dstImage.Stride),
+		4,
+		[...]C.int{0, 1, 2, 0},
+	}
+	status := C.Tk_PhotoPutBlock(p.interp.interp, p.handle, &block, 0, 0,
+		C.int(dstImage.Rect.Max.X), C.int(dstImage.Rect.Max.Y),
+		C.TK_PHOTO_COMPOSITE_SET)
+	if status != C.TCL_OK {
+		return p.interp.GetErrorResult()
+	}
+	return nil
+}
+
+func (p *Photo) PutZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsampleY int) error {
+	dstImage, ok := img.(*image.NRGBA)
+	if !ok {
+		dstImage = image.NewNRGBA(img.Bounds())
+		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+	}
+
+	pixelPtr := C.CBytes(dstImage.Pix)
+	defer C.free(pixelPtr)
+
+	block := C.Tk_PhotoImageBlock{
+		(*C.uchar)(pixelPtr),
+		C.int(dstImage.Rect.Max.X),
+		C.int(dstImage.Rect.Max.Y),
+		C.int(dstImage.Stride),
+		4,
+		[...]C.int{0, 1, 2, 0},
+	}
+	status := C.Tk_PhotoPutZoomedBlock(p.interp.interp, p.handle, &block,
+		0, 0, C.int(dstImage.Rect.Max.X), C.int(dstImage.Rect.Max.Y),
+		C.int(zoomX), C.int(zoomY), C.int(subsampleX), C.int(subsampleY),
+		C.TK_PHOTO_COMPOSITE_SET)
+	if status != C.TCL_OK {
+		return p.interp.GetErrorResult()
+	}
+	return nil
 }
