@@ -99,3 +99,9 @@ func evalAsFloat64(script string) (float64, error) {
 func evalAsBool(script string) (bool, error) {
 	return mainInterp.EvalAsBool(script)
 }
+
+func dumpError(err error) {
+	if fnErrorHandle != nil {
+		fnErrorHandle(err)
+	}
+}

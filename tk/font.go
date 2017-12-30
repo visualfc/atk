@@ -34,6 +34,10 @@ type font_option struct {
 //	return &font_option{"size",size}
 //}
 
+func FontOptId(id string) *font_option {
+	return &font_option{"id", id}
+}
+
 func FontOptBold() *font_option {
 	return &font_option{"weight", "bold"}
 }
@@ -132,14 +136,23 @@ func (f *UserFont) Destroy() error {
 }
 
 func NewUserFont(family string, size int, options ...*font_option) *UserFont {
+	var iid string
 	var optList []string
 	for _, opt := range options {
 		if opt == nil {
 			continue
 		}
+		if opt.key == "id" {
+			if v, ok := opt.value.(string); ok {
+				iid = v
+			}
+			continue
+		}
 		optList = append(optList, fmt.Sprintf("-%v {%v}", opt.key, opt.value))
 	}
-	iid := MakeFontId()
+	if iid == "" {
+		iid = MakeFontId()
+	}
 	script := fmt.Sprintf("font create %v -family {%v} -size %v", iid, family, size)
 	if len(optList) > 0 {
 		script += " " + strings.Join(optList, " ")
@@ -268,7 +281,7 @@ func parserFontResult(r string, err error) Font {
 	if err != nil {
 		return nil
 	}
-	if strings.HasPrefix(r, ".go_font") {
+	if strings.HasPrefix(r, "go_font") {
 		return &UserFont{BaseFont{r}}
 	} else {
 		return &SysFont{BaseFont{r}}
