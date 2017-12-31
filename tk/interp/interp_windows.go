@@ -127,8 +127,7 @@ func MainLoop(fn func()) {
 }
 
 type Interp struct {
-	interp        *Tcl_Interp
-	fnErrorHandle func(error)
+	interp *Tcl_Interp
 }
 
 func NewInterp() (*Interp, error) {
@@ -140,7 +139,7 @@ func NewInterp() (*Interp, error) {
 	if interp == nil {
 		return nil, errors.New("Tcl_CreateInterp failed")
 	}
-	return &Interp{interp, nil}, nil
+	return &Interp{interp}, nil
 }
 
 func (p *Interp) InitTcl(tcl_library string) error {
@@ -149,9 +148,6 @@ func (p *Interp) InitTcl(tcl_library string) error {
 	}
 	if Tcl_Init(p.interp) != TCL_OK {
 		err := errors.New("Tcl_Init failed")
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
 		return err
 	}
 	return nil
@@ -160,9 +156,6 @@ func (p *Interp) InitTcl(tcl_library string) error {
 func (p *Interp) InitTk(tk_library string) error {
 	err := modtk86t.Load()
 	if err != nil {
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
 		return err
 	}
 	if tk_library != "" {
@@ -170,9 +163,6 @@ func (p *Interp) InitTk(tk_library string) error {
 	}
 	if Tk_Init(p.interp) != TCL_OK {
 		err := errors.New("Tk_Init failed")
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
 		return err
 	}
 	return nil
@@ -209,9 +199,6 @@ func (p *Interp) Eval(script string) error {
 	}
 	if Tcl_EvalEx(p.interp, s, int32(len(script)), 0) != TCL_OK {
 		err := errors.New(p.GetStringResult())
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
 		return err
 	}
 	return nil
@@ -272,9 +259,6 @@ func (p *Interp) CreateCommand(name string, fn func([]string) (string, error)) (
 	cmd := Tcl_CreateObjCommand(p.interp, s, syscall.NewCallbackCDecl(_go_tcl_objcmd_proc), id, syscall.NewCallbackCDecl(_go_tcl_cmddelete_proc))
 	if cmd == nil {
 		err := fmt.Errorf("CreateCommand %v failed", name)
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
 		return 0, err
 	}
 	return id, nil
@@ -293,9 +277,6 @@ func (p *Interp) CreateAction(name string, action func([]string)) (uintptr, erro
 	cmd := Tcl_CreateObjCommand(p.interp, s, syscall.NewCallbackCDecl(_go_tcl_action_proc), id, syscall.NewCallbackCDecl(_go_tcl_actiono_delete_proc))
 	if cmd == nil {
 		err := fmt.Errorf("CreateAction %v failed", name)
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
 		return 0, err
 	}
 	return id, nil

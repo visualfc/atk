@@ -3,6 +3,7 @@
 package tk
 
 import (
+	"log"
 	"runtime"
 
 	"github.com/visualfc/go-tk/tk/interp"
@@ -11,7 +12,9 @@ import (
 var (
 	mainInterp    *interp.Interp
 	mainWindow    *Window
-	fnErrorHandle func(error)
+	fnErrorHandle func(error) = func(err error) {
+		log.Println(err)
+	}
 )
 
 func Init() error {
@@ -23,7 +26,6 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 	if err != nil {
 		return err
 	}
-	mainInterp.SetErrorHandle(fnErrorHandle)
 	err = mainInterp.InitTcl(tcl_library)
 	if err != nil {
 		return err
@@ -45,9 +47,6 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 
 func SetErrorHandle(fn func(error)) {
 	fnErrorHandle = fn
-	if mainInterp != nil {
-		mainInterp.SetErrorHandle(fn)
-	}
 }
 
 func MainInterp() *interp.Interp {
@@ -81,23 +80,43 @@ func Quit() {
 }
 
 func eval(script string) error {
-	return mainInterp.Eval(script)
+	err := mainInterp.Eval(script)
+	if err != nil {
+		dumpError(err)
+	}
+	return err
 }
 
 func evalAsString(script string) (string, error) {
-	return mainInterp.EvalAsString(script)
+	r, err := mainInterp.EvalAsString(script)
+	if err != nil {
+		dumpError(err)
+	}
+	return r, err
 }
 
 func evalAsInt(script string) (int, error) {
-	return mainInterp.EvalAsInt(script)
+	r, err := mainInterp.EvalAsInt(script)
+	if err != nil {
+		dumpError(err)
+	}
+	return r, err
 }
 
 func evalAsFloat64(script string) (float64, error) {
-	return mainInterp.EvalAsFloat64(script)
+	r, err := mainInterp.EvalAsFloat64(script)
+	if err != nil {
+		dumpError(err)
+	}
+	return r, err
 }
 
 func evalAsBool(script string) (bool, error) {
-	return mainInterp.EvalAsBool(script)
+	r, err := mainInterp.EvalAsBool(script)
+	if err != nil {
+		dumpError(err)
+	}
+	return r, err
 }
 
 func dumpError(err error) {

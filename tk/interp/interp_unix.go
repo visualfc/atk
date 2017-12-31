@@ -160,8 +160,7 @@ func MainLoop(fn func()) {
 }
 
 type Interp struct {
-	interp        *C.Tcl_Interp
-	fnErrorHandle func(error)
+	interp *C.Tcl_Interp
 }
 
 func NewInterp() (*Interp, error) {
@@ -169,7 +168,7 @@ func NewInterp() (*Interp, error) {
 	if interp == nil {
 		return nil, errors.New("Tcl_CreateInterp failed")
 	}
-	return &Interp{interp, nil}, nil
+	return &Interp{interp}, nil
 }
 
 func (p *Interp) InitTcl(tcl_library string) error {
@@ -178,9 +177,6 @@ func (p *Interp) InitTcl(tcl_library string) error {
 	}
 	if C.Tcl_Init(p.interp) != TCL_OK {
 		err := errors.New("Tcl_Init failed")
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
 		return err
 	}
 	return nil
@@ -192,9 +188,6 @@ func (p *Interp) InitTk(tk_library string) error {
 	}
 	if C.Tk_Init(p.interp) != TCL_OK {
 		err := errors.New("Tk_Init failed")
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
 		return err
 	}
 	return nil
@@ -218,9 +211,6 @@ func (p *Interp) Eval(script string) error {
 	defer C.free(unsafe.Pointer(cs))
 	if C.Tcl_EvalEx(p.interp, cs, C.int(len(script)), 0) != TCL_OK {
 		err := errors.New(p.GetStringResult())
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
 		return err
 	}
 	return nil
@@ -234,9 +224,6 @@ func (p *Interp) CreateCommand(name string, fn func([]string) (string, error)) (
 	cmd := C._c_create_obj_command(p.interp, cs, unsafe.Pointer(id))
 	if cmd == nil {
 		err := fmt.Errorf("CreateCommand %v failed", name)
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
 		return 0, err
 	}
 	return id, nil
@@ -254,9 +241,6 @@ func (p *Interp) CreateAction(name string, fn func([]string)) (uintptr, error) {
 	cmd := C._c_create_action_command(p.interp, cs, unsafe.Pointer(id))
 	if cmd == nil {
 		err := fmt.Errorf("CreateAction %v failed", name)
-		if p.fnErrorHandle != nil {
-			p.fnErrorHandle(err)
-		}
 		return 0, err
 	}
 	return id, nil

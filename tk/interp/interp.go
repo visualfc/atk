@@ -142,10 +142,6 @@ func (interp *Interp) TkVersion() string {
 	return ver
 }
 
-func (interp *Interp) SetErrorHandle(fn func(error)) {
-	interp.fnErrorHandle = fn
-}
-
 func (p *Interp) GetStringResult() string {
 	return p.GetObjResult().ToString()
 }

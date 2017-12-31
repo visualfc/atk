@@ -3,7 +3,6 @@
 package tk
 
 import (
-	"log"
 	"sync"
 )
 
@@ -67,8 +66,5 @@ func InitTest() {
 		if err != nil {
 			panic(err)
 		}
-		SetErrorHandle(func(err error) {
-			log.Println(err)
-		})
 	})
 }
