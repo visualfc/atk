@@ -61,6 +61,16 @@ func TkVersion() (ver string) {
 	return mainInterp.TkVersion()
 }
 
+func TclLibary() (path string) {
+	path, _ = evalAsString("set tcl_library")
+	return
+}
+
+func TkLibrary() (path string) {
+	path, _ = evalAsString("set tk_library")
+	return
+}
+
 func MainLoop(fn func()) {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
