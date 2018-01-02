@@ -32,6 +32,10 @@ func ImageOptId(id string) *image_option {
 	return &image_option{"id", id}
 }
 
+func ImageOptGamma(gamma float64) *image_option {
+	return &image_option{"gamma", gamma}
+}
+
 func imageOptGif(file string) *image_option {
 	return &image_option{"file", file}
 }
@@ -146,4 +150,25 @@ func (i *Image) SetSizeN(width int, height int) *Image {
 
 func (i *Image) SetSize(sz Size) *Image {
 	return i.SetSizeN(sz.Width, sz.Height)
+}
+
+func (i *Image) Gamma() float64 {
+	v, _ := evalAsFloat64(fmt.Sprintf("%v cget -gamma", i.id))
+	return v
+}
+
+func (i *Image) SetGamma(v float64) *Image {
+	eval(fmt.Sprintf("%v configure -gamma {%v}", i.id, v))
+	return i
+}
+
+func parserImageResult(id string, err error) *Image {
+	if err != nil {
+		return nil
+	}
+	photo := interp.FindPhoto(mainInterp, id)
+	if photo == nil {
+		return nil
+	}
+	return &Image{id, photo}
 }
