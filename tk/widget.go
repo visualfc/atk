@@ -168,7 +168,7 @@ func DestroyWidget(w Widget) error {
 		return os.ErrInvalid
 	}
 	id := w.Id()
-	eval(fmt.Sprintln("destroy %v", id))
+	eval(fmt.Sprintf("destroy %v", id))
 	removeWidget(id)
 	return nil
 }
