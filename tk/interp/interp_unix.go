@@ -404,7 +404,7 @@ func (p *Photo) PutImage(img image.Image) error {
 		C.int(dstImage.Rect.Max.Y),
 		C.int(dstImage.Stride),
 		4,
-		[...]C.int{0, 1, 2, 0},
+		[...]C.int{0, 1, 2, 3},
 	}
 	status := C.Tk_PhotoPutBlock(p.interp.interp, p.handle, &block, 0, 0,
 		C.int(dstImage.Rect.Max.X), C.int(dstImage.Rect.Max.Y),
@@ -434,7 +434,7 @@ func (p *Photo) PutZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsam
 		C.int(dstImage.Rect.Max.Y),
 		C.int(dstImage.Stride),
 		4,
-		[...]C.int{0, 1, 2, 0},
+		[...]C.int{0, 1, 2, 3},
 	}
 	status := C.Tk_PhotoPutZoomedBlock(p.interp.interp, p.handle, &block,
 		0, 0, C.int(dstImage.Rect.Max.X), C.int(dstImage.Rect.Max.Y),

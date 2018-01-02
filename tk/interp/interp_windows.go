@@ -456,7 +456,7 @@ func (p *Photo) PutImage(img image.Image) error {
 		int32(dstImage.Rect.Max.Y),
 		int32(dstImage.Stride),
 		4,
-		[...]int32{0, 1, 2, 0},
+		[...]int32{0, 1, 2, 3},
 	}
 	status := Tk_PhotoPutBlock(p.interp.interp, p.handle, &block, 0, 0,
 		int32(dstImage.Rect.Max.X), int32(dstImage.Rect.Max.Y),
@@ -480,7 +480,7 @@ func (p *Photo) PutZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsam
 		int32(dstImage.Rect.Max.Y),
 		int32(dstImage.Stride),
 		4,
-		[...]int32{0, 1, 2, 0},
+		[...]int32{0, 1, 2, 3},
 	}
 	status := Tk_PhotoPutZoomedBlock(p.interp.interp, p.handle, &block,
 		0, 0, int32(dstImage.Rect.Max.X), int32(dstImage.Rect.Max.Y),
