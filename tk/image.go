@@ -45,14 +45,15 @@ func LoadImage(file string, options ...*image_option) (*Image, error) {
 		options = append(options, imageOptGif(file))
 	} else {
 		file, err := os.Open(file)
-		if err == nil {
-			im, _, err := image.Decode(file)
-			file.Close()
-			if err != nil {
-				return nil, err
-			}
-			fileImage = im
+		if err != nil {
+			return nil, err
 		}
+		im, _, err := image.Decode(file)
+		file.Close()
+		if err != nil {
+			return nil, err
+		}
+		fileImage = im
 	}
 	im := NewImage(options...)
 	if im == nil {
