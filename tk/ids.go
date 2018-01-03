@@ -37,21 +37,26 @@ var (
 	fnGenFontId   = NewGenIntFunc(0)
 	fnGenActionId = NewGenIntFunc(0)
 	fnGenWidgetId = NewGenIntFunc(0)
-	fnGetWindowId = NewGenIntFunc(0)
-	fnGetImageId  = NewGenIntFunc(0)
+	fnGenWindowId = NewGenIntFunc(0)
+	fnGenImageId  = NewGenIntFunc(0)
+	fnGenCustomId = NewGenIntFunc(0)
 )
+
+func MakeCustomId(prefix string) string {
+	return fmt.Sprintf("%v_%v", prefix, <-fnGenCustomId())
+}
 
 func MakeActionId() string {
 	return fmt.Sprintf("go_action_%v", <-fnGenActionId())
 }
 
 func MakeImageId() string {
-	return fmt.Sprintf("go_image_%v", <-fnGetImageId())
+	return fmt.Sprintf("go_image_%v", <-fnGenImageId())
 }
 
 func MakeWindowId(parent Widget, id string) string {
 	if len(id) == 0 {
-		id = fmt.Sprintf("go_window_%v", <-fnGetWindowId())
+		id = fmt.Sprintf("go_window_%v", <-fnGenWindowId())
 	} else if id[0] == '.' {
 		return id
 	}
