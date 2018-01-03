@@ -39,7 +39,7 @@ var (
 	fnGenWidgetId = NewGenIntFunc(0)
 	fnGenWindowId = NewGenIntFunc(0)
 	fnGenImageId  = NewGenIntFunc(0)
-	fnGenCustomId = NewGenIntFunc(0)
+	fnGenCustomId = NewGenInt64Func(0)
 )
 
 func MakeCustomId(prefix string) string {
