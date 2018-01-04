@@ -7,6 +7,11 @@ type Pos struct {
 	Y int
 }
 
+type Pad struct {
+	X int
+	Y int
+}
+
 type Size struct {
 	Width  int
 	Height int
