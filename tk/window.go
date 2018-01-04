@@ -343,32 +343,32 @@ func MainWindow() *Window {
 	return mainWindow
 }
 
-type window_option struct {
+type WindowOpt struct {
 	key   string
 	value interface{}
 }
 
-func WindowOptId(id string) *window_option {
-	return &window_option{"id", id}
+func WindowOptId(id string) *WindowOpt {
+	return &WindowOpt{"id", id}
 }
 
-func WindowOptBorderWidth(width int) *window_option {
-	return &window_option{"borderwidth", width}
+func WindowOptBorderWidth(width int) *WindowOpt {
+	return &WindowOpt{"borderwidth", width}
 }
 
-func WindowOptBorderStyle(style BorderStyle) *window_option {
-	return &window_option{"relief", style}
+func WindowOptBorderStyle(style BorderStyle) *WindowOpt {
+	return &WindowOpt{"relief", style}
 }
 
-func WindowOptPadx(padx int) *window_option {
-	return &window_option{"padx", padx}
+func WindowOptPadx(padx int) *WindowOpt {
+	return &WindowOpt{"padx", padx}
 }
 
-func WindowOptPady(pady int) *window_option {
-	return &window_option{"pady", pady}
+func WindowOptPady(pady int) *WindowOpt {
+	return &WindowOpt{"pady", pady}
 }
 
-func NewWindow(options ...*window_option) *Window {
+func NewWindow(options ...*WindowOpt) *Window {
 	var iid string
 	var optList []string
 	for _, opt := range options {
