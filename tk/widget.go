@@ -186,3 +186,11 @@ func DumpWidget(w Widget, offset string) string {
 	dumpWidgetHelp(w, offset, "", &ar)
 	return strings.Join(ar, "\n")
 }
+
+func NativeClassById(id string) string {
+	s, err := mainInterp.EvalAsString(fmt.Sprintf("winfo class {%v}", id))
+	if err != nil {
+		return ""
+	}
+	return s
+}

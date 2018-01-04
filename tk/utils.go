@@ -10,15 +10,22 @@ func SplitTkList(tklist string) (ar []string) {
 	lastIndex := 0
 	inBrace := false
 	inString := false
+	nBrace := 0
 	for n, v := range tklist {
 		if v == '{' {
-			inBrace = true
-			inString = false
-			lastIndex = n
+			nBrace++
+			if nBrace == 1 {
+				inBrace = true
+				inString = false
+				lastIndex = n
+			}
 		} else if v == '}' {
-			ar = append(ar, tklist[lastIndex+1:n])
-			inBrace = false
-			inString = false
+			nBrace--
+			if nBrace == 0 {
+				ar = append(ar, tklist[lastIndex+1:n])
+				inBrace = false
+				inString = false
+			}
 		} else if !inBrace {
 			if v == ' ' {
 				if inString {
