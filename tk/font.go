@@ -21,7 +21,7 @@ type Font interface {
 	IsOverstrike() bool
 }
 
-type font_option struct {
+type FontOpt struct {
 	key   string
 	value interface{}
 }
@@ -34,24 +34,24 @@ type font_option struct {
 //	return &font_option{"size",size}
 //}
 
-func FontOptId(id string) *font_option {
-	return &font_option{"id", id}
+func FontOptId(id string) *FontOpt {
+	return &FontOpt{"id", id}
 }
 
-func FontOptBold() *font_option {
-	return &font_option{"weight", "bold"}
+func FontOptBold() *FontOpt {
+	return &FontOpt{"weight", "bold"}
 }
 
-func FontOptItalic() *font_option {
-	return &font_option{"slant", "italic"}
+func FontOptItalic() *FontOpt {
+	return &FontOpt{"slant", "italic"}
 }
 
-func FontOptUnderline() *font_option {
-	return &font_option{"underline", 1}
+func FontOptUnderline() *FontOpt {
+	return &FontOpt{"underline", 1}
 }
 
-func FontOptOverstrike() *font_option {
-	return &font_option{"overstrike", 1}
+func FontOptOverstrike() *FontOpt {
+	return &FontOpt{"overstrike", 1}
 }
 
 type BaseFont struct {
@@ -135,7 +135,7 @@ func (f *UserFont) Destroy() error {
 	return nil
 }
 
-func NewUserFont(family string, size int, options ...*font_option) *UserFont {
+func NewUserFont(family string, size int, options ...*FontOpt) *UserFont {
 	var iid string
 	var optList []string
 	for _, opt := range options {

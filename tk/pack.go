@@ -8,93 +8,93 @@ import (
 	"strings"
 )
 
-type pack_option struct {
+type PackOpt struct {
 	key   string
 	value interface{}
 }
 
-func PackOptPadx(padx int) *pack_option {
-	return &pack_option{"padx", padx}
+func PackOptPadx(padx int) *PackOpt {
+	return &PackOpt{"padx", padx}
 }
 
-func PackOptPady(pady int) *pack_option {
-	return &pack_option{"pady", pady}
+func PackOptPady(pady int) *PackOpt {
+	return &PackOpt{"pady", pady}
 }
 
-func PackOptIpadx(padx int) *pack_option {
-	return &pack_option{"ipadx", padx}
+func PackOptIpadx(padx int) *PackOpt {
+	return &PackOpt{"ipadx", padx}
 }
 
-func PackOptIpady(pady int) *pack_option {
-	return &pack_option{"ipady", pady}
+func PackOptIpady(pady int) *PackOpt {
+	return &PackOpt{"ipady", pady}
 }
 
-func PackOptSideTop() *pack_option {
-	return &pack_option{"side", "top"}
+func PackOptSideTop() *PackOpt {
+	return &PackOpt{"side", "top"}
 }
 
-func PackOptSideBottom() *pack_option {
-	return &pack_option{"side", "bottom"}
+func PackOptSideBottom() *PackOpt {
+	return &PackOpt{"side", "bottom"}
 }
 
-func PackOptSideLeft() *pack_option {
-	return &pack_option{"side", "left"}
+func PackOptSideLeft() *PackOpt {
+	return &PackOpt{"side", "left"}
 }
 
-func PackOptSideRight() *pack_option {
-	return &pack_option{"side", "right"}
+func PackOptSideRight() *PackOpt {
+	return &PackOpt{"side", "right"}
 }
 
-func PackOptAnchor(anchor Anchor) *pack_option {
+func PackOptAnchor(anchor Anchor) *PackOpt {
 	v := anchor.String()
 	if v == "" {
 		return nil
 	}
-	return &pack_option{"anchor", v}
+	return &PackOpt{"anchor", v}
 }
 
-func PackOptExpand(b bool) *pack_option {
-	return &pack_option{"expand", boolToInt(b)}
+func PackOptExpand(b bool) *PackOpt {
+	return &PackOpt{"expand", boolToInt(b)}
 }
 
-func PackOptFillVertical() *pack_option {
-	return &pack_option{"fill", "x"}
+func PackOptFillVertical() *PackOpt {
+	return &PackOpt{"fill", "x"}
 }
 
-func PackOptFillHorizontal() *pack_option {
-	return &pack_option{"fill", "y"}
+func PackOptFillHorizontal() *PackOpt {
+	return &PackOpt{"fill", "y"}
 }
 
-func PackOptFillBoth() *pack_option {
-	return &pack_option{"fill", "both"}
+func PackOptFillBoth() *PackOpt {
+	return &PackOpt{"fill", "both"}
 }
 
-func PackOptBefore(w Widget) *pack_option {
+func PackOptBefore(w Widget) *PackOpt {
 	if !IsValidWidget(w) {
 		return nil
 	}
-	return &pack_option{"before", w.Id()}
+	return &PackOpt{"before", w.Id()}
 }
 
-func PackOptAfter(w Widget) *pack_option {
+func PackOptAfter(w Widget) *PackOpt {
 	if !IsValidWidget(w) {
 		return nil
 	}
-	return &pack_option{"after", w.Id()}
+	return &PackOpt{"after", w.Id()}
 }
 
-func PackOptInMaster(w Widget) *pack_option {
+func PackOptInMaster(w Widget) *PackOpt {
 	if !IsValidWidget(w) {
 		return nil
 	}
-	return &pack_option{"in", w.Id()}
+	return &PackOpt{"in", w.Id()}
 }
 
-func Pack(widget Widget, options ...*pack_option) error {
+func Pack(widget Widget, options ...*PackOpt) error {
 	return PackList([]Widget{widget}, options...)
 }
 
-func PackList(widgets []Widget, options ...*pack_option) error {
+func PackList(widgets []Widget, options ...*PackOpt) error {
 	var idList []string
 	for _, w := range widgets {
 		if IsValidWidget(w) {

@@ -23,30 +23,26 @@ func (i *Image) Id() string {
 	return i.id
 }
 
-type image_option struct {
+type ImageOpt struct {
 	key   string
 	value interface{}
 }
 
-func ImageOptId(id string) *image_option {
-	return &image_option{"id", id}
+func ImageOptId(id string) *ImageOpt {
+	return &ImageOpt{"id", id}
 }
 
-func ImageOptGamma(gamma float64) *image_option {
-	return &image_option{"gamma", gamma}
+func ImageOptGamma(gamma float64) *ImageOpt {
+	return &ImageOpt{"gamma", gamma}
 }
 
-func imageOptGif(file string) *image_option {
-	return &image_option{"file", file}
-}
-
-func LoadImage(file string, options ...*image_option) (*Image, error) {
+func LoadImage(file string, options ...*ImageOpt) (*Image, error) {
 	if file == "" {
 		return nil, os.ErrInvalid
 	}
 	var fileImage image.Image
 	if filepath.Ext(file) == ".gif" {
-		options = append(options, imageOptGif(file))
+		options = append(options, &ImageOpt{"file", file})
 	} else {
 		file, err := os.Open(file)
 		if err != nil {
@@ -69,7 +65,7 @@ func LoadImage(file string, options ...*image_option) (*Image, error) {
 	return im, nil
 }
 
-func NewImage(options ...*image_option) *Image {
+func NewImage(options ...*ImageOpt) *Image {
 	var iid string
 	var optList []string
 	for _, opt := range options {
