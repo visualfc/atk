@@ -37,12 +37,24 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 	//hide console for macOS bundle
 	mainInterp.Eval("if {[info commands console] == \"console\"} {console hide}")
 
+	for _, fn := range init_func_list {
+		fn()
+	}
+
 	mainWindow = &Window{}
 	mainWindow.SetInternalId(".")
 	mainWindow.registerWindowInfo()
 	RegisterWidget(mainWindow)
 	mainWindow.Hide()
 	return nil
+}
+
+var (
+	init_func_list []func()
+)
+
+func registerInit(fn func()) {
+	init_func_list = append(init_func_list, fn)
 }
 
 func SetErrorHandle(fn func(error)) {
