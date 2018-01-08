@@ -26,7 +26,7 @@ var (
 	mainTheme Theme
 )
 
-func themeWidgetCommandByType(typ WidgetType) (cmd string, ttk bool) {
+func themeWidgetCommand(typ WidgetType) (cmd string, ttk bool) {
 	mc, ok := typeMetaMap[typ]
 	if !ok {
 		panic(fmt.Errorf("error find metaclass type:%v", typ))
@@ -43,7 +43,7 @@ func themeWidgetCommandByType(typ WidgetType) (cmd string, ttk bool) {
 	return mc.Ttk.Command, true
 }
 
-func customWidgetCommandByType(typ WidgetType) (cmd string, ttk bool) {
+func customWidgetCommand(typ WidgetType) (cmd string, ttk bool) {
 	mc, ok := typeMetaMap[typ]
 	if !ok {
 		panic(fmt.Errorf("error find metaclass type:%v", typ))
