@@ -1,4 +1,4 @@
-// Copyright 2017 visualfc. All rights reserved.
+// Copyright 2018 visualfc. All rights reserved.
 
 // +build !go1.9
 
