@@ -45,3 +45,62 @@ type MetaType struct {
 var (
 	typeMetaMap = make(map[WidgetType]*MetaType)
 )
+
+func IsTtkClass(class string) bool {
+	for _, v := range ttkClassList {
+		if v == class {
+			return true
+		}
+	}
+	return false
+}
+
+func IsTkClass(class string) bool {
+	for _, v := range tkClassList {
+		if v == class {
+			return true
+		}
+	}
+	return false
+}
+
+var (
+	tkClassList = []string{
+		"Button",
+		"Canvas",
+		"Checkbutton",
+		"Entry",
+		"Frame",
+		"Label",
+		"Labelframe",
+		"Listbox",
+		"Menu",
+		"Menubutton",
+		"Panedwindow",
+		"Radiobutton",
+		"Scale",
+		"Scrollbar",
+		"Spinbox",
+		"Text",
+		"Toplevel",
+	}
+	ttkClassList = []string{
+		"TButton",
+		"TCheckbutton",
+		"TCombobox",
+		"TEntry",
+		"TFrame",
+		"TLabel",
+		"TLabelframe",
+		"TMenubutton",
+		"TNotebook",
+		"TPanedwindow",
+		"TProgressbar",
+		"TRadiobutton",
+		"TScale",
+		"Scrollbar",
+		"TSeparator",
+		"TSizegrip",
+		"Treeview",
+	}
+)
