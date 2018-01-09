@@ -89,7 +89,11 @@ func (typ WidgetType) ThemeConfigure() string {
 	}
 	var list []string
 	opts := mainTheme.WidgetOption(typ)
+	meta, _ := typ.MetaClass(true)
 	for _, opt := range opts {
+		if !meta.HasOption(opt.Key) {
+			continue
+		}
 		list = append(list, fmt.Sprintf("-%v {%v}", opt.Key, opt.Value))
 	}
 	return strings.Join(list, " ")
