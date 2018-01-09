@@ -2,6 +2,11 @@
 
 package tk
 
+import (
+	"fmt"
+	"strings"
+)
+
 type WidgetType int
 
 const (
@@ -59,6 +64,54 @@ type WidgetInfo struct {
 	Type      WidgetType
 	IsTtk     bool
 	MetaClass *MetaClass
+}
+
+func (typ WidgetType) MetaClass(theme bool) (meta *MetaClass, ttk bool) {
+	mc, ok := typeMetaMap[typ]
+	if !ok {
+		panic(fmt.Errorf("error find metaclass type:%v", typ))
+	}
+	if theme && mainTheme != nil && mainTheme.IsTtk() {
+		if mc.Ttk != nil {
+			return mc.Ttk, true
+		}
+		return mc.Tk, false
+	}
+	if mc.Tk != nil {
+		return mc.Tk, false
+	}
+	return mc.Ttk, true
+}
+
+func (typ WidgetType) ThemeConfigure() string {
+	if mainTheme == nil {
+		return ""
+	}
+	var list []string
+	opts := mainTheme.WidgetOption(typ)
+	for _, opt := range opts {
+		list = append(list, fmt.Sprintf("-%v {%v}", opt.Key, opt.Value))
+	}
+	return strings.Join(list, " ")
+}
+
+func CreateWidgetInfo(iid string, typ WidgetType, theme bool, extra string) *WidgetInfo {
+	meta, isttk := typ.MetaClass(theme)
+	script := fmt.Sprintf("%v %v", meta.Command, iid)
+	if theme {
+		cfg := typ.ThemeConfigure()
+		if cfg != "" {
+			script += " " + cfg
+		}
+	}
+	if extra != "" {
+		script += " " + extra
+	}
+	err := eval(script)
+	if err != nil {
+		return nil
+	}
+	return &WidgetInfo{iid, typ, isttk, meta}
 }
 
 var (
