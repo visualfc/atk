@@ -43,18 +43,24 @@ func themeWidgetCommand(typ WidgetType) (cmd string, ttk bool) {
 	return mc.Ttk.Command, true
 }
 
-func customWidgetCommand(typ WidgetType) (cmd string, ttk bool) {
+func GetWidgetMetaClass(typ WidgetType, theme bool) (meta *MetaClass, ttk bool) {
 	mc, ok := typeMetaMap[typ]
 	if !ok {
 		panic(fmt.Errorf("error find metaclass type:%v", typ))
 	}
-	if mc.Tk != nil {
-		return mc.Tk.Command, false
+	if theme && mainTheme != nil && mainTheme.IsTtk() {
+		if mc.Ttk != nil {
+			return mc.Ttk, true
+		}
+		return mc.Tk, false
 	}
-	return mc.Ttk.Command, true
+	if mc.Tk != nil {
+		return mc.Tk, false
+	}
+	return mc.Ttk, true
 }
 
-func themeWidgetConfigure(typ WidgetType) string {
+func GetWidgetThemeConfigure(typ WidgetType) string {
 	if mainTheme == nil {
 		return ""
 	}
@@ -66,22 +72,18 @@ func themeWidgetConfigure(typ WidgetType) string {
 	return strings.Join(list, " ")
 }
 
-type WidgetInfo struct {
-	Type        string
-	Class       string
-	AllowCustom bool
-}
-
-func NativeCreateWidget(iid string, typ WidgetType) *WindowInfo {
-	cmd, _ := themeWidgetCommand(typ)
-	script := fmt.Sprintf("%v %v", cmd, iid)
-	cfg := themeWidgetConfigure(typ)
-	if cfg != "" {
-		script += " " + cfg
+func CreateWidgetInfo(iid string, typ WidgetType, theme bool) *WidgetInfo {
+	meta, isttk := GetWidgetMetaClass(typ, theme)
+	script := fmt.Sprintf("%v %v", meta.Command, iid)
+	if theme {
+		cfg := GetWidgetThemeConfigure(typ)
+		if cfg != "" {
+			script += " " + cfg
+		}
 	}
 	err := eval(script)
 	if err != nil {
 		return nil
 	}
-	return &WindowInfo{}
+	return &WidgetInfo{iid, typ, isttk, meta}
 }

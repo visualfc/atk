@@ -31,7 +31,7 @@ func (w *BaseWidget) String() string {
 	}
 }
 
-func (w *BaseWidget) SetInternalId(id string) {
+func (w *BaseWidget) Attach(id string) {
 	w.id = id
 }
 

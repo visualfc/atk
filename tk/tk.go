@@ -42,7 +42,7 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 	}
 
 	mainWindow = &Window{}
-	mainWindow.SetInternalId(".")
+	mainWindow.Attach(".")
 	mainWindow.registerWindowInfo()
 	RegisterWidget(mainWindow)
 	mainWindow.Hide()

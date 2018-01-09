@@ -21,7 +21,7 @@ func (w *TestWidget) Type() string {
 
 func NewTestWidget(parent Widget, id string) *TestWidget {
 	w := &TestWidget{}
-	w.SetInternalId(MakeWidgetId(parent, id))
+	w.Attach(MakeWidgetId(parent, id))
 	RegisterWidget(w)
 	return w
 }

@@ -54,6 +54,13 @@ type MetaType struct {
 	Ttk  *MetaClass
 }
 
+type WidgetInfo struct {
+	Id        string
+	Type      WidgetType
+	IsTtk     bool
+	MetaClass *MetaClass
+}
+
 var (
 	typeMetaMap = make(map[WidgetType]*MetaType)
 )

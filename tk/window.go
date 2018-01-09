@@ -393,7 +393,7 @@ func NewWindow(options ...*WindowOpt) *Window {
 		return nil
 	}
 	w := &Window{}
-	w.SetInternalId(iid)
+	w.Attach(iid)
 	w.Hide()
 	w.registerWindowInfo()
 	RegisterWidget(w)
