@@ -36,6 +36,18 @@ type MetaClass struct {
 	Options []string
 }
 
+func (m *MetaClass) HasOption(opt string) bool {
+	if opt == "" {
+		return false
+	}
+	for _, v := range m.Options {
+		if v == opt {
+			return true
+		}
+	}
+	return false
+}
+
 type MetaType struct {
 	Type string
 	Tk   *MetaClass

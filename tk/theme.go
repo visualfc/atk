@@ -65,3 +65,23 @@ func themeWidgetConfigure(typ WidgetType) string {
 	}
 	return strings.Join(list, " ")
 }
+
+type WidgetInfo struct {
+	Type        string
+	Class       string
+	AllowCustom bool
+}
+
+func NativeCreateWidget(iid string, typ WidgetType) *WindowInfo {
+	cmd, _ := themeWidgetCommand(typ)
+	script := fmt.Sprintf("%v %v", cmd, iid)
+	cfg := themeWidgetConfigure(typ)
+	if cfg != "" {
+		script += " " + cfg
+	}
+	err := eval(script)
+	if err != nil {
+		return nil
+	}
+	return &WindowInfo{}
+}
