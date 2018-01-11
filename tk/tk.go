@@ -43,8 +43,6 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 
 	mainWindow = &Window{}
 	mainWindow.Attach(".")
-	mainWindow.registerWindowInfo()
-	RegisterWidget(mainWindow)
 	mainWindow.Hide()
 	return nil
 }

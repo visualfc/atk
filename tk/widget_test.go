@@ -19,10 +19,16 @@ func (w *TestWidget) Type() string {
 	return "TestWidget"
 }
 
+func (w *TestWidget) Attach(id string) error {
+	w.id = id
+	w.info = &WidgetInfo{WidgetTypeCanvas, "TestWidget", false, nil}
+	RegisterWidget(w)
+	return nil
+}
+
 func NewTestWidget(parent Widget, id string) *TestWidget {
 	w := &TestWidget{}
 	w.Attach(MakeWidgetId(parent, id))
-	RegisterWidget(w)
 	return w
 }
 

@@ -388,9 +388,22 @@ func NewWindow(options ...*WindowOpt) *Window {
 		return nil
 	}
 	w := &Window{}
-	w.Attach(iid)
+	w.id = iid
+	w.info = info
 	w.Hide()
 	w.registerWindowInfo()
 	RegisterWidget(w)
 	return w
+}
+
+func (w *Window) Attach(id string) error {
+	info, err := CheckWidgetInfo(id, WidgetTypeWindow)
+	if err != nil {
+		return err
+	}
+	w.id = id
+	w.info = info
+	w.registerWindowInfo()
+	RegisterWidget(w)
+	return nil
 }

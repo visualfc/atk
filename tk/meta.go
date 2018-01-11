@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+var (
+	ErrorInvalidWidgetInfo  = fmt.Errorf("invalid widget info")
+	ErrorNotMatchWidgetInfo = fmt.Errorf("not match widget info")
+)
+
 type WidgetType int
 
 const (
@@ -138,7 +143,7 @@ func findClassById(id string) string {
 	return s
 }
 
-func FindWidgetInfoById(id string) *WidgetInfo {
+func FindWidgetInfo(id string) *WidgetInfo {
 	class := findClassById(id)
 	if class == "" {
 		return nil
@@ -152,6 +157,17 @@ func FindWidgetInfoById(id string) *WidgetInfo {
 		}
 	}
 	return nil
+}
+
+func CheckWidgetInfo(id string, typ WidgetType) (*WidgetInfo, error) {
+	info := FindWidgetInfo(id)
+	if info == nil {
+		return nil, ErrorInvalidWidgetInfo
+	}
+	if info.Type != WidgetTypeWindow {
+		return nil, ErrorNotMatchWidgetInfo
+	}
+	return info, nil
 }
 
 var (

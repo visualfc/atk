@@ -10,6 +10,7 @@ import (
 
 type Widget interface {
 	Id() string
+	Info() *WidgetInfo
 	Type() string
 	Parent() Widget
 	Children() []Widget
@@ -19,7 +20,8 @@ type Widget interface {
 }
 
 type BaseWidget struct {
-	id string
+	id   string
+	info *WidgetInfo
 }
 
 func (w *BaseWidget) String() string {
@@ -31,12 +33,12 @@ func (w *BaseWidget) String() string {
 	}
 }
 
-func (w *BaseWidget) Attach(id string) {
-	w.id = id
-}
-
 func (w *BaseWidget) Id() string {
 	return w.id
+}
+
+func (w *BaseWidget) Info() *WidgetInfo {
+	return w.info
 }
 
 func (w *BaseWidget) Type() string {
@@ -187,4 +189,3 @@ func DumpWidget(w Widget, offset string) string {
 	dumpWidgetHelp(w, offset, "", &ar)
 	return strings.Join(ar, "\n")
 }
-
