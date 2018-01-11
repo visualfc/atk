@@ -124,8 +124,7 @@ func (w *BaseWidget) SetNativeOptions(opts []WidgetOpt) error {
 }
 
 var (
-	globalWidgetMap    = make(map[string]Widget)
-	globalWigetInfoMap = make(map[string]*WidgetInfo)
+	globalWidgetMap = make(map[string]Widget)
 )
 
 func RegisterWidget(w Widget) {
