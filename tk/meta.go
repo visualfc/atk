@@ -61,25 +61,26 @@ type MetaType struct {
 
 type WidgetInfo struct {
 	Type      WidgetType
+	TypeName  string
 	IsTtk     bool
 	MetaClass *MetaClass
 }
 
-func (typ WidgetType) MetaClass(theme bool) (meta *MetaClass, ttk bool) {
+func (typ WidgetType) MetaClass(theme bool) (typName string, meta *MetaClass, ttk bool) {
 	mc, ok := typeMetaMap[typ]
 	if !ok {
 		panic(fmt.Errorf("error find metaclass type:%v", typ))
 	}
 	if theme && mainTheme != nil && mainTheme.IsTtk() {
 		if mc.Ttk != nil {
-			return mc.Ttk, true
+			return mc.Type, mc.Ttk, true
 		}
-		return mc.Tk, false
+		return mc.Type, mc.Tk, false
 	}
 	if mc.Tk != nil {
-		return mc.Tk, false
+		return mc.Type, mc.Tk, false
 	}
-	return mc.Ttk, true
+	return mc.Type, mc.Ttk, true
 }
 
 func (typ WidgetType) ThemeConfigure() string {
@@ -88,7 +89,7 @@ func (typ WidgetType) ThemeConfigure() string {
 	}
 	var list []string
 	opts := mainTheme.WidgetOption(typ)
-	meta, _ := typ.MetaClass(true)
+	_, meta, _ := typ.MetaClass(true)
 	for _, opt := range opts {
 		if !meta.HasOption(opt.Key) {
 			continue
@@ -99,7 +100,7 @@ func (typ WidgetType) ThemeConfigure() string {
 }
 
 func CreateWidgetInfo(iid string, typ WidgetType, theme bool, extra []WidgetOpt) *WidgetInfo {
-	meta, isttk := typ.MetaClass(theme)
+	typName, meta, isttk := typ.MetaClass(theme)
 	script := fmt.Sprintf("%v %v", meta.Command, iid)
 	if theme {
 		cfg := typ.ThemeConfigure()
@@ -123,10 +124,13 @@ func CreateWidgetInfo(iid string, typ WidgetType, theme bool, extra []WidgetOpt)
 	if err != nil {
 		return nil
 	}
-	return &WidgetInfo{typ, isttk, meta}
+	return &WidgetInfo{typ, typName, isttk, meta}
 }
 
 func findClassById(id string) string {
+	if id == "." {
+		return "Toplevel"
+	}
 	s, err := mainInterp.EvalAsString(fmt.Sprintf("winfo class {%v}", id))
 	if err != nil {
 		return ""
@@ -141,10 +145,10 @@ func FindWidgetInfoById(id string) *WidgetInfo {
 	}
 	for k, v := range typeMetaMap {
 		if v.Tk != nil && v.Tk.Class == class {
-			return &WidgetInfo{k, false, v.Tk}
+			return &WidgetInfo{k, v.Type, false, v.Tk}
 		}
 		if v.Ttk != nil && v.Ttk.Class == class {
-			return &WidgetInfo{k, true, v.Ttk}
+			return &WidgetInfo{k, v.Type, true, v.Ttk}
 		}
 	}
 	return nil
