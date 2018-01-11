@@ -4,7 +4,6 @@ package tk
 
 import (
 	"fmt"
-	"strings"
 )
 
 type WindowInfo struct {
@@ -370,7 +369,7 @@ func WindowOptPady(pady int) *WindowOpt {
 
 func NewWindow(options ...*WindowOpt) *Window {
 	var iid string
-	var optList []string
+	var optList []WidgetOpt
 	for _, opt := range options {
 		if opt == nil {
 			continue
@@ -381,15 +380,11 @@ func NewWindow(options ...*WindowOpt) *Window {
 			}
 			continue
 		}
-		optList = append(optList, fmt.Sprintf("-%v {%v}", opt.key, opt.value))
+		optList = append(optList, WidgetOpt{opt.key, fmt.Sprintf("%v", opt.value)})
 	}
 	iid = MakeWindowId(nil, iid)
-	script := fmt.Sprintf("tk::toplevel %v", iid)
-	if len(optList) > 0 {
-		script += " " + strings.Join(optList, " ")
-	}
-	err := eval(script)
-	if err != nil {
+	info := CreateWidgetInfo(iid, WidgetTypeWindow, true, optList)
+	if info == nil {
 		return nil
 	}
 	w := &Window{}

@@ -98,7 +98,7 @@ func (typ WidgetType) ThemeConfigure() string {
 	return strings.Join(list, " ")
 }
 
-func CreateWidgetInfo(iid string, typ WidgetType, theme bool, extra string) *WidgetInfo {
+func CreateWidgetInfo(iid string, typ WidgetType, theme bool, extra []WidgetOpt) *WidgetInfo {
 	meta, isttk := typ.MetaClass(theme)
 	script := fmt.Sprintf("%v %v", meta.Command, iid)
 	if theme {
@@ -107,8 +107,17 @@ func CreateWidgetInfo(iid string, typ WidgetType, theme bool, extra string) *Wid
 			script += " " + cfg
 		}
 	}
-	if extra != "" {
-		script += " " + extra
+	if extra != nil {
+		var list []string
+		for _, opt := range extra {
+			if !meta.HasOption(opt.Key) {
+				continue
+			}
+			list = append(list, fmt.Sprintf("-%v {%v}", opt.Key, opt.Value))
+		}
+		if len(list) > 0 {
+			script += " " + strings.Join(list, " ")
+		}
 	}
 	err := eval(script)
 	if err != nil {
