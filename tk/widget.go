@@ -70,7 +70,8 @@ func (w *BaseWidget) DestroyChildren() error {
 }
 
 var (
-	globalWidgetMap = make(map[string]Widget)
+	globalWidgetMap    = make(map[string]Widget)
+	globalWigetInfoMap = make(map[string]*WidgetInfo)
 )
 
 func RegisterWidget(w Widget) {
@@ -187,10 +188,3 @@ func DumpWidget(w Widget, offset string) string {
 	return strings.Join(ar, "\n")
 }
 
-func NativeClassById(id string) string {
-	s, err := mainInterp.EvalAsString(fmt.Sprintf("winfo class {%v}", id))
-	if err != nil {
-		return ""
-	}
-	return s
-}

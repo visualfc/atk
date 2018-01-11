@@ -37,6 +37,11 @@ func (t *ttkTheme) SetThemeId(id string) error {
 	return err
 }
 
+func (t *ttkTheme) ThemeId() string {
+	r, _ := evalAsString("ttk::style theme use")
+	return r
+}
+
 var (
 	ttk_theme_list []string
 	TtkTheme       = &ttkTheme{}

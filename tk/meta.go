@@ -60,7 +60,6 @@ type MetaType struct {
 }
 
 type WidgetInfo struct {
-	Id        string
 	Type      WidgetType
 	IsTtk     bool
 	MetaClass *MetaClass
@@ -115,7 +114,31 @@ func CreateWidgetInfo(iid string, typ WidgetType, theme bool, extra string) *Wid
 	if err != nil {
 		return nil
 	}
-	return &WidgetInfo{iid, typ, isttk, meta}
+	return &WidgetInfo{typ, isttk, meta}
+}
+
+func findClassById(id string) string {
+	s, err := mainInterp.EvalAsString(fmt.Sprintf("winfo class {%v}", id))
+	if err != nil {
+		return ""
+	}
+	return s
+}
+
+func FindWidgetInfoById(id string) *WidgetInfo {
+	class := findClassById(id)
+	if class == "" {
+		return nil
+	}
+	for k, v := range typeMetaMap {
+		if v.Tk != nil && v.Tk.Class == class {
+			return &WidgetInfo{k, false, v.Tk}
+		}
+		if v.Ttk != nil && v.Ttk.Class == class {
+			return &WidgetInfo{k, true, v.Ttk}
+		}
+	}
+	return nil
 }
 
 var (
