@@ -82,8 +82,8 @@ func (w *BaseWidget) Option(key string) string {
 	return r
 }
 
-func (w *BaseWidget) SetOption(opt WidgetOpt) error {
-	return w.SetOptions([]WidgetOpt{opt})
+func (w *BaseWidget) SetOption(key string, value string) error {
+	return w.SetOptions([]WidgetOpt{WidgetOpt{key, value}})
 }
 
 func (w *BaseWidget) SetOptions(opts []WidgetOpt) error {
