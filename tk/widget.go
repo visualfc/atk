@@ -71,6 +71,38 @@ func (w *BaseWidget) DestroyChildren() error {
 	return nil
 }
 
+func (w *BaseWidget) Option(key string) string {
+	if !IsValidWidget(w) {
+		return ""
+	}
+	if !w.info.MetaClass.HasOption(key) {
+		return ""
+	}
+	r, _ := evalAsString(fmt.Sprintf("%v cget -%v", w.id, key))
+	return r
+}
+
+func (w *BaseWidget) SetOption(opt WidgetOpt) error {
+	return w.SetOptions([]WidgetOpt{opt})
+}
+
+func (w *BaseWidget) SetOptions(opts []WidgetOpt) error {
+	if !IsValidWidget(w) {
+		return os.ErrInvalid
+	}
+	var optList []string
+	for _, opt := range opts {
+		if !w.info.MetaClass.HasOption(opt.Key) {
+			continue
+		}
+		optList = append(optList, fmt.Sprintf("-%v {%v}", opt.Key, opt.Value))
+	}
+	if len(optList) > 0 {
+		return eval(fmt.Sprintf("%v configure %v", w.id, strings.Join(optList, " ")))
+	}
+	return nil
+}
+
 var (
 	globalWidgetMap    = make(map[string]Widget)
 	globalWigetInfoMap = make(map[string]*WidgetInfo)
