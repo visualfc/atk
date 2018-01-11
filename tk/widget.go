@@ -71,7 +71,7 @@ func (w *BaseWidget) DestroyChildren() error {
 	return nil
 }
 
-func (w *BaseWidget) Option(key string) string {
+func (w *BaseWidget) NativeOption(key string) string {
 	if !IsValidWidget(w) {
 		return ""
 	}
@@ -82,11 +82,31 @@ func (w *BaseWidget) Option(key string) string {
 	return r
 }
 
-func (w *BaseWidget) SetOption(key string, value string) error {
-	return w.SetOptions([]WidgetOpt{WidgetOpt{key, value}})
+func (w *BaseWidget) NativeOptions(keys ...string) (opts []WidgetOpt) {
+	if !IsValidWidget(w) {
+		return nil
+	}
+	if keys == nil {
+		for _, key := range w.info.MetaClass.Options {
+			r, _ := evalAsString(fmt.Sprintf("%v cget -%v", w.id, key))
+			opts = append(opts, WidgetOpt{key, r})
+		}
+	} else {
+		for _, key := range keys {
+			if w.info.MetaClass.HasOption(key) {
+				r, _ := evalAsString(fmt.Sprintf("%v cget -%v", w.id, key))
+				opts = append(opts, WidgetOpt{key, r})
+			}
+		}
+	}
+	return
 }
 
-func (w *BaseWidget) SetOptions(opts []WidgetOpt) error {
+func (w *BaseWidget) SetNativeOption(key string, value string) error {
+	return w.SetNativeOptions([]WidgetOpt{WidgetOpt{key, value}})
+}
+
+func (w *BaseWidget) SetNativeOptions(opts []WidgetOpt) error {
 	if !IsValidWidget(w) {
 		return os.ErrInvalid
 	}
