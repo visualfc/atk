@@ -40,37 +40,6 @@ const (
 	WidgetTypeTreeView
 )
 
-type MetaClass struct {
-	Command string
-	Class   string
-	Options []string
-}
-
-func (m *MetaClass) HasOption(opt string) bool {
-	if opt == "" {
-		return false
-	}
-	for _, v := range m.Options {
-		if v == opt {
-			return true
-		}
-	}
-	return false
-}
-
-type MetaType struct {
-	Type string
-	Tk   *MetaClass
-	Ttk  *MetaClass
-}
-
-type WidgetInfo struct {
-	Type      WidgetType
-	TypeName  string
-	IsTtk     bool
-	MetaClass *MetaClass
-}
-
 func (typ WidgetType) MetaClass(theme bool) (typName string, meta *MetaClass, ttk bool) {
 	mc, ok := typeMetaMap[typ]
 	if !ok {
@@ -104,39 +73,11 @@ func (typ WidgetType) ThemeConfigure() string {
 	return strings.Join(list, " ")
 }
 
-type WidgetOpt struct {
-	Key   string
-	Value interface{}
-}
-
-func WidgetOptInitId(id string) *WidgetOpt {
-	return &WidgetOpt{"init_id", id}
-}
-
-func WidgetOptInitTheme(use bool) *WidgetOpt {
-	return &WidgetOpt{"init_theme", use}
-}
-
-func checkInitId(options []*WidgetOpt) string {
-	for _, opt := range options {
-		if opt != nil && opt.Key == "init_id" {
-			if id, ok := opt.Value.(string); ok {
-				return id
-			}
-		}
-	}
-	return ""
-}
-
-func checkInitTheme(options []*WidgetOpt) bool {
-	for _, opt := range options {
-		if opt != nil && opt.Key == "init_theme" {
-			if use, ok := opt.Value.(bool); ok {
-				return use
-			}
-		}
-	}
-	return mainTheme != nil
+type WidgetInfo struct {
+	Type      WidgetType
+	TypeName  string
+	IsTtk     bool
+	MetaClass *MetaClass
 }
 
 func CreateWidgetInfo(iid string, typ WidgetType, theme bool, options []*WidgetOpt) *WidgetInfo {
@@ -207,66 +148,3 @@ func CheckWidgetInfo(id string, typ WidgetType) (*WidgetInfo, error) {
 	}
 	return info, nil
 }
-
-var (
-	typeMetaMap = make(map[WidgetType]*MetaType)
-)
-
-func IsTtkClass(class string) bool {
-	for _, v := range ttkClassList {
-		if v == class {
-			return true
-		}
-	}
-	return false
-}
-
-func IsTkClass(class string) bool {
-	for _, v := range tkClassList {
-		if v == class {
-			return true
-		}
-	}
-	return false
-}
-
-var (
-	tkClassList = []string{
-		"Button",
-		"Canvas",
-		"Checkbutton",
-		"Entry",
-		"Frame",
-		"Label",
-		"Labelframe",
-		"Listbox",
-		"Menu",
-		"Menubutton",
-		"Panedwindow",
-		"Radiobutton",
-		"Scale",
-		"Scrollbar",
-		"Spinbox",
-		"Text",
-		"Toplevel",
-	}
-	ttkClassList = []string{
-		"TButton",
-		"TCheckbutton",
-		"TCombobox",
-		"TEntry",
-		"TFrame",
-		"TLabel",
-		"TLabelframe",
-		"TMenubutton",
-		"TNotebook",
-		"TPanedwindow",
-		"TProgressbar",
-		"TRadiobutton",
-		"TScale",
-		"Scrollbar",
-		"TSeparator",
-		"TSizegrip",
-		"Treeview",
-	}
-)
