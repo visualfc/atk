@@ -364,7 +364,7 @@ func WindowOptPady(pady int) *WidgetOpt {
 
 func NewWindow(options ...*WidgetOpt) *Window {
 	var iid string
-	iid = lookupId(options)
+	iid = checkInitId(options)
 	iid = MakeWindowId(nil, iid)
 	info := CreateWidgetInfo(iid, WidgetTypeWindow, true, options)
 	if info == nil {

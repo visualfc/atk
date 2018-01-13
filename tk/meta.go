@@ -9,7 +9,7 @@ import (
 
 var (
 	ErrorInvalidWidgetInfo  = fmt.Errorf("invalid widget info")
-	ErrorNotMatchWidgetInfo = fmt.Errorf("not match widget info")
+	ErrorNotMatchWidgetInfo = fmt.Errorf("widget info not match")
 )
 
 type WidgetType int
@@ -109,15 +109,34 @@ type WidgetOpt struct {
 	Value interface{}
 }
 
-func lookupId(options []*WidgetOpt) string {
+func WidgetOptInitId(id string) *WidgetOpt {
+	return &WidgetOpt{"init_id", id}
+}
+
+func WidgetOptInitTheme(use bool) *WidgetOpt {
+	return &WidgetOpt{"init_theme", use}
+}
+
+func checkInitId(options []*WidgetOpt) string {
 	for _, opt := range options {
-		if opt != nil && opt.Key == "id" {
+		if opt != nil && opt.Key == "init_id" {
 			if id, ok := opt.Value.(string); ok {
 				return id
 			}
 		}
 	}
 	return ""
+}
+
+func checkInitTheme(options []*WidgetOpt) bool {
+	for _, opt := range options {
+		if opt != nil && opt.Key == "init_theme" {
+			if use, ok := opt.Value.(bool); ok {
+				return use
+			}
+		}
+	}
+	return mainTheme != nil
 }
 
 func CreateWidgetInfo(iid string, typ WidgetType, theme bool, options []*WidgetOpt) *WidgetInfo {
