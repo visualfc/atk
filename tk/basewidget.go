@@ -116,18 +116,9 @@ func (w *BaseWidget) SetWidgetOptions(options ...*WidgetOpt) error {
 	if !IsValidWidget(w) {
 		return os.ErrInvalid
 	}
-	var optList []string
-	for _, opt := range options {
-		if opt == nil {
-			continue
-		}
-		if !w.info.MetaClass.HasOption(opt.Key) {
-			continue
-		}
-		optList = append(optList, fmt.Sprintf("-%v {%v}", opt.Key, opt.Value))
-	}
-	if len(optList) > 0 {
-		return eval(fmt.Sprintf("%v configure %v", w.id, strings.Join(optList, " ")))
+	extra := buildWidgetOptScript(w.info.MetaClass, w.info.IsTtk, options)
+	if len(extra) > 0 {
+		return eval(fmt.Sprintf("%v configure %v", w.id, extra))
 	}
 	return nil
 }

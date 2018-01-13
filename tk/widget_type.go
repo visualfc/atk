@@ -80,6 +80,24 @@ type WidgetInfo struct {
 	MetaClass *MetaClass
 }
 
+func buildWidgetOptScript(meta *MetaClass, ttk bool, options []*WidgetOpt) string {
+	var list []string
+	for _, opt := range options {
+		if opt == nil {
+			continue
+		}
+		if opt.Key == "padding" {
+			list = append(list, checkPaddingScript(ttk, opt))
+			continue
+		}
+		if !meta.HasOption(opt.Key) {
+			continue
+		}
+		list = append(list, fmt.Sprintf("-%v {%v}", opt.Key, opt.Value))
+	}
+	return strings.Join(list, " ")
+}
+
 func CreateWidgetInfo(iid string, typ WidgetType, theme bool, options []*WidgetOpt) *WidgetInfo {
 	typName, meta, isttk := typ.MetaClass(theme)
 	script := fmt.Sprintf("%v %v", meta.Command, iid)
@@ -90,18 +108,9 @@ func CreateWidgetInfo(iid string, typ WidgetType, theme bool, options []*WidgetO
 		}
 	}
 	if len(options) > 0 {
-		var list []string
-		for _, opt := range options {
-			if opt == nil {
-				continue
-			}
-			if !meta.HasOption(opt.Key) {
-				continue
-			}
-			list = append(list, fmt.Sprintf("-%v {%v}", opt.Key, opt.Value))
-		}
-		if len(list) > 0 {
-			script += " " + strings.Join(list, " ")
+		extra := buildWidgetOptScript(meta, isttk, options)
+		if len(extra) > 0 {
+			script += " " + extra
 		}
 	}
 	err := eval(script)
