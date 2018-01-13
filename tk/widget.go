@@ -82,20 +82,20 @@ func (w *BaseWidget) NativeOption(key string) string {
 	return r
 }
 
-func (w *BaseWidget) NativeOptions(keys ...string) (opts []WidgetOpt) {
+func (w *BaseWidget) NativeOptions(keys ...string) (opts []NativeOpt) {
 	if !IsValidWidget(w) {
 		return nil
 	}
 	if keys == nil {
 		for _, key := range w.info.MetaClass.Options {
 			r, _ := evalAsString(fmt.Sprintf("%v cget -%v", w.id, key))
-			opts = append(opts, WidgetOpt{key, r})
+			opts = append(opts, NativeOpt{key, r})
 		}
 	} else {
 		for _, key := range keys {
 			if w.info.MetaClass.HasOption(key) {
 				r, _ := evalAsString(fmt.Sprintf("%v cget -%v", w.id, key))
-				opts = append(opts, WidgetOpt{key, r})
+				opts = append(opts, NativeOpt{key, r})
 			}
 		}
 	}
@@ -103,10 +103,10 @@ func (w *BaseWidget) NativeOptions(keys ...string) (opts []WidgetOpt) {
 }
 
 func (w *BaseWidget) SetNativeOption(key string, value string) error {
-	return w.SetNativeOptions([]WidgetOpt{WidgetOpt{key, value}})
+	return w.SetNativeOptions([]NativeOpt{NativeOpt{key, value}})
 }
 
-func (w *BaseWidget) SetNativeOptions(opts []WidgetOpt) error {
+func (w *BaseWidget) SetNativeOptions(opts []NativeOpt) error {
 	if !IsValidWidget(w) {
 		return os.ErrInvalid
 	}

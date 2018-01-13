@@ -342,48 +342,31 @@ func MainWindow() *Window {
 	return mainWindow
 }
 
-type WindowOpt struct {
-	key   string
-	value interface{}
+func WindowOptId(id string) *WidgetOpt {
+	return &WidgetOpt{"id", id}
 }
 
-func WindowOptId(id string) *WindowOpt {
-	return &WindowOpt{"id", id}
+func WindowOptBorderWidth(width int) *WidgetOpt {
+	return &WidgetOpt{"borderwidth", width}
 }
 
-func WindowOptBorderWidth(width int) *WindowOpt {
-	return &WindowOpt{"borderwidth", width}
+func WindowOptBorderStyle(style BorderStyle) *WidgetOpt {
+	return &WidgetOpt{"relief", style}
 }
 
-func WindowOptBorderStyle(style BorderStyle) *WindowOpt {
-	return &WindowOpt{"relief", style}
+func WindowOptPadx(padx int) *WidgetOpt {
+	return &WidgetOpt{"padx", padx}
 }
 
-func WindowOptPadx(padx int) *WindowOpt {
-	return &WindowOpt{"padx", padx}
+func WindowOptPady(pady int) *WidgetOpt {
+	return &WidgetOpt{"pady", pady}
 }
 
-func WindowOptPady(pady int) *WindowOpt {
-	return &WindowOpt{"pady", pady}
-}
-
-func NewWindow(options ...*WindowOpt) *Window {
+func NewWindow(options ...*WidgetOpt) *Window {
 	var iid string
-	var optList []WidgetOpt
-	for _, opt := range options {
-		if opt == nil {
-			continue
-		}
-		if opt.key == "id" {
-			if v, ok := opt.value.(string); ok {
-				iid = v
-			}
-			continue
-		}
-		optList = append(optList, WidgetOpt{opt.key, fmt.Sprintf("%v", opt.value)})
-	}
+	iid = lookupId(options)
 	iid = MakeWindowId(nil, iid)
-	info := CreateWidgetInfo(iid, WidgetTypeWindow, true, optList)
+	info := CreateWidgetInfo(iid, WidgetTypeWindow, true, options)
 	if info == nil {
 		return nil
 	}

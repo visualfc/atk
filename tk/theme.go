@@ -2,7 +2,7 @@
 
 package tk
 
-type WidgetOpt struct {
+type NativeOpt struct {
 	Key   string
 	Value string
 }
@@ -10,7 +10,7 @@ type WidgetOpt struct {
 type Theme interface {
 	Name() string
 	IsTtk() bool
-	WidgetOption(typ WidgetType) []WidgetOpt
+	WidgetOption(typ WidgetType) []NativeOpt
 }
 
 func SetTheme(theme Theme) {

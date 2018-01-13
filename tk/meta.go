@@ -104,7 +104,23 @@ func (typ WidgetType) ThemeConfigure() string {
 	return strings.Join(list, " ")
 }
 
-func CreateWidgetInfo(iid string, typ WidgetType, theme bool, extra []WidgetOpt) *WidgetInfo {
+type WidgetOpt struct {
+	Key   string
+	Value interface{}
+}
+
+func lookupId(options []*WidgetOpt) string {
+	for _, opt := range options {
+		if opt != nil && opt.Key == "id" {
+			if id, ok := opt.Value.(string); ok {
+				return id
+			}
+		}
+	}
+	return ""
+}
+
+func CreateWidgetInfo(iid string, typ WidgetType, theme bool, options []*WidgetOpt) *WidgetInfo {
 	typName, meta, isttk := typ.MetaClass(theme)
 	script := fmt.Sprintf("%v %v", meta.Command, iid)
 	if theme {
@@ -113,9 +129,12 @@ func CreateWidgetInfo(iid string, typ WidgetType, theme bool, extra []WidgetOpt)
 			script += " " + cfg
 		}
 	}
-	if extra != nil {
+	if len(options) > 0 {
 		var list []string
-		for _, opt := range extra {
+		for _, opt := range options {
+			if opt == nil {
+				continue
+			}
 			if !meta.HasOption(opt.Key) {
 				continue
 			}
