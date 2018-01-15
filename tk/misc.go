@@ -125,3 +125,76 @@ func parserAnchorResult(r string, err error) Anchor {
 	}
 	return -1
 }
+
+type Compound int
+
+const (
+	CompoundNone = iota
+	CompoundTop
+	CompoundBottom
+	CompoundLeft
+	CompoundRight
+	CompoundCenter
+)
+
+var (
+	compoundName = []string{"none", "top", "bottom", "left", "right", "center"}
+)
+
+func (v Compound) String() string {
+	if v >= 0 && int(v) < len(compoundName) {
+		return compoundName[v]
+	}
+	return ""
+}
+
+func parserCompoundResult(r string, err error) Compound {
+	if err != nil {
+		return 0
+	}
+	for n, s := range compoundName {
+		if s == r {
+			return Compound(n)
+		}
+	}
+	return 0
+}
+
+type State int
+
+const (
+	StateNormal = iota
+	StateActive
+	StateDisable
+	StateReadOnly
+)
+
+var (
+	stateName = []string{"normal", "active", "disabled", "readonly"}
+)
+
+func (v State) String() string {
+	if v >= 0 && int(v) < len(stateName) {
+		return stateName[v]
+	}
+	return ""
+}
+
+func parserStateResult(r string, err error) State {
+	if err != nil {
+		return 0
+	}
+	for n, s := range stateName {
+		if s == r {
+			return State(n)
+		}
+	}
+	return 0
+}
+
+func parserPaddingResult(r string, err error) (int, int) {
+	if err != nil {
+		return 0, 0
+	}
+	return parserTwoInt(r)
+}
