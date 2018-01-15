@@ -8,7 +8,8 @@ import (
 )
 
 func init() {
-	InitTest()
+	registerTest("TestWidgetId", testWidgetId)
+	registerTest("TestWidgetParent", testWidgetParent)
 }
 
 type TestWidget struct {
@@ -32,7 +33,7 @@ func NewTestWidget(parent Widget, id string) *TestWidget {
 	return w
 }
 
-func TestWidgetId(t *testing.T) {
+func testWidgetId(t *testing.T) {
 	var id string
 	parent := NewTestWidget(nil, ".base")
 	id = MakeWidgetId(nil, "")
@@ -67,7 +68,7 @@ func findOfList(w Widget, list []Widget) bool {
 	return false
 }
 
-func TestWidgetParent(t *testing.T) {
+func testWidgetParent(t *testing.T) {
 	a1 := NewTestWidget(nil, "a1")
 	a2 := NewTestWidget(nil, "a2")
 	defer a1.Destroy()

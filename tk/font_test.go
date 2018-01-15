@@ -7,10 +7,10 @@ import (
 )
 
 func init() {
-	InitTest()
+	registerTest("Font", testFont)
 }
 
-func TestFont(t *testing.T) {
+func testFont(t *testing.T) {
 	font := NewUserFont("Courier", 18, FontOptBold(), FontOptItalic(), FontOptUnderline(), FontOptOverstrike())
 	defer font.Destroy()
 

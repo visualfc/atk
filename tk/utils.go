@@ -2,10 +2,6 @@
 
 package tk
 
-import (
-	"sync"
-)
-
 func SplitTkList(tklist string) (ar []string) {
 	lastIndex := 0
 	inBrace := false
@@ -61,20 +57,4 @@ func boolToInt(b bool) int {
 		return 1
 	}
 	return 0
-}
-
-var (
-	testOnce sync.Once
-)
-
-func InitTest() {
-	testOnce.Do(func() {
-		err := Init()
-		if err != nil {
-			panic(err)
-		}
-		fnErrorHandle = func(err error) {
-			panic(err)
-		}
-	})
 }

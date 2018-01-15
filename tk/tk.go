@@ -3,6 +3,7 @@
 package tk
 
 import (
+	"fmt"
 	"log"
 	"runtime"
 
@@ -141,6 +142,6 @@ func evalAsBool(script string) (bool, error) {
 
 func dumpError(err error) {
 	if fnErrorHandle != nil {
-		fnErrorHandle(err)
+		fnErrorHandle(fmt.Errorf("MainThread:%v %v", interp.IsMainThread(), err))
 	}
 }
