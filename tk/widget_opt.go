@@ -6,19 +6,23 @@ import (
 	"fmt"
 )
 
+// widget option
 type WidgetOpt struct {
 	Key   string
 	Value interface{}
 }
 
+// setup widget init id, otherwise auto setup
 func WidgetOptInitId(id string) *WidgetOpt {
 	return &WidgetOpt{"init_id", id}
 }
 
+// setup widget init enable/disable theme
 func WidgetOptInitTheme(use bool) *WidgetOpt {
 	return &WidgetOpt{"init_theme", use}
 }
 
+// setup widget font
 func WidgetOptFont(font Font) *WidgetOpt {
 	if font == nil {
 		return nil
@@ -26,18 +30,22 @@ func WidgetOptFont(font Font) *WidgetOpt {
 	return &WidgetOpt{"font", font.Id()}
 }
 
+// setup widget width
 func WidgetOptWidth(width int) *WidgetOpt {
 	return &WidgetOpt{"width", width}
 }
 
+// setup widget height pixel or line
 func WidgetOptHeight(height int) *WidgetOpt {
 	return &WidgetOpt{"height", height}
 }
 
+// setup widget text
 func WidgetOptText(text string) *WidgetOpt {
 	return &WidgetOpt{"text", text}
 }
 
+// setup widget image
 func WidgetOptImage(image *Image) *WidgetOpt {
 	if image == nil {
 		return nil
@@ -45,23 +53,28 @@ func WidgetOptImage(image *Image) *WidgetOpt {
 	return &WidgetOpt{"image", image.Id()}
 }
 
+// setup widget border style (tk relief option)
 func WidgetOptBorderStyle(style BorderStyle) *WidgetOpt {
 	return &WidgetOpt{"relief", style}
 }
 
+// setup widget border width
 func WidgetOptBorderWidth(width int) *WidgetOpt {
 	return &WidgetOpt{"borderwidth", width}
 }
 
-func WidgetOptPadding(pad *Pad) *WidgetOpt {
-	if pad == nil {
-		return nil
-	}
+// setup widget padding (ttk padding or tk padx/pady)
+func WidgetOptPadding(pad Pad) *WidgetOpt {
 	return &WidgetOpt{"padding", pad}
 }
 
+// setup widget padding (ttk padding or tk padx/pady)
+func WidgetOptPaddingN(padx int, pady int) *WidgetOpt {
+	return &WidgetOpt{"padding", Pad{padx, pady}}
+}
+
 func checkPaddingScript(ttk bool, opt *WidgetOpt) string {
-	if pad, ok := opt.Value.(*Pad); ok {
+	if pad, ok := opt.Value.(Pad); ok {
 		if ttk {
 			return fmt.Sprintf("-padding {%v %v}", pad.X, pad.Y)
 		} else {

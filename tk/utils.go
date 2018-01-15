@@ -73,5 +73,8 @@ func InitTest() {
 		if err != nil {
 			panic(err)
 		}
+		fnErrorHandle = func(err error) {
+			panic(err)
+		}
 	})
 }
