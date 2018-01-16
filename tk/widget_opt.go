@@ -12,14 +12,9 @@ type WidgetOpt struct {
 	Value interface{}
 }
 
-// setup widget init id, otherwise auto setup
-func WidgetOptInitId(id string) *WidgetOpt {
-	return &WidgetOpt{"init_id", id}
-}
-
 // setup widget init enable/disable theme
-func WidgetOptInitTheme(use bool) *WidgetOpt {
-	return &WidgetOpt{"init_theme", use}
+func WidgetOptInitUseTheme(use bool) *WidgetOpt {
+	return &WidgetOpt{"init_use_theme", use}
 }
 
 // setup widget font
@@ -84,20 +79,9 @@ func checkPaddingScript(ttk bool, opt *WidgetOpt) string {
 	return ""
 }
 
-func checkInitId(options []*WidgetOpt) string {
+func checkInitUseTheme(options []*WidgetOpt) bool {
 	for _, opt := range options {
-		if opt != nil && opt.Key == "init_id" {
-			if id, ok := opt.Value.(string); ok {
-				return id
-			}
-		}
-	}
-	return ""
-}
-
-func checkInitTheme(options []*WidgetOpt) bool {
-	for _, opt := range options {
-		if opt != nil && opt.Key == "init_theme" {
+		if opt != nil && opt.Key == "init_use_theme" {
 			if use, ok := opt.Value.(bool); ok {
 				return use
 			}

@@ -39,6 +39,7 @@ var (
 	fnGenWidgetId = NewGenIntFunc(0)
 	fnGenWindowId = NewGenIntFunc(0)
 	fnGenImageId  = NewGenIntFunc(0)
+	fnGenMenuId   = NewGenIntFunc(0)
 	fnGenCustomId = NewGenInt64Func(0)
 )
 
@@ -94,4 +95,8 @@ func MakeWidgetId(parent Widget, id string) string {
 
 func MakeFontId() string {
 	return fmt.Sprintf("go_font_%v", <-fnGenActionId())
+}
+
+func MakeMenuId() string {
+	return fmt.Sprintf("go_menu_%v", <-fnGenMenuId())
 }

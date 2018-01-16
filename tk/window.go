@@ -363,9 +363,11 @@ func WindowOptPady(pady int) *WidgetOpt {
 }
 
 func NewWindow(options ...*WidgetOpt) *Window {
-	var iid string
-	iid = checkInitId(options)
-	iid = MakeWindowId(nil, iid)
+	return NewWindowEx("", options...)
+}
+
+func NewWindowEx(id string, options ...*WidgetOpt) *Window {
+	iid := MakeWindowId(nil, id)
 	info := CreateWidgetInfo(iid, WidgetTypeWindow, true, options)
 	if info == nil {
 		return nil
@@ -389,4 +391,18 @@ func (w *Window) Attach(id string) error {
 	w.registerWindowInfo()
 	RegisterWidget(w)
 	return nil
+}
+
+func (w *Window) SetMenu(m *Menu) *Window {
+	var mid string
+	if m != nil {
+		mid = m.Id()
+	}
+	eval(fmt.Sprintf("%v configure -menu {%v}", w.id, mid))
+	return w
+}
+
+func (w *Window) Menu() *Menu {
+	r, err := evalAsString(fmt.Sprintf("%v cget -menu", w.id))
+	return parserMenuResult(r, err)
 }

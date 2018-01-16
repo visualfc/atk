@@ -132,6 +132,9 @@ func findClassById(id string) string {
 }
 
 func FindWidgetInfo(id string) *WidgetInfo {
+	if id == "" {
+		return nil
+	}
 	class := findClassById(id)
 	if class == "" {
 		return nil

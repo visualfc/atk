@@ -2,6 +2,18 @@
 
 package tk
 
+import (
+	"strings"
+)
+
+func toTkList(ar []string) string {
+	var list []string
+	for _, v := range ar {
+		list = append(list, "{"+v+"}")
+	}
+	return strings.Join(list, " ")
+}
+
 func SplitTkList(tklist string) (ar []string) {
 	lastIndex := 0
 	inBrace := false

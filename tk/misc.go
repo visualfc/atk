@@ -198,3 +198,10 @@ func parserPaddingResult(r string, err error) (int, int) {
 	}
 	return parserTwoInt(r)
 }
+
+func parserTkListResult(r string, err error) []string {
+	if err != nil {
+		return nil
+	}
+	return SplitTkList(r)
+}
