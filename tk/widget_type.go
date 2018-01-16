@@ -86,14 +86,14 @@ func buildWidgetOptScript(meta *MetaClass, ttk bool, options []*WidgetOpt) strin
 		if opt == nil {
 			continue
 		}
-		if opt.Key == "padding" {
+		if opt.key == "padding" {
 			list = append(list, checkPaddingScript(ttk, opt))
 			continue
 		}
-		if !meta.HasOption(opt.Key) {
+		if !meta.HasOption(opt.key) {
 			continue
 		}
-		list = append(list, fmt.Sprintf("-%v {%v}", opt.Key, opt.Value))
+		list = append(list, fmt.Sprintf("-%v {%v}", opt.key, opt.value))
 	}
 	return strings.Join(list, " ")
 }

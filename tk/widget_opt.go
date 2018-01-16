@@ -8,8 +8,8 @@ import (
 
 // widget option
 type WidgetOpt struct {
-	Key   string
-	Value interface{}
+	key   string
+	value interface{}
 }
 
 // setup widget init enable/disable theme
@@ -69,7 +69,7 @@ func WidgetOptPaddingN(padx int, pady int) *WidgetOpt {
 }
 
 func checkPaddingScript(ttk bool, opt *WidgetOpt) string {
-	if pad, ok := opt.Value.(Pad); ok {
+	if pad, ok := opt.value.(Pad); ok {
 		if ttk {
 			return fmt.Sprintf("-padding {%v %v}", pad.X, pad.Y)
 		} else {
@@ -81,8 +81,8 @@ func checkPaddingScript(ttk bool, opt *WidgetOpt) string {
 
 func checkInitUseTheme(options []*WidgetOpt) bool {
 	for _, opt := range options {
-		if opt != nil && opt.Key == "init_use_theme" {
-			if use, ok := opt.Value.(bool); ok {
+		if opt != nil && opt.key == "init_use_theme" {
+			if use, ok := opt.value.(bool); ok {
 				return use
 			}
 		}
