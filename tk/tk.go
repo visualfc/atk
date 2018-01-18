@@ -7,7 +7,7 @@ import (
 	"log"
 	"runtime"
 
-	"github.com/visualfc/go-tk/tk/interp"
+	"github.com/visualfc/atk/tk/interp"
 )
 
 var (

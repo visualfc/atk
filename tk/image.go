@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/visualfc/go-tk/tk/interp"
+	"github.com/visualfc/atk/tk/interp"
 )
 
 type Image struct {
