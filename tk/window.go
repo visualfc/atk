@@ -342,33 +342,33 @@ func MainWindow() *Window {
 	return mainWindow
 }
 
-func WindowOptId(id string) *WidgetOpt {
-	return &WidgetOpt{"id", id}
+func WindowOptId(id string) *WidgetAttr {
+	return &WidgetAttr{"id", id}
 }
 
-func WindowOptBorderWidth(width int) *WidgetOpt {
-	return &WidgetOpt{"borderwidth", width}
+func WindowOptBorderWidth(width int) *WidgetAttr {
+	return &WidgetAttr{"borderwidth", width}
 }
 
-func WindowOptBorderStyle(style BorderStyle) *WidgetOpt {
-	return &WidgetOpt{"relief", style}
+func WindowOptBorderStyle(style BorderStyle) *WidgetAttr {
+	return &WidgetAttr{"relief", style}
 }
 
-func WindowOptPadx(padx int) *WidgetOpt {
-	return &WidgetOpt{"padx", padx}
+func WindowOptPadx(padx int) *WidgetAttr {
+	return &WidgetAttr{"padx", padx}
 }
 
-func WindowOptPady(pady int) *WidgetOpt {
-	return &WidgetOpt{"pady", pady}
+func WindowOptPady(pady int) *WidgetAttr {
+	return &WidgetAttr{"pady", pady}
 }
 
-func NewWindow(options ...*WidgetOpt) *Window {
-	return NewWindowEx("", options...)
+func NewWindow(attributes ...*WidgetAttr) *Window {
+	return NewWindowEx("", attributes...)
 }
 
-func NewWindowEx(id string, options ...*WidgetOpt) *Window {
+func NewWindowEx(id string, attributes ...*WidgetAttr) *Window {
 	iid := MakeWindowId(nil, id)
-	info := CreateWidgetInfo(iid, WidgetTypeWindow, true, options)
+	info := CreateWidgetInfo(iid, WidgetTypeWindow, true, attributes)
 	if info == nil {
 		return nil
 	}

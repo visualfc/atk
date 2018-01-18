@@ -62,13 +62,13 @@ func (typ WidgetType) ThemeConfigure() string {
 		return ""
 	}
 	var list []string
-	opts := mainTheme.WidgetOption(typ)
+	attrs := mainTheme.WidgetAttributes(typ)
 	_, meta, _ := typ.MetaClass(true)
-	for _, opt := range opts {
-		if !meta.HasOption(opt.Key) {
+	for _, attr := range attrs {
+		if !meta.HasAttribute(attr.Key) {
 			continue
 		}
-		list = append(list, fmt.Sprintf("-%v {%v}", opt.Key, opt.Value))
+		list = append(list, fmt.Sprintf("-%v {%v}", attr.Key, attr.Value))
 	}
 	return strings.Join(list, " ")
 }
@@ -80,25 +80,25 @@ type WidgetInfo struct {
 	MetaClass *MetaClass
 }
 
-func buildWidgetOptScript(meta *MetaClass, ttk bool, options []*WidgetOpt) string {
+func buildWidgetAttributeScript(meta *MetaClass, ttk bool, attributes []*WidgetAttr) string {
 	var list []string
-	for _, opt := range options {
-		if opt == nil {
+	for _, attr := range attributes {
+		if attr == nil {
 			continue
 		}
-		if opt.key == "padding" {
-			list = append(list, checkPaddingScript(ttk, opt))
+		if attr.key == "padding" {
+			list = append(list, checkPaddingScript(ttk, attr))
 			continue
 		}
-		if !meta.HasOption(opt.key) {
+		if !meta.HasAttribute(attr.key) {
 			continue
 		}
-		list = append(list, fmt.Sprintf("-%v {%v}", opt.key, opt.value))
+		list = append(list, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
 	}
 	return strings.Join(list, " ")
 }
 
-func CreateWidgetInfo(iid string, typ WidgetType, theme bool, options []*WidgetOpt) *WidgetInfo {
+func CreateWidgetInfo(iid string, typ WidgetType, theme bool, attributes []*WidgetAttr) *WidgetInfo {
 	typName, meta, isttk := typ.MetaClass(theme)
 	script := fmt.Sprintf("%v %v", meta.Command, iid)
 	if theme {
@@ -107,8 +107,8 @@ func CreateWidgetInfo(iid string, typ WidgetType, theme bool, options []*WidgetO
 			script += " " + cfg
 		}
 	}
-	if len(options) > 0 {
-		extra := buildWidgetOptScript(meta, isttk, options)
+	if len(attributes) > 0 {
+		extra := buildWidgetAttributeScript(meta, isttk, attributes)
 		if len(extra) > 0 {
 			script += " " + extra
 		}

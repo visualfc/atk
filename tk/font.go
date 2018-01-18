@@ -21,25 +21,25 @@ type Font interface {
 	IsOverstrike() bool
 }
 
-type FontOpt struct {
+type FontAttr struct {
 	key   string
 	value interface{}
 }
 
-func FontOptBold() *FontOpt {
-	return &FontOpt{"weight", "bold"}
+func FontAttrBold() *FontAttr {
+	return &FontAttr{"weight", "bold"}
 }
 
-func FontOptItalic() *FontOpt {
-	return &FontOpt{"slant", "italic"}
+func FontAttrItalic() *FontAttr {
+	return &FontAttr{"slant", "italic"}
 }
 
-func FontOptUnderline() *FontOpt {
-	return &FontOpt{"underline", 1}
+func FontAttrUnderline() *FontAttr {
+	return &FontAttr{"underline", 1}
 }
 
-func FontOptOverstrike() *FontOpt {
-	return &FontOpt{"overstrike", 1}
+func FontAttrOverstrike() *FontAttr {
+	return &FontAttr{"overstrike", 1}
 }
 
 type BaseFont struct {
@@ -123,25 +123,25 @@ func (f *UserFont) Destroy() error {
 	return nil
 }
 
-func NewUserFont(family string, size int, options ...*FontOpt) *UserFont {
-	return NewUserFontEx("", family, size, options...)
+func NewUserFont(family string, size int, attributes ...*FontAttr) *UserFont {
+	return NewUserFontEx("", family, size, attributes...)
 }
 
-func NewUserFontEx(id string, family string, size int, options ...*FontOpt) *UserFont {
-	var optList []string
-	for _, opt := range options {
-		if opt == nil {
+func NewUserFontEx(id string, family string, size int, attributes ...*FontAttr) *UserFont {
+	var attrList []string
+	for _, attr := range attributes {
+		if attr == nil {
 			continue
 		}
-		optList = append(optList, fmt.Sprintf("-%v {%v}", opt.key, opt.value))
+		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
 	}
 	iid := id
 	if iid == "" {
 		iid = MakeFontId()
 	}
 	script := fmt.Sprintf("font create %v -family {%v} -size %v", iid, family, size)
-	if len(optList) > 0 {
-		script += " " + strings.Join(optList, " ")
+	if len(attrList) > 0 {
+		script += " " + strings.Join(attrList, " ")
 	}
 	err := eval(script)
 	if err != nil {

@@ -17,7 +17,7 @@ func (t *ttkTheme) IsTtk() bool {
 	return true
 }
 
-func (t *ttkTheme) WidgetOption(typ WidgetType) []NativeOpt {
+func (t *ttkTheme) WidgetOption(typ WidgetType) []NativeAttr {
 	return nil
 }
 

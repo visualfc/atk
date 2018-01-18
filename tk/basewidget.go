@@ -60,63 +60,63 @@ func (w *BaseWidget) DestroyChildren() error {
 	return nil
 }
 
-func (w *BaseWidget) NativeOption(key string) string {
+func (w *BaseWidget) NativeAttribute(key string) string {
 	if !IsValidWidget(w) {
 		return ""
 	}
-	if !w.info.MetaClass.HasOption(key) {
+	if !w.info.MetaClass.HasAttribute(key) {
 		return ""
 	}
 	r, _ := evalAsString(fmt.Sprintf("%v cget -%v", w.id, key))
 	return r
 }
 
-func (w *BaseWidget) NativeOptions(keys ...string) (opts []NativeOpt) {
+func (w *BaseWidget) NativeAttributes(keys ...string) (attributes []NativeAttr) {
 	if !IsValidWidget(w) {
 		return nil
 	}
 	if keys == nil {
-		for _, key := range w.info.MetaClass.Options {
+		for _, key := range w.info.MetaClass.Attributes {
 			r, _ := evalAsString(fmt.Sprintf("%v cget -%v", w.id, key))
-			opts = append(opts, NativeOpt{key, r})
+			attributes = append(attributes, NativeAttr{key, r})
 		}
 	} else {
 		for _, key := range keys {
-			if w.info.MetaClass.HasOption(key) {
+			if w.info.MetaClass.HasAttribute(key) {
 				r, _ := evalAsString(fmt.Sprintf("%v cget -%v", w.id, key))
-				opts = append(opts, NativeOpt{key, r})
+				attributes = append(attributes, NativeAttr{key, r})
 			}
 		}
 	}
 	return
 }
 
-func (w *BaseWidget) SetNativeOption(key string, value string) error {
-	return w.SetNativeOptions([]NativeOpt{NativeOpt{key, value}}...)
+func (w *BaseWidget) SetNativeAttribute(key string, value string) error {
+	return w.SetNativeAttributes([]NativeAttr{NativeAttr{key, value}}...)
 }
 
-func (w *BaseWidget) SetNativeOptions(options ...NativeOpt) error {
+func (w *BaseWidget) SetNativeAttributes(attributes ...NativeAttr) error {
 	if !IsValidWidget(w) {
 		return os.ErrInvalid
 	}
-	var optList []string
-	for _, opt := range options {
-		if !w.info.MetaClass.HasOption(opt.Key) {
+	var attrList []string
+	for _, attr := range attributes {
+		if !w.info.MetaClass.HasAttribute(attr.Key) {
 			continue
 		}
-		optList = append(optList, fmt.Sprintf("-%v {%v}", opt.Key, opt.Value))
+		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.Key, attr.Value))
 	}
-	if len(optList) > 0 {
-		return eval(fmt.Sprintf("%v configure %v", w.id, strings.Join(optList, " ")))
+	if len(attrList) > 0 {
+		return eval(fmt.Sprintf("%v configure %v", w.id, strings.Join(attrList, " ")))
 	}
 	return nil
 }
 
-func (w *BaseWidget) SetWidgetOptions(options ...*WidgetOpt) error {
+func (w *BaseWidget) SetWidgetAttributes(attributes ...*WidgetAttr) error {
 	if !IsValidWidget(w) {
 		return os.ErrInvalid
 	}
-	extra := buildWidgetOptScript(w.info.MetaClass, w.info.IsTtk, options)
+	extra := buildWidgetAttributeScript(w.info.MetaClass, w.info.IsTtk, attributes)
 	if len(extra) > 0 {
 		return eval(fmt.Sprintf("%v configure %v", w.id, extra))
 	}

@@ -23,26 +23,26 @@ func (i *Image) Id() string {
 	return i.id
 }
 
-type ImageOpt struct {
+type ImageAttr struct {
 	key   string
 	value interface{}
 }
 
-func ImageOptId(id string) *ImageOpt {
-	return &ImageOpt{"id", id}
+func ImageAttrGamma(gamma float64) *ImageAttr {
+	return &ImageAttr{"gamma", gamma}
 }
 
-func ImageOptGamma(gamma float64) *ImageOpt {
-	return &ImageOpt{"gamma", gamma}
+func LoadImage(file string, id string, attributes ...*ImageAttr) (*Image, error) {
+	return LoadImageEx("", file, attributes...)
 }
 
-func LoadImage(file string, options ...*ImageOpt) (*Image, error) {
+func LoadImageEx(id string, file string, attributes ...*ImageAttr) (*Image, error) {
 	if file == "" {
 		return nil, os.ErrInvalid
 	}
 	var fileImage image.Image
 	if filepath.Ext(file) == ".gif" {
-		options = append(options, &ImageOpt{"file", file})
+		attributes = append(attributes, &ImageAttr{"file", file})
 	} else {
 		file, err := os.Open(file)
 		if err != nil {
@@ -55,7 +55,7 @@ func LoadImage(file string, options ...*ImageOpt) (*Image, error) {
 		}
 		fileImage = im
 	}
-	im := NewImage(options...)
+	im := NewImageEx(id, attributes...)
 	if im == nil {
 		return nil, errors.New("NewImage failed")
 	}
@@ -65,27 +65,25 @@ func LoadImage(file string, options ...*ImageOpt) (*Image, error) {
 	return im, nil
 }
 
-func NewImage(options ...*ImageOpt) *Image {
-	var iid string
-	var optList []string
-	for _, opt := range options {
-		if opt == nil {
+func NewImage(attributes ...*ImageAttr) *Image {
+	return NewImageEx("", attributes...)
+}
+
+func NewImageEx(id string, attributes ...*ImageAttr) *Image {
+	var attrList []string
+	for _, attr := range attributes {
+		if attr == nil {
 			continue
 		}
-		if opt.key == "id" {
-			if v, ok := opt.value.(string); ok {
-				iid = v
-			}
-			continue
-		}
-		optList = append(optList, fmt.Sprintf("-%v {%v}", opt.key, opt.value))
+		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
 	}
+	iid := id
 	if iid == "" {
 		iid = MakeImageId()
 	}
 	script := fmt.Sprintf("image create photo %v", iid)
-	if len(optList) > 0 {
-		script += " " + strings.Join(optList, " ")
+	if len(attrList) > 0 {
+		script += " " + strings.Join(attrList, " ")
 	}
 	err := eval(script)
 	if err != nil {

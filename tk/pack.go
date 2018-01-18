@@ -8,93 +8,93 @@ import (
 	"strings"
 )
 
-type PackOpt struct {
+type PackAttr struct {
 	key   string
 	value interface{}
 }
 
-func PackOptPadx(padx int) *PackOpt {
-	return &PackOpt{"padx", padx}
+func PackAttrPadx(padx int) *PackAttr {
+	return &PackAttr{"padx", padx}
 }
 
-func PackOptPady(pady int) *PackOpt {
-	return &PackOpt{"pady", pady}
+func PackAttrPady(pady int) *PackAttr {
+	return &PackAttr{"pady", pady}
 }
 
-func PackOptIpadx(padx int) *PackOpt {
-	return &PackOpt{"ipadx", padx}
+func PackAttrIpadx(padx int) *PackAttr {
+	return &PackAttr{"ipadx", padx}
 }
 
-func PackOptIpady(pady int) *PackOpt {
-	return &PackOpt{"ipady", pady}
+func PackAttrIpady(pady int) *PackAttr {
+	return &PackAttr{"ipady", pady}
 }
 
-func PackOptSideTop() *PackOpt {
-	return &PackOpt{"side", "top"}
+func PackAttrSideTop() *PackAttr {
+	return &PackAttr{"side", "top"}
 }
 
-func PackOptSideBottom() *PackOpt {
-	return &PackOpt{"side", "bottom"}
+func PackAttrSideBottom() *PackAttr {
+	return &PackAttr{"side", "bottom"}
 }
 
-func PackOptSideLeft() *PackOpt {
-	return &PackOpt{"side", "left"}
+func PackAttrSideLeft() *PackAttr {
+	return &PackAttr{"side", "left"}
 }
 
-func PackOptSideRight() *PackOpt {
-	return &PackOpt{"side", "right"}
+func PackAttrSideRight() *PackAttr {
+	return &PackAttr{"side", "right"}
 }
 
-func PackOptAnchor(anchor Anchor) *PackOpt {
+func PackAttrAnchor(anchor Anchor) *PackAttr {
 	v := anchor.String()
 	if v == "" {
 		return nil
 	}
-	return &PackOpt{"anchor", v}
+	return &PackAttr{"anchor", v}
 }
 
-func PackOptExpand(b bool) *PackOpt {
-	return &PackOpt{"expand", boolToInt(b)}
+func PackAttrExpand(b bool) *PackAttr {
+	return &PackAttr{"expand", boolToInt(b)}
 }
 
-func PackOptFillVertical() *PackOpt {
-	return &PackOpt{"fill", "x"}
+func PackAttrFillVertical() *PackAttr {
+	return &PackAttr{"fill", "x"}
 }
 
-func PackOptFillHorizontal() *PackOpt {
-	return &PackOpt{"fill", "y"}
+func PackAttrFillHorizontal() *PackAttr {
+	return &PackAttr{"fill", "y"}
 }
 
-func PackOptFillBoth() *PackOpt {
-	return &PackOpt{"fill", "both"}
+func PackAttrFillBoth() *PackAttr {
+	return &PackAttr{"fill", "both"}
 }
 
-func PackOptBefore(w Widget) *PackOpt {
+func PackAttrBefore(w Widget) *PackAttr {
 	if !IsValidWidget(w) {
 		return nil
 	}
-	return &PackOpt{"before", w.Id()}
+	return &PackAttr{"before", w.Id()}
 }
 
-func PackOptAfter(w Widget) *PackOpt {
+func PackAttrAfter(w Widget) *PackAttr {
 	if !IsValidWidget(w) {
 		return nil
 	}
-	return &PackOpt{"after", w.Id()}
+	return &PackAttr{"after", w.Id()}
 }
 
-func PackOptInMaster(w Widget) *PackOpt {
+func PackAttrInMaster(w Widget) *PackAttr {
 	if !IsValidWidget(w) {
 		return nil
 	}
-	return &PackOpt{"in", w.Id()}
+	return &PackAttr{"in", w.Id()}
 }
 
-func Pack(widget Widget, options ...*PackOpt) error {
-	return PackList([]Widget{widget}, options...)
+func Pack(widget Widget, attributes ...*PackAttr) error {
+	return PackList([]Widget{widget}, attributes...)
 }
 
-func PackList(widgets []Widget, options ...*PackOpt) error {
+func PackList(widgets []Widget, attributes ...*PackAttr) error {
 	var idList []string
 	for _, w := range widgets {
 		if IsValidWidget(w) {
@@ -104,16 +104,16 @@ func PackList(widgets []Widget, options ...*PackOpt) error {
 	if len(idList) == 0 {
 		return os.ErrInvalid
 	}
-	var optList []string
-	for _, opt := range options {
-		if opt == nil {
+	var attrList []string
+	for _, attr := range attributes {
+		if attr == nil {
 			continue
 		}
-		optList = append(optList, fmt.Sprintf("-%v {%v}", opt.key, opt.value))
+		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
 	}
 	script := fmt.Sprintf("pack %v", strings.Join(idList, " "))
-	if len(optList) > 0 {
-		script += " " + strings.Join(optList, " ")
+	if len(attrList) > 0 {
+		script += " " + strings.Join(attrList, " ")
 	}
 	return eval(script)
 }

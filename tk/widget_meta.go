@@ -7,17 +7,17 @@ var (
 )
 
 type MetaClass struct {
-	Command string
-	Class   string
-	Options []string
+	Command    string
+	Class      string
+	Attributes []string
 }
 
-func (m *MetaClass) HasOption(opt string) bool {
-	if opt == "" {
+func (m *MetaClass) HasAttribute(attr string) bool {
+	if attr == "" {
 		return false
 	}
-	for _, v := range m.Options {
-		if v == opt {
+	for _, v := range m.Attributes {
+		if v == attr {
 			return true
 		}
 	}
