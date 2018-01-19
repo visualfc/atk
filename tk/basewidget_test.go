@@ -37,11 +37,11 @@ func testWidgetId(t *testing.T) {
 	var id string
 	parent := NewTestWidget(nil, ".base")
 	id = MakeWidgetId(nil, "")
-	if !strings.HasPrefix(id, ".awid_") {
+	if !strings.HasPrefix(id, ".atk_widget_") {
 		t.Fatal(id)
 	}
 	id = MakeWidgetId(parent, "")
-	if !strings.HasPrefix(id, ".base.awid_") {
+	if !strings.HasPrefix(id, ".base.atk_widget_") {
 		t.Fatal(id)
 	}
 	id = MakeWidgetId(parent, ".idtest")

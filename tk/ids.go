@@ -48,16 +48,16 @@ func MakeCustomId(prefix string) string {
 }
 
 func MakeActionId() string {
-	return fmt.Sprintf("aact_%v", <-fnGenActionId())
+	return fmt.Sprintf("atk_action_%v", <-fnGenActionId())
 }
 
 func MakeImageId() string {
-	return fmt.Sprintf("aimg_%v", <-fnGenImageId())
+	return fmt.Sprintf("atk_image_%v", <-fnGenImageId())
 }
 
 func MakeWindowId(parent Widget, id string) string {
 	if len(id) == 0 {
-		id = fmt.Sprintf("awin_%v", <-fnGenWindowId())
+		id = fmt.Sprintf("atk_window_%v", <-fnGenWindowId())
 	} else if id[0] == '.' {
 		return id
 	}
@@ -76,7 +76,7 @@ func MakeWindowId(parent Widget, id string) string {
 
 func MakeWidgetId(parent Widget, id string) string {
 	if len(id) == 0 {
-		id = fmt.Sprintf("awid_%v", <-fnGenWidgetId())
+		id = fmt.Sprintf("atk_widget_%v", <-fnGenWidgetId())
 	} else if id[0] == '.' {
 		return id
 	}
@@ -94,9 +94,9 @@ func MakeWidgetId(parent Widget, id string) string {
 }
 
 func MakeFontId() string {
-	return fmt.Sprintf("afnt_%v", <-fnGenActionId())
+	return fmt.Sprintf("atk_font_%v", <-fnGenActionId())
 }
 
 func MakeMenuId() string {
-	return fmt.Sprintf("amnu_%v", <-fnGenMenuId())
+	return fmt.Sprintf("atk_menu_%v", <-fnGenMenuId())
 }
