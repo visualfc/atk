@@ -62,7 +62,7 @@ func (typ WidgetType) ThemeConfigure() string {
 		return ""
 	}
 	var list []string
-	attrs := mainTheme.WidgetAttributes(typ)
+	attrs := mainTheme.InitAttributes(typ)
 	_, meta, _ := typ.MetaClass(true)
 	for _, attr := range attrs {
 		if !meta.HasAttribute(attr.Key) {

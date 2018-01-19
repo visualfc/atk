@@ -112,7 +112,7 @@ func (w *BaseWidget) SetNativeAttributes(attributes ...NativeAttr) error {
 	return nil
 }
 
-func (w *BaseWidget) SetWidgetAttributes(attributes ...*WidgetAttr) error {
+func (w *BaseWidget) SetAttributes(attributes ...*WidgetAttr) error {
 	if !IsValidWidget(w) {
 		return os.ErrInvalid
 	}

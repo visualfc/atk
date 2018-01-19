@@ -10,7 +10,7 @@ type NativeAttr struct {
 type Theme interface {
 	Name() string
 	IsTtk() bool
-	WidgetAttributes(typ WidgetType) []NativeAttr
+	InitAttributes(typ WidgetType) []NativeAttr
 }
 
 func SetTheme(theme Theme) {
