@@ -142,6 +142,6 @@ func evalAsBool(script string) (bool, error) {
 
 func dumpError(err error) {
 	if fnErrorHandle != nil {
-		fnErrorHandle(fmt.Errorf("MainThread:%v %v", interp.IsMainThread(), err))
+		fnErrorHandle(fmt.Errorf("%v", err))
 	}
 }

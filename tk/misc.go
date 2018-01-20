@@ -203,5 +203,5 @@ func parserTkListResult(r string, err error) []string {
 	if err != nil {
 		return nil
 	}
-	return SplitTkList(r)
+	return fromTkList(r)
 }

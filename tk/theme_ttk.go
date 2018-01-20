@@ -50,6 +50,6 @@ var (
 func init() {
 	registerInit(func() {
 		s, _ := evalAsString("ttk::themes")
-		ttk_theme_list = SplitTkList(s)
+		ttk_theme_list = fromTkList(s)
 	})
 }

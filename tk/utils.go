@@ -14,8 +14,8 @@ func toTkList(ar []string) string {
 	return strings.Join(list, " ")
 }
 
-func SplitTkList(tklist string) (ar []string) {
-	lastIndex := 0
+func fromTkList(tklist string) (ar []string) {
+	lastIndex := -1
 	inBrace := false
 	inString := false
 	nBrace := 0
