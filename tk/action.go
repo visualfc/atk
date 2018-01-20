@@ -14,6 +14,18 @@ type Action struct {
 	data    interface{}
 }
 
+func (a *Action) String() string {
+	if a.actid == "" {
+		return "Separator"
+	} else if a.groupid != "" {
+		return fmt.Sprintf("RadioAction{%v}", a.label)
+	} else if a.checkid != "" {
+		return fmt.Sprintf("CheckAction{%v}", a.label)
+	} else {
+		return fmt.Sprintf("Action{%v}", a.label)
+	}
+}
+
 func (a *Action) IsSeparator() bool {
 	return a.actid == ""
 }
@@ -91,7 +103,7 @@ type RadioActionGroup struct {
 	fnRadioCommand func()
 }
 
-func NewActionGroup() *RadioActionGroup {
+func NewRadioActionGroup() *RadioActionGroup {
 	id := MakeCustomId("atk_actiongroup")
 	return &RadioActionGroup{id, nil, nil}
 }
