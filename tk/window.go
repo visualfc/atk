@@ -318,7 +318,7 @@ func (w *Window) Center() *Window {
 }
 
 func (w *Window) OnClose(fn func() (accept bool)) error {
-	actName := MakeActionId()
+	actName := makeActionId()
 	_, err := mainInterp.CreateAction(actName, func([]string) {
 		if fn != nil {
 			if fn() {
@@ -363,11 +363,7 @@ func WindowOptPady(pady int) *WidgetAttr {
 }
 
 func NewWindow(attributes ...*WidgetAttr) *Window {
-	return NewWindowEx("", attributes...)
-}
-
-func NewWindowEx(id string, attributes ...*WidgetAttr) *Window {
-	iid := MakeWindowId(nil, id)
+	iid := makeNamedId(".atk_window")
 	info := CreateWidgetInfo(iid, WidgetTypeWindow, true, attributes)
 	if info == nil {
 		return nil

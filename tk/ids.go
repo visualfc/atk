@@ -4,7 +4,7 @@ package tk
 
 import (
 	"fmt"
-	"strings"
+	"sync"
 )
 
 func NewGenInt64Func(id int64) func() <-chan int64 {
@@ -33,70 +33,55 @@ func NewGenIntFunc(id int) func() <-chan int {
 	}
 }
 
+type NamedId interface {
+	GetId(name string) string
+}
+
+type baseNamedId struct {
+	m map[string]int
+}
+
+func (m *baseNamedId) GetId(name string) (r string) {
+	m.m[name]++
+	r = fmt.Sprintf("%v%v", name, m.m[name])
+	return
+}
+
+type safeNamedId struct {
+	sync.Mutex
+	m map[string]int
+}
+
+func (m *safeNamedId) GetId(name string) (r string) {
+	m.Lock()
+	m.m[name]++
+	r = fmt.Sprintf("%v%v", name, m.m[name])
+	m.Unlock()
+	return
+}
+
+func NewNamedId(safe bool) NamedId {
+	if safe {
+		return &safeNamedId{m: make(map[string]int)}
+	}
+	return &baseNamedId{make(map[string]int)}
+}
+
 var (
-	fnGenFontId   = NewGenIntFunc(0)
-	fnGenActionId = NewGenIntFunc(0)
-	fnGenWidgetId = NewGenIntFunc(0)
-	fnGenWindowId = NewGenIntFunc(0)
-	fnGenImageId  = NewGenIntFunc(0)
-	fnGenMenuId   = NewGenIntFunc(0)
-	fnGenCustomId = NewGenInt64Func(0)
+	atkNamedId = NewNamedId(true)
 )
 
-func MakeCustomId(prefix string) string {
-	return fmt.Sprintf("%v_%v", prefix, <-fnGenCustomId())
+func makeNamedId(name string) string {
+	return atkNamedId.GetId(name)
 }
 
-func MakeActionId() string {
-	return fmt.Sprintf("atk_action_%v", <-fnGenActionId())
-}
-
-func MakeImageId() string {
-	return fmt.Sprintf("atk_image_%v", <-fnGenImageId())
-}
-
-func MakeWindowId(parent Widget, id string) string {
-	if len(id) == 0 {
-		id = fmt.Sprintf("atk_window_%v", <-fnGenWindowId())
-	} else if id[0] == '.' {
-		return id
+func makeNamedWidgetId(parent Widget, typ string) string {
+	if parent == nil || parent.Id() == "." {
+		return makeNamedId("." + typ)
 	}
-	id = strings.ToLower(id)
-	id = strings.Replace(id, " ", "_", -1)
-	if parent != nil {
-		pid := parent.Id()
-		if pid == "." {
-			return "." + id
-		} else {
-			return parent.Id() + "." + id
-		}
-	}
-	return "." + id
+	return makeNamedId(parent.Id() + "." + typ)
 }
 
-func MakeWidgetId(parent Widget, id string) string {
-	if len(id) == 0 {
-		id = fmt.Sprintf("atk_widget_%v", <-fnGenWidgetId())
-	} else if id[0] == '.' {
-		return id
-	}
-	id = strings.ToLower(id)
-	id = strings.Replace(id, " ", "_", -1)
-	if parent != nil {
-		pid := parent.Id()
-		if pid == "." {
-			return "." + id
-		} else {
-			return parent.Id() + "." + id
-		}
-	}
-	return "." + id
-}
-
-func MakeFontId() string {
-	return fmt.Sprintf("atk_font_%v", <-fnGenActionId())
-}
-
-func MakeMenuId() string {
-	return fmt.Sprintf("atk_menu_%v", <-fnGenMenuId())
+func makeActionId() string {
+	return makeNamedId("atk_action")
 }

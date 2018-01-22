@@ -32,11 +32,7 @@ func ImageAttrGamma(gamma float64) *ImageAttr {
 	return &ImageAttr{"gamma", gamma}
 }
 
-func LoadImage(file string, id string, attributes ...*ImageAttr) (*Image, error) {
-	return LoadImageEx("", file, attributes...)
-}
-
-func LoadImageEx(id string, file string, attributes ...*ImageAttr) (*Image, error) {
+func LoadImage(file string, attributes ...*ImageAttr) (*Image, error) {
 	if file == "" {
 		return nil, os.ErrInvalid
 	}
@@ -55,7 +51,7 @@ func LoadImageEx(id string, file string, attributes ...*ImageAttr) (*Image, erro
 		}
 		fileImage = im
 	}
-	im := NewImageEx(id, attributes...)
+	im := NewImage(attributes...)
 	if im == nil {
 		return nil, errors.New("NewImage failed")
 	}
@@ -66,10 +62,6 @@ func LoadImageEx(id string, file string, attributes ...*ImageAttr) (*Image, erro
 }
 
 func NewImage(attributes ...*ImageAttr) *Image {
-	return NewImageEx("", attributes...)
-}
-
-func NewImageEx(id string, attributes ...*ImageAttr) *Image {
 	var attrList []string
 	for _, attr := range attributes {
 		if attr == nil {
@@ -77,10 +69,7 @@ func NewImageEx(id string, attributes ...*ImageAttr) *Image {
 		}
 		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
 	}
-	iid := id
-	if iid == "" {
-		iid = MakeImageId()
-	}
+	iid := makeNamedId("atk_image")
 	script := fmt.Sprintf("image create photo %v", iid)
 	if len(attrList) > 0 {
 		script += " " + strings.Join(attrList, " ")

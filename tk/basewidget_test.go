@@ -29,31 +29,31 @@ func (w *TestWidget) Attach(id string) error {
 
 func NewTestWidget(parent Widget, id string) *TestWidget {
 	w := &TestWidget{}
-	w.Attach(MakeWidgetId(parent, id))
+	w.Attach(makeNamedWidgetId(parent, id))
 	return w
 }
 
 func testWidgetId(t *testing.T) {
 	var id string
-	parent := NewTestWidget(nil, ".base")
-	id = MakeWidgetId(nil, "")
-	if !strings.HasPrefix(id, ".atk_widget_") {
+	parent := NewTestWidget(nil, "base")
+	id = makeNamedWidgetId(nil, "atk_wtest")
+	if !strings.HasPrefix(id, ".atk_wtest") {
 		t.Fatal(id)
 	}
-	id = MakeWidgetId(parent, "")
-	if !strings.HasPrefix(id, ".base.atk_widget_") {
+	id = makeNamedWidgetId(parent, "atk_wchild")
+	if !strings.HasPrefix(id, ".base1.atk_wchild1") {
 		t.Fatal(id)
 	}
-	id = MakeWidgetId(parent, ".idtest")
-	if id != ".idtest" {
+	id = makeNamedWidgetId(nil, "idtest")
+	if id != ".idtest1" {
 		t.Fatal(id)
 	}
-	id = MakeWidgetId(nil, "idtest")
-	if id != ".idtest" {
+	id = makeNamedWidgetId(parent, "idtest")
+	if id != ".base1.idtest1" {
 		t.Fatal(id)
 	}
-	id = MakeWidgetId(parent, "idtest")
-	if id != ".base.idtest" {
+	id = makeNamedWidgetId(parent, "idtest")
+	if id != ".base1.idtest2" {
 		t.Fatal(id)
 	}
 	DestroyWidget(parent)

@@ -102,7 +102,7 @@ func (w *BaseFont) MeasureTextWidth(text string) int {
 }
 
 func (w *BaseFont) Clone() *UserFont {
-	iid := MakeFontId()
+	iid := makeNamedId("atk_font")
 	script := fmt.Sprintf("font create %v %v", iid, w.Description())
 	if eval(script) != nil {
 		return nil
@@ -124,10 +124,6 @@ func (f *UserFont) Destroy() error {
 }
 
 func NewUserFont(family string, size int, attributes ...*FontAttr) *UserFont {
-	return NewUserFontEx("", family, size, attributes...)
-}
-
-func NewUserFontEx(id string, family string, size int, attributes ...*FontAttr) *UserFont {
 	var attrList []string
 	for _, attr := range attributes {
 		if attr == nil {
@@ -135,10 +131,7 @@ func NewUserFontEx(id string, family string, size int, attributes ...*FontAttr) 
 		}
 		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
 	}
-	iid := id
-	if iid == "" {
-		iid = MakeFontId()
-	}
+	iid := makeNamedId("atk_font")
 	script := fmt.Sprintf("font create %v -family {%v} -size %v", iid, family, size)
 	if len(attrList) > 0 {
 		script += " " + strings.Join(attrList, " ")
@@ -154,7 +147,7 @@ func NewUserFontFromClone(font Font) *UserFont {
 	if font == nil {
 		return nil
 	}
-	iid := MakeFontId()
+	iid := makeNamedId("atk_font")
 	script := fmt.Sprintf("font create %v", iid)
 	if font != nil {
 		script += " " + font.Description()

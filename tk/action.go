@@ -77,7 +77,7 @@ func NewAction(label string, fn func()) *Action {
 	action := &Action{}
 	action.label = label
 	action.fncmd = fn
-	action.actid = MakeActionId()
+	action.actid = makeActionId()
 	mainInterp.CreateAction(action.actid, func([]string) {
 		if action.fncmd != nil {
 			action.fncmd()
@@ -88,7 +88,7 @@ func NewAction(label string, fn func()) *Action {
 
 func NewCheckAction(label string, fn func()) *Action {
 	action := NewAction(label, fn)
-	action.checkid = MakeCustomId("atk_checkaction")
+	action.checkid = makeNamedId("atk_checkaction")
 	return action
 }
 
@@ -104,7 +104,7 @@ type RadioActionGroup struct {
 }
 
 func NewRadioActionGroup() *RadioActionGroup {
-	id := MakeCustomId("atk_actiongroup")
+	id := makeNamedId("atk_actiongroup")
 	return &RadioActionGroup{id, nil, nil}
 }
 
@@ -128,7 +128,7 @@ func (a *RadioActionGroup) AddRadioAction(act *Action) {
 		return
 	}
 	act.groupid = a.groupid
-	act.radioid = MakeCustomId("action_radio_value")
+	act.radioid = makeNamedId("atk_radioaction")
 	act.fncmd = a.radioCommand
 	a.actions = append(a.actions, act)
 }
@@ -136,7 +136,7 @@ func (a *RadioActionGroup) AddRadioAction(act *Action) {
 func (a *RadioActionGroup) AddNewRadioAction(label string) *Action {
 	act := NewCheckAction(label, nil)
 	act.groupid = a.groupid
-	act.radioid = MakeCustomId("action_radio_value")
+	act.radioid = makeNamedId("atk_radioaction")
 	act.fncmd = a.radioCommand
 	a.actions = append(a.actions, act)
 	return act
