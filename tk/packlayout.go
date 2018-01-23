@@ -8,23 +8,31 @@ type LayoutItem struct {
 }
 
 type PackLayout struct {
-	main  *Frame
-	side  Side
-	attrs []*PackAttr
-	items []*LayoutItem
+	side       Side
+	main       *Frame
+	mainAttrs  []*PackAttr
+	items      []*LayoutItem
+	itemsAttrs []*PackAttr
 }
 
-func (w *PackLayout) sideAttr() *PackAttr {
-	return &PackAttr{"side", w.side}
-}
-
-func (w *PackLayout) UpdateSide(side Side) {
+func (w *PackLayout) SetSide(side Side) {
 	w.side = side
+	w.itemsAttrs = AppendPackAttrs(w.itemsAttrs, PackAttrSide(side))
 	w.Repack()
 }
 
-func (w *PackLayout) UpdatePackAttrs(attributes ...*PackAttr) {
-	w.attrs = AppendPackAttrs(w.attrs, attributes...)
+func (w *PackLayout) SetPadding(pad Pad) {
+	w.itemsAttrs = AppendPackAttrs(w.itemsAttrs, PackAttrPadx(pad.X), PackAttrPady(pad.Y))
+	w.Repack()
+}
+
+func (w *PackLayout) SetPaddingN(padx int, pady int) {
+	w.itemsAttrs = AppendPackAttrs(w.itemsAttrs, PackAttrPadx(padx), PackAttrPady(pady))
+	w.Repack()
+}
+
+func (w *PackLayout) UpdateMainAttrs(attributes ...*PackAttr) {
+	w.mainAttrs = AppendPackAttrs(w.mainAttrs, attributes...)
 	w.Repack()
 }
 
@@ -84,14 +92,19 @@ func (w *PackLayout) UpdateLayout(layout *PackLayout, attributes ...*PackAttr) {
 
 func (w *PackLayout) Repack() {
 	for _, item := range w.items {
-		Pack(item.widget, AppendPackAttrs(item.attrs, w.sideAttr())...)
+		Pack(item.widget, AppendPackAttrs(item.attrs, w.itemsAttrs...)...)
 	}
-	Pack(w.main, w.attrs...)
+	Pack(w.main, w.mainAttrs...)
 }
 
 func NewPackLayout(parent Widget, side Side, attributes ...*PackAttr) *PackLayout {
-	attrs := []*PackAttr{PackAttrFill(FillBoth), PackAttrExpand(true)}
-	return &PackLayout{NewFrame(parent), side, AppendPackAttrs(attrs, attributes...), nil}
+	pack := &PackLayout{}
+	pack.side = side
+	pack.main = NewFrame(parent)
+	pack.mainAttrs = AppendPackAttrs(attributes, PackAttrFill(FillBoth), PackAttrExpand(true))
+	pack.items = nil
+	pack.itemsAttrs = []*PackAttr{PackAttrSide(side)}
+	return pack
 }
 
 func NewHPackLayout(parent Widget, attributes ...*PackAttr) *PackLayout {
