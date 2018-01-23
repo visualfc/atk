@@ -36,6 +36,20 @@ func (w *PackLayout) AddWidget(widget Widget, attributes ...*PackAttr) {
 	w.Repack()
 }
 
+func (w *PackLayout) RemoveWidget(widget Widget) bool {
+	if !IsValidWidget(widget) {
+		return false
+	}
+	for n, item := range w.items {
+		if item.widget == widget {
+			eval("pack forget " + widget.Id())
+			w.items = append(w.items[:n], w.items[n+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
 func (w *PackLayout) UpdateWidget(widget Widget, attributes ...*PackAttr) {
 	if !IsValidWidget(widget) {
 		return
