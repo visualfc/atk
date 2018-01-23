@@ -13,6 +13,26 @@ type PackAttr struct {
 	value interface{}
 }
 
+func PackAttrSide(side Side) *PackAttr {
+	return &PackAttr{"side", side}
+}
+
+func PackAttrSideLeft() *PackAttr {
+	return &PackAttr{"side", "left"}
+}
+
+func PackAttrSideRight() *PackAttr {
+	return &PackAttr{"side", "right"}
+}
+
+func PackAttrSideTop() *PackAttr {
+	return &PackAttr{"side", "top"}
+}
+
+func PackAttrSideBottom() *PackAttr {
+	return &PackAttr{"side", "bottom"}
+}
+
 func PackAttrPadx(padx int) *PackAttr {
 	return &PackAttr{"padx", padx}
 }
@@ -29,22 +49,6 @@ func PackAttrIpady(pady int) *PackAttr {
 	return &PackAttr{"ipady", pady}
 }
 
-func PackAttrSideTop() *PackAttr {
-	return &PackAttr{"side", "top"}
-}
-
-func PackAttrSideBottom() *PackAttr {
-	return &PackAttr{"side", "bottom"}
-}
-
-func PackAttrSideLeft() *PackAttr {
-	return &PackAttr{"side", "left"}
-}
-
-func PackAttrSideRight() *PackAttr {
-	return &PackAttr{"side", "right"}
-}
-
 func PackAttrAnchor(anchor Anchor) *PackAttr {
 	v := anchor.String()
 	if v == "" {
@@ -57,16 +61,24 @@ func PackAttrExpand(b bool) *PackAttr {
 	return &PackAttr{"expand", boolToInt(b)}
 }
 
-func PackAttrFillVertical() *PackAttr {
+func PackAttrFill(fill Fill) *PackAttr {
+	return &PackAttr{"fill", fill}
+}
+
+func PackAttrFillX() *PackAttr {
 	return &PackAttr{"fill", "x"}
 }
 
-func PackAttrFillHorizontal() *PackAttr {
+func PackAttrFillY() *PackAttr {
 	return &PackAttr{"fill", "y"}
 }
 
 func PackAttrFillBoth() *PackAttr {
 	return &PackAttr{"fill", "both"}
+}
+
+func PackAttrFillNone() *PackAttr {
+	return &PackAttr{"fill", "none"}
 }
 
 func PackAttrBefore(w Widget) *PackAttr {

@@ -55,6 +55,70 @@ func parserAlignmentResult(r string, err error) Alignment {
 	return -1
 }
 
+type Side int
+
+const (
+	SideLeft Side = iota
+	SideRight
+	SideTop
+	SideBottom
+)
+
+var (
+	sideName = []string{"left", "right", "top", "bottom"}
+)
+
+func (v Side) String() string {
+	if v >= 0 && int(v) < len(sideName) {
+		return sideName[v]
+	}
+	return ""
+}
+
+func parserSideResult(r string, err error) Side {
+	if err != nil {
+		return -1
+	}
+	for n, s := range sideName {
+		if s == r {
+			return Side(n)
+		}
+	}
+	return -1
+}
+
+type Fill int
+
+const (
+	FillNone Fill = iota
+	FillX
+	FillY
+	FillBoth
+)
+
+var (
+	fillName = []string{"none", "x", "y", "both"}
+)
+
+func (v Fill) String() string {
+	if v >= 0 && int(v) < len(fillName) {
+		return fillName[v]
+	}
+	return ""
+}
+
+func parserFillResult(r string, err error) Fill {
+	if err != nil {
+		return -1
+	}
+	for n, s := range fillName {
+		if s == r {
+			return Fill(n)
+		}
+	}
+	return -1
+}
+
 type BorderStyle int
 
 const (
