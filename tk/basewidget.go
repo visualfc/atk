@@ -31,6 +31,9 @@ func (w *BaseWidget) Info() *WidgetInfo {
 }
 
 func (w *BaseWidget) Type() string {
+	if w.info != nil {
+		return w.info.TypeName
+	}
 	return "BaseWidget"
 }
 

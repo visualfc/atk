@@ -7,8 +7,30 @@ type LayoutItem struct {
 	attrs  []*PackAttr
 }
 
+type LayoutFrame struct {
+	BaseWidget
+}
+
+func (w *LayoutFrame) Type() string {
+	return "LayoutFrame"
+}
+
+func NewLayoutFrame(parent Widget, attributes ...*WidgetAttr) *LayoutFrame {
+	theme := checkInitUseTheme(attributes)
+	iid := makeNamedWidgetId(parent, "atk_layoutframe")
+	info := CreateWidgetInfo(iid, WidgetTypeFrame, theme, attributes)
+	if info == nil {
+		return nil
+	}
+	w := &LayoutFrame{}
+	w.id = iid
+	w.info = info
+	RegisterWidget(w)
+	return w
+}
+
 type PackLayout struct {
-	main  *Frame
+	main  *LayoutFrame
 	side  Side
 	pad   *Pad
 	items []*LayoutItem
@@ -50,7 +72,7 @@ func (w *PackLayout) RemoveWidget(widget Widget) bool {
 	return false
 }
 
-func (w *PackLayout) SetWidget(widget Widget, attributes ...*PackAttr) {
+func (w *PackLayout) SetWidgetAttr(widget Widget, attributes ...*PackAttr) {
 	if !IsValidWidget(widget) {
 		return
 	}
@@ -70,7 +92,7 @@ func (w *PackLayout) AddLayout(layout *PackLayout, attributes ...*PackAttr) {
 	w.Repack()
 }
 
-func (w *PackLayout) SetLayout(layout *PackLayout, attributes ...*PackAttr) {
+func (w *PackLayout) SetLayoutAttr(layout *PackLayout, attributes ...*PackAttr) {
 	if layout == nil || !IsValidWidget(layout.main) {
 		return
 	}
@@ -94,7 +116,7 @@ func (w *PackLayout) Repack() {
 }
 
 func NewPackLayout(parent Widget, side Side) *PackLayout {
-	return &PackLayout{NewFrame(parent), side, nil, nil}
+	return &PackLayout{NewLayoutFrame(parent), side, nil, nil}
 }
 
 func NewHPackLayout(parent Widget) *PackLayout {
