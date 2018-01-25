@@ -121,7 +121,7 @@ func gridIndex(master Widget, row bool, index int, attributes []*GridIndexAttr) 
 		master = mainWindow
 	}
 	var sindex string
-	if index == -1 {
+	if index < 0 {
 		sindex = "all"
 	} else {
 		sindex = strconv.Itoa(index)
