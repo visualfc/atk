@@ -335,6 +335,8 @@ func (w *Window) OnClose(fn func() (accept bool)) error {
 }
 
 func (w *Window) registerWindowInfo() {
+	//fix init layout size
+	w.SetMinimumSize(w.MinimumSize())
 	globalWindowInfoMap[w.id] = &WindowInfo{0, 0, 200, 200}
 }
 

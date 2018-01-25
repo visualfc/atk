@@ -115,6 +115,13 @@ func Pack(widget Widget, attributes ...*LayoutAttr) error {
 	return PackList([]Widget{widget}, attributes...)
 }
 
+func PackRemove(widget Widget) error {
+	if !IsValidWidget(widget) {
+		return os.ErrInvalid
+	}
+	return eval("pack forget " + widget.Id())
+}
+
 func PackList(widgets []Widget, attributes ...*LayoutAttr) error {
 	var idList []string
 	for _, w := range widgets {
