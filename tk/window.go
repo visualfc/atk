@@ -21,10 +21,6 @@ type Window struct {
 	BaseWidget
 }
 
-func (w *Window) Type() string {
-	return "Window"
-}
-
 func (w *Window) SetTitle(title string) *Window {
 	eval(fmt.Sprintf("wm title %v {%v}", w.id, title))
 	return w

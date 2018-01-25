@@ -16,8 +16,8 @@ type TestWidget struct {
 	BaseWidget
 }
 
-func (w *TestWidget) Type() string {
-	return "TestWidget"
+func (w *TestWidget) Type() WidgetType {
+	return WidgetTypeLast + 1
 }
 
 func (w *TestWidget) Attach(id string) error {

@@ -11,7 +11,8 @@ import (
 type Widget interface {
 	Id() string
 	Info() *WidgetInfo
-	Type() string
+	Type() WidgetType
+	TypeName() string
 	Parent() Widget
 	Children() []Widget
 	IsValid() bool

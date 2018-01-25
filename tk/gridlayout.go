@@ -2,6 +2,8 @@
 
 package tk
 
+import "fmt"
+
 type GridLayout struct {
 	master *Frame
 	items  []*LayoutItem
@@ -68,11 +70,12 @@ func (w *GridLayout) Repack() {
 }
 
 func (w *GridLayout) SetBorderWidth(width int) {
-	w.master.SetBorderWidth(width)
+	evalAsInt(fmt.Sprintf("%v configure -borderwidth {%v}", w.master.Id(), width))
 }
 
 func (w *GridLayout) BorderWidth() int {
-	return w.master.BorderWidth()
+	r, _ := evalAsInt(fmt.Sprintf("%v cget -borderwidth", w.master.Id()))
+	return r
 }
 
 // row index from 0, -1=all
@@ -87,6 +90,15 @@ func (w *GridLayout) SetColumn(column int, pad int, weight int, group string) {
 
 func NewGridLayout(parent Widget) *GridLayout {
 	grid := &GridLayout{NewLayoutFrame(parent), nil}
+	grid.Repack()
+	return grid
+}
+
+func NewGridLayoutFromMaster(master Widget) *GridLayout {
+	if !IsValidWidget(master) || master.Type() == WidgetTypeWindow {
+		return NewGridLayout(master)
+	}
+	grid := &GridLayout{NewLayoutFrame(master), nil}
 	grid.Repack()
 	return grid
 }

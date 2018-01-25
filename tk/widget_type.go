@@ -15,7 +15,8 @@ var (
 type WidgetType int
 
 const (
-	WidgetTypeButton WidgetType = iota
+	WidgetTypeNone WidgetType = iota
+	WidgetTypeButton
 	WidgetTypeCanvas
 	WidgetTypeCheckButton
 	WidgetTypeComboBox
@@ -38,6 +39,7 @@ const (
 	WidgetTypeTextEdit
 	WidgetTypeWindow
 	WidgetTypeTreeView
+	WidgetTypeLast
 )
 
 func (typ WidgetType) MetaClass(theme bool) (typName string, meta *MetaClass, ttk bool) {

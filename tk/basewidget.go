@@ -16,7 +16,7 @@ type BaseWidget struct {
 func (w *BaseWidget) String() string {
 	iw := globalWidgetMap[w.id]
 	if iw != nil {
-		return fmt.Sprintf("%v{%v}", iw.Type(), w.id)
+		return fmt.Sprintf("%v{%v}", iw.TypeName(), w.id)
 	} else {
 		return fmt.Sprintf("Widget{%v}", w.id)
 	}
@@ -30,11 +30,18 @@ func (w *BaseWidget) Info() *WidgetInfo {
 	return w.info
 }
 
-func (w *BaseWidget) Type() string {
+func (w *BaseWidget) Type() WidgetType {
+	if w.info != nil {
+		return w.info.Type
+	}
+	return WidgetTypeNone
+}
+
+func (w *BaseWidget) TypeName() string {
 	if w.info != nil {
 		return w.info.TypeName
 	}
-	return "BaseWidget"
+	return "Invalid"
 }
 
 func (w *BaseWidget) Parent() Widget {

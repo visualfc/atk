@@ -2,8 +2,10 @@
 
 package tk
 
+import "fmt"
+
 type PackLayout struct {
-	master *Frame
+	master Widget
 	side   Side
 	pad    *Pad
 	items  []*LayoutItem
@@ -129,15 +131,25 @@ func (w *PackLayout) Repack() {
 }
 
 func (w *PackLayout) SetBorderWidth(width int) {
-	w.master.SetBorderWidth(width)
+	evalAsInt(fmt.Sprintf("%v configure -borderwidth {%v}", w.master.Id(), width))
 }
 
 func (w *PackLayout) BorderWidth() int {
-	return w.master.BorderWidth()
+	r, _ := evalAsInt(fmt.Sprintf("%v cget -borderwidth", w.master.Id()))
+	return r
 }
 
 func NewPackLayout(parent Widget, side Side) *PackLayout {
 	pack := &PackLayout{NewLayoutFrame(parent), side, nil, nil}
+	pack.Repack()
+	return pack
+}
+
+func NewPackLayoutFromMaster(master Widget, side Side) *PackLayout {
+	if !IsValidWidget(master) || master.Type() == WidgetTypeWindow {
+		return NewPackLayout(master, side)
+	}
+	pack := &PackLayout{master, side, nil, nil}
 	pack.Repack()
 	return pack
 }
