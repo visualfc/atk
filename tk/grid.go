@@ -9,57 +9,52 @@ import (
 	"strings"
 )
 
-type GridAttr struct {
-	key   string
-	value interface{}
-}
-
 type GridIndexAttr struct {
 	key   string
 	value interface{}
 }
 
-func GridAttrColumn(n int) *GridAttr {
-	return &GridAttr{"column", n}
+func GridAttrColumn(n int) *LayoutAttr {
+	return &LayoutAttr{"column", n}
 }
 
-func GridAttrColumnSpan(n int) *GridAttr {
-	return &GridAttr{"columnspan", n}
+func GridAttrColumnSpan(n int) *LayoutAttr {
+	return &LayoutAttr{"columnspan", n}
 }
 
-func GridAttrRow(n int) *GridAttr {
-	return &GridAttr{"row", n}
+func GridAttrRow(n int) *LayoutAttr {
+	return &LayoutAttr{"row", n}
 }
 
-func GridAttrRowSpan(n int) *GridAttr {
-	return &GridAttr{"rowspan", n}
+func GridAttrRowSpan(n int) *LayoutAttr {
+	return &LayoutAttr{"rowspan", n}
 }
 
-func GridAttrInMaster(w Widget) *GridAttr {
+func GridAttrInMaster(w Widget) *LayoutAttr {
 	if !IsValidWidget(w) {
 		return nil
 	}
-	return &GridAttr{"in", w.Id()}
+	return &LayoutAttr{"in", w.Id()}
 }
 
-func GridAttrIpadx(padx int) *GridAttr {
-	return &GridAttr{"ipadx", padx}
+func GridAttrIpadx(padx int) *LayoutAttr {
+	return &LayoutAttr{"ipadx", padx}
 }
 
-func GridAttrIpady(pady int) *GridAttr {
-	return &GridAttr{"ipady", pady}
+func GridAttrIpady(pady int) *LayoutAttr {
+	return &LayoutAttr{"ipady", pady}
 }
 
-func GridAttrPadx(padx int) *GridAttr {
-	return &GridAttr{"padx", padx}
+func GridAttrPadx(padx int) *LayoutAttr {
+	return &LayoutAttr{"padx", padx}
 }
 
-func GridAttrPady(pady int) *GridAttr {
-	return &GridAttr{"pady", pady}
+func GridAttrPady(pady int) *LayoutAttr {
+	return &LayoutAttr{"pady", pady}
 }
 
-func GridAttrSticky(v Sticky) *GridAttr {
-	return &GridAttr{"sticky", v}
+func GridAttrSticky(v Sticky) *LayoutAttr {
+	return &LayoutAttr{"sticky", v}
 }
 
 func GridIndexAttrMinSize(amount int) *GridIndexAttr {
@@ -78,11 +73,28 @@ func GridIndexUniform(groupname string) *GridIndexAttr {
 	return &GridIndexAttr{"uniform", groupname}
 }
 
-func Grid(widget Widget, attributes ...*GridAttr) error {
+func Grid(widget Widget, attributes ...*LayoutAttr) error {
 	return GridList([]Widget{widget}, attributes...)
 }
 
-func GridList(widgets []Widget, attributes ...*GridAttr) error {
+var (
+	gridAttrKeys = []string{
+		"column", "columnspan",
+		"row", "rowspan",
+		"in",
+		"ipadx", "ipady",
+		"padx", "pady",
+		"sticky",
+	}
+	gridIndexAttrKeys = []string{
+		"minsize",
+		"pad",
+		"weight",
+		"uniform",
+	}
+)
+
+func GridList(widgets []Widget, attributes ...*LayoutAttr) error {
 	var idList []string
 	for _, w := range widgets {
 		if IsValidWidget(w) {
@@ -94,7 +106,7 @@ func GridList(widgets []Widget, attributes ...*GridAttr) error {
 	}
 	var attrList []string
 	for _, attr := range attributes {
-		if attr == nil {
+		if attr == nil || !isValidKey(attr.key, gridAttrKeys) {
 			continue
 		}
 		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
@@ -128,7 +140,7 @@ func gridIndex(master Widget, row bool, index int, attributes []*GridIndexAttr) 
 	}
 	var attrList []string
 	for _, attr := range attributes {
-		if attr == nil {
+		if attr == nil || !isValidKey(attr.key, gridIndexAttrKeys) {
 			continue
 		}
 		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))

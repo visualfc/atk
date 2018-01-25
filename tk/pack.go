@@ -8,105 +8,114 @@ import (
 	"strings"
 )
 
-type PackAttr struct {
-	key   string
-	value interface{}
+func PackAttrSide(side Side) *LayoutAttr {
+	return &LayoutAttr{"side", side}
 }
 
-func PackAttrSide(side Side) *PackAttr {
-	return &PackAttr{"side", side}
+func PackAttrSideLeft() *LayoutAttr {
+	return &LayoutAttr{"side", "left"}
 }
 
-func PackAttrSideLeft() *PackAttr {
-	return &PackAttr{"side", "left"}
+func PackAttrSideRight() *LayoutAttr {
+	return &LayoutAttr{"side", "right"}
 }
 
-func PackAttrSideRight() *PackAttr {
-	return &PackAttr{"side", "right"}
+func PackAttrSideTop() *LayoutAttr {
+	return &LayoutAttr{"side", "top"}
 }
 
-func PackAttrSideTop() *PackAttr {
-	return &PackAttr{"side", "top"}
+func PackAttrSideBottom() *LayoutAttr {
+	return &LayoutAttr{"side", "bottom"}
 }
 
-func PackAttrSideBottom() *PackAttr {
-	return &PackAttr{"side", "bottom"}
+func PackAttrPadx(padx int) *LayoutAttr {
+	return &LayoutAttr{"padx", padx}
 }
 
-func PackAttrPadx(padx int) *PackAttr {
-	return &PackAttr{"padx", padx}
+func PackAttrPady(pady int) *LayoutAttr {
+	return &LayoutAttr{"pady", pady}
 }
 
-func PackAttrPady(pady int) *PackAttr {
-	return &PackAttr{"pady", pady}
+func PackAttrIpadx(padx int) *LayoutAttr {
+	return &LayoutAttr{"ipadx", padx}
 }
 
-func PackAttrIpadx(padx int) *PackAttr {
-	return &PackAttr{"ipadx", padx}
+func PackAttrIpady(pady int) *LayoutAttr {
+	return &LayoutAttr{"ipady", pady}
 }
 
-func PackAttrIpady(pady int) *PackAttr {
-	return &PackAttr{"ipady", pady}
-}
-
-func PackAttrAnchor(anchor Anchor) *PackAttr {
+func PackAttrAnchor(anchor Anchor) *LayoutAttr {
 	v := anchor.String()
 	if v == "" {
 		return nil
 	}
-	return &PackAttr{"anchor", v}
+	return &LayoutAttr{"anchor", v}
 }
 
-func PackAttrExpand(b bool) *PackAttr {
-	return &PackAttr{"expand", boolToInt(b)}
+func PackAttrExpand(b bool) *LayoutAttr {
+	return &LayoutAttr{"expand", boolToInt(b)}
 }
 
-func PackAttrFill(fill Fill) *PackAttr {
-	return &PackAttr{"fill", fill}
+func PackAttrFill(fill Fill) *LayoutAttr {
+	return &LayoutAttr{"fill", fill}
 }
 
-func PackAttrFillX() *PackAttr {
-	return &PackAttr{"fill", "x"}
+func PackAttrFillX() *LayoutAttr {
+	return &LayoutAttr{"fill", "x"}
 }
 
-func PackAttrFillY() *PackAttr {
-	return &PackAttr{"fill", "y"}
+func PackAttrFillY() *LayoutAttr {
+	return &LayoutAttr{"fill", "y"}
 }
 
-func PackAttrFillBoth() *PackAttr {
-	return &PackAttr{"fill", "both"}
+func PackAttrFillBoth() *LayoutAttr {
+	return &LayoutAttr{"fill", "both"}
 }
 
-func PackAttrFillNone() *PackAttr {
-	return &PackAttr{"fill", "none"}
+func PackAttrFillNone() *LayoutAttr {
+	return &LayoutAttr{"fill", "none"}
 }
 
-func PackAttrBefore(w Widget) *PackAttr {
+func PackAttrBefore(w Widget) *LayoutAttr {
 	if !IsValidWidget(w) {
 		return nil
 	}
-	return &PackAttr{"before", w.Id()}
+	return &LayoutAttr{"before", w.Id()}
 }
 
-func PackAttrAfter(w Widget) *PackAttr {
+func PackAttrAfter(w Widget) *LayoutAttr {
 	if !IsValidWidget(w) {
 		return nil
 	}
-	return &PackAttr{"after", w.Id()}
+	return &LayoutAttr{"after", w.Id()}
 }
 
-func PackAttrInMaster(w Widget) *PackAttr {
+func PackAttrInMaster(w Widget) *LayoutAttr {
 	if !IsValidWidget(w) {
 		return nil
 	}
-	return &PackAttr{"in", w.Id()}
+	return &LayoutAttr{"in", w.Id()}
 }
 
-func Pack(widget Widget, attributes ...*PackAttr) error {
+var (
+	packAttrKeys = []string{
+		"side",
+		"padx", "pady",
+		"ipadx", "ipady",
+		"anchor",
+		"expand",
+		"fill",
+		"before",
+		"after",
+		"in",
+	}
+)
+
+func Pack(widget Widget, attributes ...*LayoutAttr) error {
 	return PackList([]Widget{widget}, attributes...)
 }
 
-func PackList(widgets []Widget, attributes ...*PackAttr) error {
+func PackList(widgets []Widget, attributes ...*LayoutAttr) error {
 	var idList []string
 	for _, w := range widgets {
 		if IsValidWidget(w) {
@@ -118,7 +127,7 @@ func PackList(widgets []Widget, attributes ...*PackAttr) error {
 	}
 	var attrList []string
 	for _, attr := range attributes {
-		if attr == nil {
+		if attr == nil || !isValidKey(attr.key, packAttrKeys) {
 			continue
 		}
 		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))

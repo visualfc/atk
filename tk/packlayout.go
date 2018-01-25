@@ -2,42 +2,15 @@
 
 package tk
 
-type LayoutItem struct {
-	widget Widget
-	attrs  []*PackAttr
-}
-
-type LayoutFrame struct {
-	BaseWidget
-}
-
-func (w *LayoutFrame) Type() string {
-	return "LayoutFrame"
-}
-
-func NewLayoutFrame(parent Widget, attributes ...*WidgetAttr) *LayoutFrame {
-	theme := checkInitUseTheme(attributes)
-	iid := makeNamedWidgetId(parent, "atk_layoutframe")
-	info := CreateWidgetInfo(iid, WidgetTypeFrame, theme, attributes)
-	if info == nil {
-		return nil
-	}
-	w := &LayoutFrame{}
-	w.id = iid
-	w.info = info
-	RegisterWidget(w)
-	return w
-}
-
-type Layout interface {
-	LayoutFrame() *LayoutFrame
-}
-
 type PackLayout struct {
-	main  *LayoutFrame
-	side  Side
-	pad   *Pad
-	items []*LayoutItem
+	master *LayoutFrame
+	side   Side
+	pad    *Pad
+	items  []*LayoutItem
+}
+
+func (w *PackLayout) Master() Widget {
+	return w.master
 }
 
 func (w *PackLayout) SetSide(side Side) {
@@ -54,7 +27,18 @@ func (w *PackLayout) SetPaddingN(padx int, pady int) {
 	w.Repack()
 }
 
-func (w *PackLayout) AddWidget(widget Widget, attributes ...*PackAttr) {
+func (w *PackLayout) removeItem(id string) bool {
+	for n, item := range w.items {
+		if item.widget.Id() == id {
+			eval("pack forget " + id)
+			w.items = append(w.items[:n], w.items[n+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
+func (w *PackLayout) AddWidget(widget Widget, attributes ...*LayoutAttr) {
 	if !IsValidWidget(widget) {
 		return
 	}
@@ -63,20 +47,13 @@ func (w *PackLayout) AddWidget(widget Widget, attributes ...*PackAttr) {
 }
 
 func (w *PackLayout) RemoveWidget(widget Widget) bool {
-	if !IsValidWidget(widget) {
+	if widget == nil {
 		return false
 	}
-	for n, item := range w.items {
-		if item.widget == widget {
-			eval("pack forget " + widget.Id())
-			w.items = append(w.items[:n], w.items[n+1:]...)
-			return true
-		}
-	}
-	return false
+	return w.removeItem(widget.Id())
 }
 
-func (w *PackLayout) SetWidgetAttr(widget Widget, attributes ...*PackAttr) {
+func (w *PackLayout) SetWidgetAttr(widget Widget, attributes ...*LayoutAttr) {
 	if !IsValidWidget(widget) {
 		return
 	}
@@ -88,20 +65,27 @@ func (w *PackLayout) SetWidgetAttr(widget Widget, attributes ...*PackAttr) {
 	w.Repack()
 }
 
-func (w *PackLayout) AddLayout(layout *PackLayout, attributes ...*PackAttr) {
-	if layout == nil || !IsValidWidget(layout.main) {
+func (w *PackLayout) AddLayout(layout Layout, attributes ...*LayoutAttr) {
+	if !IsValidLayout(layout) {
 		return
 	}
-	w.items = append(w.items, &LayoutItem{layout.main, attributes})
+	w.items = append(w.items, &LayoutItem{layout.Master(), attributes})
 	w.Repack()
 }
 
-func (w *PackLayout) SetLayoutAttr(layout *PackLayout, attributes ...*PackAttr) {
-	if layout == nil || !IsValidWidget(layout.main) {
+func (w *PackLayout) RemoveLayout(layout Layout) bool {
+	if layout == nil || layout.Master() == nil {
+		return false
+	}
+	return w.removeItem(layout.Master().Id())
+}
+
+func (w *PackLayout) SetLayoutAttr(layout *PackLayout, attributes ...*LayoutAttr) {
+	if layout == nil || !IsValidWidget(layout.master) {
 		return
 	}
 	for _, item := range w.items {
-		if item.widget == layout.main {
+		if item.widget == layout.master {
 			item.attrs = attributes
 		}
 	}
@@ -109,14 +93,14 @@ func (w *PackLayout) SetLayoutAttr(layout *PackLayout, attributes ...*PackAttr) 
 }
 
 func (w *PackLayout) Repack() {
-	itemsAttr := []*PackAttr{PackAttrSide(w.side), PackAttrInMaster(w.main)}
+	itemsAttr := []*LayoutAttr{PackAttrSide(w.side), PackAttrInMaster(w.master)}
 	if w.pad != nil {
 		itemsAttr = append(itemsAttr, PackAttrPadx(w.pad.X), PackAttrPady(w.pad.Y))
 	}
 	for _, item := range w.items {
-		Pack(item.widget, AppendPackAttrs(item.attrs, itemsAttr...)...)
+		Pack(item.widget, AppendLayoutAttrs(item.attrs, itemsAttr...)...)
 	}
-	Pack(w.main, PackAttrFill(FillBoth), PackAttrExpand(true))
+	Pack(w.master, PackAttrFill(FillBoth), PackAttrExpand(true))
 }
 
 func NewPackLayout(parent Widget, side Side) *PackLayout {
@@ -129,23 +113,4 @@ func NewHPackLayout(parent Widget) *PackLayout {
 
 func NewVPackLayout(parent Widget) *PackLayout {
 	return NewPackLayout(parent, SideTop)
-}
-
-func AppendPackAttrs(org []*PackAttr, attributes ...*PackAttr) []*PackAttr {
-	var remain []*PackAttr
-	var find bool
-	for _, attr := range attributes {
-		find = false
-		for _, old := range org {
-			if old.key == attr.key {
-				old.value = attr.value
-				find = true
-				break
-			}
-		}
-		if !find {
-			remain = append(remain, attr)
-		}
-	}
-	return append(org, remain...)
 }

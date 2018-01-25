@@ -70,3 +70,12 @@ func boolToInt(b bool) int {
 	}
 	return 0
 }
+
+func isValidKey(key string, keys []string) bool {
+	for _, v := range keys {
+		if v == key {
+			return true
+		}
+	}
+	return false
+}
