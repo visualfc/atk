@@ -9,11 +9,6 @@ import (
 	"strings"
 )
 
-type GridIndexAttr struct {
-	key   string
-	value interface{}
-}
-
 func GridAttrColumn(n int) *LayoutAttr {
 	return &LayoutAttr{"column", n}
 }
@@ -57,6 +52,11 @@ func GridAttrSticky(v Sticky) *LayoutAttr {
 	return &LayoutAttr{"sticky", v}
 }
 
+type GridIndexAttr struct {
+	key   string
+	value interface{}
+}
+
 func GridIndexAttrMinSize(amount int) *GridIndexAttr {
 	return &GridIndexAttr{"minsize", amount}
 }
@@ -69,12 +69,19 @@ func GridIndexAttrWeight(value int) *GridIndexAttr {
 	return &GridIndexAttr{"weight", value}
 }
 
-func GridIndexUniform(groupname string) *GridIndexAttr {
+func GridIndexAttrUniform(groupname string) *GridIndexAttr {
 	return &GridIndexAttr{"uniform", groupname}
 }
 
 func Grid(widget Widget, attributes ...*LayoutAttr) error {
 	return GridList([]Widget{widget}, attributes...)
+}
+
+func GridRemove(widget Widget) error {
+	if !IsValidWidget(widget) {
+		return os.ErrInvalid
+	}
+	return eval("grid forget " + widget.Id())
 }
 
 var (
@@ -99,6 +106,8 @@ func GridList(widgets []Widget, attributes ...*LayoutAttr) error {
 	for _, w := range widgets {
 		if IsValidWidget(w) {
 			idList = append(idList, w.Id())
+		} else {
+			idList = append(idList, "x")
 		}
 	}
 	if len(idList) == 0 {
