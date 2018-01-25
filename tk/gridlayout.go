@@ -3,7 +3,7 @@
 package tk
 
 type GridLayout struct {
-	master *LayoutFrame
+	master *Frame
 	items  []*LayoutItem
 }
 
@@ -67,8 +67,12 @@ func (w *GridLayout) Repack() {
 	Pack(w.master, PackAttrFill(FillBoth), PackAttrExpand(true))
 }
 
-func (w *GridLayout) SetBorder(x int, y int) {
-	w.master.SetPaddingN(x, y)
+func (w *GridLayout) SetBorderWidth(width int) {
+	w.master.SetBorderWidth(width)
+}
+
+func (w *GridLayout) BorderWidth() int {
+	return w.master.BorderWidth()
 }
 
 // row index from 0, -1=all

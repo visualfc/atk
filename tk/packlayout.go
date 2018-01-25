@@ -3,7 +3,7 @@
 package tk
 
 type PackLayout struct {
-	master *LayoutFrame
+	master *Frame
 	side   Side
 	pad    *Pad
 	items  []*LayoutItem
@@ -128,8 +128,12 @@ func (w *PackLayout) Repack() {
 	Pack(w.master, PackAttrFill(FillBoth), PackAttrExpand(true))
 }
 
-func (w *PackLayout) SetBorder(x int, y int) {
-	w.master.SetPaddingN(x, y)
+func (w *PackLayout) SetBorderWidth(width int) {
+	w.master.SetBorderWidth(width)
+}
+
+func (w *PackLayout) BorderWidth() int {
+	return w.master.BorderWidth()
 }
 
 func NewPackLayout(parent Widget, side Side) *PackLayout {
