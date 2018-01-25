@@ -18,7 +18,7 @@ func (w *BaseWidget) String() string {
 	if iw != nil {
 		return fmt.Sprintf("%v{%v}", iw.TypeName(), w.id)
 	} else {
-		return fmt.Sprintf("Widget{%v}", w.id)
+		return fmt.Sprintf("Invalid{%v}", w.id)
 	}
 }
 

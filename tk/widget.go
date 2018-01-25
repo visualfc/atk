@@ -132,7 +132,11 @@ func dumpWidgetHelp(w Widget, offset string, space string, ar *[]string) {
 	}
 }
 
-func DumpWidget(w Widget, offset string) string {
+func DumpWidget(w Widget) string {
+	return DumpWidgetEx(w, "\t")
+}
+
+func DumpWidgetEx(w Widget, offset string) string {
 	var ar []string
 	dumpWidgetHelp(w, offset, "", &ar)
 	return strings.Join(ar, "\n")
