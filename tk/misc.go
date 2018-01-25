@@ -190,6 +190,36 @@ func parserAnchorResult(r string, err error) Anchor {
 	return -1
 }
 
+type Sticky int
+
+const (
+	StickyCenter Sticky = 1 << iota
+	StickyN
+	StickyS
+	StickyE
+	StickyW
+	StickyNS  = StickyN | StickyS
+	StickyEW  = StickyE | StickyW
+	StickyAll = StickyN | StickyS | StickyE | StickyW
+)
+
+func (v Sticky) String() string {
+	var s string
+	if v&StickyN == StickyN {
+		s += "n"
+	}
+	if v&StickyS == StickyS {
+		s += "s"
+	}
+	if v&StickyE == StickyE {
+		s += "e"
+	}
+	if v&StickyW == StickyW {
+		s += "w"
+	}
+	return s
+}
+
 type Compound int
 
 const (

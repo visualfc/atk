@@ -29,6 +29,10 @@ func NewLayoutFrame(parent Widget, attributes ...*WidgetAttr) *LayoutFrame {
 	return w
 }
 
+type Layout interface {
+	LayoutFrame() *LayoutFrame
+}
+
 type PackLayout struct {
 	main  *LayoutFrame
 	side  Side
