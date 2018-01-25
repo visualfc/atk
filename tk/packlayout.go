@@ -128,6 +128,10 @@ func (w *PackLayout) Repack() {
 	Pack(w.master, PackAttrFill(FillBoth), PackAttrExpand(true))
 }
 
+func (w *PackLayout) SetBorder(x int, y int) {
+	w.master.SetPaddingN(x, y)
+}
+
 func NewPackLayout(parent Widget, side Side) *PackLayout {
 	pack := &PackLayout{NewLayoutFrame(parent), side, nil, nil}
 	pack.Repack()

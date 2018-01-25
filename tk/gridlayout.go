@@ -67,6 +67,10 @@ func (w *GridLayout) Repack() {
 	Pack(w.master, PackAttrFill(FillBoth), PackAttrExpand(true))
 }
 
+func (w *GridLayout) SetBorder(x int, y int) {
+	w.master.SetPaddingN(x, y)
+}
+
 // row index from 0, -1=all
 func (w *GridLayout) SetRow(row int, pad int, weight int, group string) {
 	GridRowIndex(w.master, row, GridIndexAttrPad(pad), GridIndexAttrWeight(weight), GridIndexAttrUniform(group))

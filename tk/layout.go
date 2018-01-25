@@ -2,6 +2,8 @@
 
 package tk
 
+import "fmt"
+
 type LayoutAttr struct {
 	key   string
 	value interface{}
@@ -14,6 +16,15 @@ type LayoutItem struct {
 
 type LayoutFrame struct {
 	BaseWidget
+}
+
+func (w *LayoutFrame) SetPaddingN(padx int, pady int) *LayoutFrame {
+	if w.info.IsTtk {
+		evalAsString(fmt.Sprintf("%v configure -padding {%v %v}", w.id, padx, pady))
+	} else {
+		evalAsString(fmt.Sprintf("%v configure -padx {%v} -pady {%v}", w.id, padx, pady))
+	}
+	return w
 }
 
 func (w *LayoutFrame) Type() string {
@@ -31,6 +42,7 @@ func NewLayoutFrame(parent Widget, attributes ...*WidgetAttr) *LayoutFrame {
 	w.id = iid
 	w.info = info
 	RegisterWidget(w)
+	eval("lower " + iid)
 	return w
 }
 
