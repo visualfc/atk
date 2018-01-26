@@ -30,33 +30,48 @@ func (w *PackLayout) SetPaddingN(padx int, pady int) {
 }
 
 func (w *PackLayout) removeItem(widget Widget) bool {
-	for n, item := range w.items {
-		if item.widget == widget {
-			PackRemove(widget)
-			w.items = append(w.items[:n], w.items[n+1:]...)
-			return true
+	n := w.indexOfWidget(widget)
+	if n == -1 {
+		return false
+	}
+	PackRemove(widget)
+	w.items = append(w.items[:n], w.items[n+1:]...)
+	return true
+}
+
+func (w *PackLayout) indexOfWidget(widget Widget) int {
+	for n, v := range w.items {
+		if v.widget == widget {
+			return n
 		}
 	}
-	return false
+	return -1
 }
 
 func (w *PackLayout) AddWidget(widget Widget, attributes ...*LayoutAttr) {
 	if !IsValidWidget(widget) {
 		return
 	}
+	n := w.indexOfWidget(widget)
+	if n != -1 {
+		w.items = append(w.items[:n], w.items[n+1:]...)
+	}
 	w.items = append(w.items, &LayoutItem{widget, attributes})
 	w.Repack()
 }
 
-func (w *PackLayout) AddWidgetEx(widget Widget, fill Fill, expand bool, anchor Anchor, before Widget, after Widget) {
+func (w *PackLayout) AddWidgetEx(widget Widget, fill Fill, expand bool, anchor Anchor) {
 	w.AddWidget(widget,
 		PackAttrFill(fill), PackAttrExpand(expand),
-		PackAttrAnchor(anchor),
-		PackAttrBefore(before), PackAttrAfter(after))
+		PackAttrAnchor(anchor))
 }
 
 func (w *PackLayout) AddWidgets(widgets []Widget, attributes ...*LayoutAttr) {
 	for _, widget := range widgets {
+		n := w.indexOfWidget(widget)
+		if n != -1 {
+			w.items = append(w.items[:n], w.items[n+1:]...)
+		}
 		w.items = append(w.items, &LayoutItem{widget, attributes})
 	}
 	w.Repack()
@@ -73,11 +88,11 @@ func (w *PackLayout) SetWidgetAttr(widget Widget, attributes ...*LayoutAttr) {
 	if !IsValidWidget(widget) {
 		return
 	}
-	for _, item := range w.items {
-		if item.widget == widget {
-			item.attrs = attributes
-		}
+	n := w.indexOfWidget(widget)
+	if n == -1 {
+		return
 	}
+	w.items[n].attrs = attributes
 	w.Repack()
 }
 
@@ -85,15 +100,13 @@ func (w *PackLayout) AddLayout(layout Layout, attributes ...*LayoutAttr) {
 	if !IsValidLayout(layout) {
 		return
 	}
-	w.items = append(w.items, &LayoutItem{layout.Master(), attributes})
-	w.Repack()
+	w.AddWidget(layout.Master(), attributes...)
 }
 
-func (w *PackLayout) AddLayoutEx(layout Layout, fill Fill, expand bool, anchor Anchor, before Widget, after Widget) {
+func (w *PackLayout) AddLayoutEx(layout Layout, fill Fill, expand bool, anchor Anchor) {
 	w.AddLayout(layout,
 		PackAttrFill(fill), PackAttrExpand(expand),
-		PackAttrAnchor(anchor),
-		PackAttrBefore(before), PackAttrAfter(after))
+		PackAttrAnchor(anchor))
 }
 
 func (w *PackLayout) RemoveLayout(layout Layout) bool {
@@ -103,16 +116,11 @@ func (w *PackLayout) RemoveLayout(layout Layout) bool {
 	return w.removeItem(layout.Master())
 }
 
-func (w *PackLayout) SetLayoutAttr(layout *PackLayout, attributes ...*LayoutAttr) {
-	if layout == nil || !IsValidWidget(layout.master) {
+func (w *PackLayout) SetLayoutAttr(layout Layout, attributes ...*LayoutAttr) {
+	if !IsValidLayout(layout) {
 		return
 	}
-	for _, item := range w.items {
-		if item.widget == layout.master {
-			item.attrs = attributes
-		}
-	}
-	w.Repack()
+	w.SetWidgetAttr(layout.Master(), attributes...)
 }
 
 func (w *PackLayout) itemAttr() []*LayoutAttr {
@@ -123,30 +131,34 @@ func (w *PackLayout) itemAttr() []*LayoutAttr {
 	return itemsAttr
 }
 
+func (w *PackLayout) resetSpacerAttr(item *LayoutItem, s *Spacer) {
+	if s.IsExpand() {
+		s.SetWidth(0)
+		s.SetHeight(0)
+		if w.side == SideTop || w.side == SideBottom {
+			item.attrs = AppendLayoutAttrs(item.attrs, PackAttrFillY(), PackAttrExpand(true))
+		} else {
+			item.attrs = AppendLayoutAttrs(item.attrs, PackAttrFillX(), PackAttrExpand(true))
+		}
+	} else {
+		item.attrs = AppendLayoutAttrs(item.attrs, PackAttrFillNone(), PackAttrExpand(false))
+		if w.side == SideTop || w.side == SideBottom {
+			s.SetHeight(s.space)
+			s.SetWidth(0)
+		} else {
+			s.SetWidth(s.space)
+			s.SetHeight(0)
+		}
+	}
+}
+
 func (w *PackLayout) Repack() {
 	for _, item := range w.items {
 		if item.widget == nil {
 			continue
 		}
 		if s, ok := item.widget.(*Spacer); ok {
-			if s.IsExpand() {
-				s.SetWidth(0)
-				s.SetHeight(0)
-				if w.side == SideTop || w.side == SideBottom {
-					item.attrs = AppendLayoutAttrs(item.attrs, PackAttrFillY(), PackAttrExpand(true))
-				} else {
-					item.attrs = AppendLayoutAttrs(item.attrs, PackAttrFillX(), PackAttrExpand(true))
-				}
-			} else {
-				item.attrs = AppendLayoutAttrs(item.attrs, PackAttrFillNone(), PackAttrExpand(false))
-				if w.side == SideTop || w.side == SideBottom {
-					s.SetHeight(s.space)
-					s.SetWidth(0)
-				} else {
-					s.SetWidth(s.space)
-					s.SetHeight(0)
-				}
-			}
+			w.resetSpacerAttr(item, s)
 		}
 		Pack(item.widget, AppendLayoutAttrs(item.attrs, w.itemAttr()...)...)
 	}
