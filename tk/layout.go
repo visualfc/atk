@@ -2,6 +2,8 @@
 
 package tk
 
+import "fmt"
+
 type LayoutAttr struct {
 	key   string
 	value interface{}
@@ -10,6 +12,60 @@ type LayoutAttr struct {
 type LayoutItem struct {
 	widget Widget
 	attrs  []*LayoutAttr
+}
+
+type Spacer struct {
+	BaseWidget
+	space  int
+	expand bool
+}
+
+func (w *Spacer) Type() WidgetType {
+	return WidgetTypeSpacer
+}
+
+func (w *Spacer) SetSpace(space int) *Spacer {
+	w.space = space
+	return w
+}
+
+func (w *Spacer) Space() int {
+	return w.space
+}
+
+func (w *Spacer) SetExpand(expand bool) *Spacer {
+	w.expand = expand
+	return w
+}
+
+func (w *Spacer) IsExpand() bool {
+	return w.expand
+}
+
+func (w *Spacer) setWidth(width int) *Spacer {
+	evalAsInt(fmt.Sprintf("%v configure -width {%v}", w.id, width))
+	return w
+}
+
+func (w *Spacer) setHeight(height int) *Spacer {
+	evalAsInt(fmt.Sprintf("%v configure -height {%v}", w.id, height))
+	return w
+}
+
+func NewSpacer(parent Widget, space int, expand bool) *Spacer {
+	theme := checkInitUseTheme(nil)
+	iid := makeNamedWidgetId(parent, "atk_spacer")
+	info := CreateWidgetInfo(iid, WidgetTypeFrame, theme, nil)
+	if info == nil {
+		return nil
+	}
+	w := &Spacer{}
+	w.id = iid
+	w.info = info
+	w.space = space
+	w.expand = expand
+	RegisterWidget(w)
+	return w
 }
 
 func NewLayoutFrame(parent Widget, attributes ...*WidgetAttr) *Frame {

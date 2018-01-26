@@ -125,6 +125,29 @@ func (w *PackLayout) itemAttr() []*LayoutAttr {
 
 func (w *PackLayout) Repack() {
 	for _, item := range w.items {
+		if item.widget == nil {
+			continue
+		}
+		if s, ok := item.widget.(*Spacer); ok {
+			if s.IsExpand() {
+				s.setWidth(0)
+				s.setHeight(0)
+				if w.side == SideTop || w.side == SideBottom {
+					item.attrs = AppendLayoutAttrs(item.attrs, PackAttrFillY(), PackAttrExpand(true))
+				} else {
+					item.attrs = AppendLayoutAttrs(item.attrs, PackAttrFillX(), PackAttrExpand(true))
+				}
+			} else {
+				item.attrs = AppendLayoutAttrs(item.attrs, PackAttrFillNone(), PackAttrExpand(false))
+				if w.side == SideTop || w.side == SideBottom {
+					s.setHeight(s.space)
+					s.setWidth(0)
+				} else {
+					s.setWidth(s.space)
+					s.setHeight(0)
+				}
+			}
+		}
 		Pack(item.widget, AppendLayoutAttrs(item.attrs, w.itemAttr()...)...)
 	}
 	Pack(w.master, PackAttrFill(FillBoth), PackAttrExpand(true))
