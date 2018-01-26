@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func toTkList(ar []string) string {
+func ToTkList(ar []string) string {
 	var list []string
 	for _, v := range ar {
 		list = append(list, "{"+v+"}")
@@ -14,7 +14,7 @@ func toTkList(ar []string) string {
 	return strings.Join(list, " ")
 }
 
-func fromTkList(tklist string) (ar []string) {
+func FromTkList(tklist string) (ar []string) {
 	lastIndex := -1
 	inBrace := false
 	inString := false

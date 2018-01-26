@@ -297,5 +297,5 @@ func parserTkListResult(r string, err error) []string {
 	if err != nil {
 		return nil
 	}
-	return fromTkList(r)
+	return FromTkList(r)
 }

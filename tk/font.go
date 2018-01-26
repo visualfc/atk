@@ -206,7 +206,7 @@ func FontFamilieList() []string {
 	if err != nil {
 		return nil
 	}
-	return fromTkList(s)
+	return FromTkList(s)
 }
 
 //tk system default font

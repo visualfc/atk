@@ -2,7 +2,10 @@
 
 package tk
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 type Action struct {
 	actid   string
@@ -88,7 +91,9 @@ func NewAction(label string, fn func()) *Action {
 
 func NewCheckAction(label string, fn func()) *Action {
 	action := NewAction(label, fn)
-	action.checkid = makeNamedId("atk_checkaction")
+	id := makeNamedId("atk_checkaction")
+	evalSetValue(id, "0")
+	action.checkid = id
 	return action
 }
 
@@ -97,18 +102,19 @@ func NewSeparatorAction() *Action {
 	return action
 }
 
-type RadioActionGroup struct {
+type ActionGroup struct {
 	groupid        string
 	actions        []*Action
 	fnRadioCommand func()
 }
 
-func NewRadioActionGroup() *RadioActionGroup {
+func NewActionGroup() *ActionGroup {
 	id := makeNamedId("atk_actiongroup")
-	return &RadioActionGroup{id, nil, nil}
+	evalSetValue(id, "")
+	return &ActionGroup{id, nil, nil}
 }
 
-func (a *RadioActionGroup) findAction(act *Action) bool {
+func (a *ActionGroup) findAction(act *Action) bool {
 	for _, v := range a.actions {
 		if v == act {
 			return true
@@ -117,13 +123,13 @@ func (a *RadioActionGroup) findAction(act *Action) bool {
 	return false
 }
 
-func (a *RadioActionGroup) radioCommand() {
+func (a *ActionGroup) radioCommand() {
 	if a.fnRadioCommand != nil {
 		a.fnRadioCommand()
 	}
 }
 
-func (a *RadioActionGroup) AddRadioAction(act *Action) {
+func (a *ActionGroup) AddRadioAction(act *Action) {
 	if a.findAction(act) {
 		return
 	}
@@ -133,7 +139,7 @@ func (a *RadioActionGroup) AddRadioAction(act *Action) {
 	a.actions = append(a.actions, act)
 }
 
-func (a *RadioActionGroup) AddNewRadioAction(label string) *Action {
+func (a *ActionGroup) AddNewRadioAction(label string) *Action {
 	act := NewCheckAction(label, nil)
 	act.groupid = a.groupid
 	act.radioid = makeNamedId("atk_radioaction")
@@ -142,17 +148,53 @@ func (a *RadioActionGroup) AddNewRadioAction(label string) *Action {
 	return act
 }
 
-func (a *RadioActionGroup) OnCommand(fn func()) {
+func (a *ActionGroup) OnCommand(fn func()) {
 	a.fnRadioCommand = fn
 }
 
-func (a *RadioActionGroup) checkedValue() string {
-	r, _ := evalAsString(fmt.Sprintf("set %v", a.groupid))
+func (a *ActionGroup) checkedValue() string {
+	r, _ := evalAsStringEx(fmt.Sprintf("set %v", a.groupid), false)
 	return r
 }
 
-func (a *RadioActionGroup) CheckedAction() *Action {
+func (a *ActionGroup) SetCheckedIndex(index int) error {
+	if index >= 0 && index < len(a.actions) {
+		a.actions[index].SetChecked(true)
+	}
+	return os.ErrNotExist
+}
+
+func (a *ActionGroup) SetCheckedAction(act *Action) error {
+	if act == nil {
+		return os.ErrInvalid
+	}
+	for _, v := range a.actions {
+		if v == act {
+			act.SetChecked(true)
+			return nil
+		}
+	}
+	return os.ErrNotExist
+}
+
+func (a *ActionGroup) CheckedActionIndex() int {
 	s := a.checkedValue()
+	if s == "" {
+		return -1
+	}
+	for n, act := range a.actions {
+		if act.radioid == s {
+			return n
+		}
+	}
+	return -1
+}
+
+func (a *ActionGroup) CheckedAction() *Action {
+	s := a.checkedValue()
+	if s == "" {
+		return nil
+	}
 	for _, act := range a.actions {
 		if act.radioid == s {
 			return act
@@ -161,6 +203,6 @@ func (a *RadioActionGroup) CheckedAction() *Action {
 	return nil
 }
 
-func (a *RadioActionGroup) Actions() []*Action {
+func (a *ActionGroup) Actions() []*Action {
 	return a.actions
 }

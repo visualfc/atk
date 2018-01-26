@@ -50,7 +50,7 @@ var (
 func init() {
 	registerInit(func() {
 		s, _ := evalAsString("ttk::themes")
-		ttk_theme_list = fromTkList(s)
+		ttk_theme_list = FromTkList(s)
 	})
 	SetTheme(TtkTheme)
 }

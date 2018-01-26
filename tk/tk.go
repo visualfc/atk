@@ -100,12 +100,22 @@ func Update() {
 }
 
 func Quit() {
-	DestroyWidget(mainWindow)
+	Async(func() {
+		DestroyWidget(mainWindow)
+	})
 }
 
 func eval(script string) error {
 	err := mainInterp.Eval(script)
 	if err != nil {
+		dumpError(err)
+	}
+	return err
+}
+
+func evalEx(script string, dump bool) error {
+	err := mainInterp.Eval(script)
+	if dump && err != nil {
 		dumpError(err)
 	}
 	return err
@@ -119,9 +129,25 @@ func evalAsString(script string) (string, error) {
 	return r, err
 }
 
+func evalAsStringEx(script string, dump bool) (string, error) {
+	r, err := mainInterp.EvalAsString(script)
+	if dump && err != nil {
+		dumpError(err)
+	}
+	return r, err
+}
+
 func evalAsInt(script string) (int, error) {
 	r, err := mainInterp.EvalAsInt(script)
 	if err != nil {
+		dumpError(err)
+	}
+	return r, err
+}
+
+func evalAsIntEx(script string, dump bool) (int, error) {
+	r, err := mainInterp.EvalAsInt(script)
+	if dump && err != nil {
 		dumpError(err)
 	}
 	return r, err
@@ -135,12 +161,32 @@ func evalAsFloat64(script string) (float64, error) {
 	return r, err
 }
 
+func evalAsFloat64Ex(script string, dump bool) (float64, error) {
+	r, err := mainInterp.EvalAsFloat64(script)
+	if dump && err != nil {
+		dumpError(err)
+	}
+	return r, err
+}
+
 func evalAsBool(script string) (bool, error) {
 	r, err := mainInterp.EvalAsBool(script)
 	if err != nil {
 		dumpError(err)
 	}
 	return r, err
+}
+
+func evalAsBoolEx(script string, dump bool) (bool, error) {
+	r, err := mainInterp.EvalAsBool(script)
+	if dump && err != nil {
+		dumpError(err)
+	}
+	return r, err
+}
+
+func evalSetValue(id string, value string) error {
+	return eval(fmt.Sprintf("set %v {%v}", id, value))
 }
 
 func dumpError(err error) {
