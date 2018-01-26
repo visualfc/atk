@@ -168,15 +168,6 @@ func NewPackLayout(parent Widget, side Side) *PackLayout {
 	return pack
 }
 
-func NewPackLayoutFromMaster(master Widget, side Side) *PackLayout {
-	if !IsValidWidget(master) || master.Type() == WidgetTypeWindow {
-		return NewPackLayout(master, side)
-	}
-	pack := &PackLayout{master, side, nil, nil}
-	pack.Repack()
-	return pack
-}
-
 func NewHPackLayout(parent Widget) *PackLayout {
 	return NewPackLayout(parent, SideLeft)
 }

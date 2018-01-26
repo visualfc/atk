@@ -93,12 +93,3 @@ func NewGridLayout(parent Widget) *GridLayout {
 	grid.Repack()
 	return grid
 }
-
-func NewGridLayoutFromMaster(master Widget) *GridLayout {
-	if !IsValidWidget(master) || master.Type() == WidgetTypeWindow {
-		return NewGridLayout(master)
-	}
-	grid := &GridLayout{NewLayoutFrame(master), nil}
-	grid.Repack()
-	return grid
-}
