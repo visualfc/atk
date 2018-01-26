@@ -42,14 +42,26 @@ func (w *Spacer) IsExpand() bool {
 	return w.expand
 }
 
-func (w *Spacer) setWidth(width int) *Spacer {
+// width ignore for PackLayout
+func (w *Spacer) SetWidth(width int) *Spacer {
 	evalAsInt(fmt.Sprintf("%v configure -width {%v}", w.id, width))
 	return w
 }
 
-func (w *Spacer) setHeight(height int) *Spacer {
+func (w *Spacer) Width() int {
+	r, _ := evalAsInt(fmt.Sprintf("%v cget -width", w.id))
+	return r
+}
+
+// height ignore for PackLayout
+func (w *Spacer) SetHeight(height int) *Spacer {
 	evalAsInt(fmt.Sprintf("%v configure -height {%v}", w.id, height))
 	return w
+}
+
+func (w *Spacer) Height() int {
+	r, _ := evalAsInt(fmt.Sprintf("%v cget -height", w.id))
+	return r
 }
 
 func NewSpacer(parent Widget, space int, expand bool) *Spacer {

@@ -130,8 +130,8 @@ func (w *PackLayout) Repack() {
 		}
 		if s, ok := item.widget.(*Spacer); ok {
 			if s.IsExpand() {
-				s.setWidth(0)
-				s.setHeight(0)
+				s.SetWidth(0)
+				s.SetHeight(0)
 				if w.side == SideTop || w.side == SideBottom {
 					item.attrs = AppendLayoutAttrs(item.attrs, PackAttrFillY(), PackAttrExpand(true))
 				} else {
@@ -140,11 +140,11 @@ func (w *PackLayout) Repack() {
 			} else {
 				item.attrs = AppendLayoutAttrs(item.attrs, PackAttrFillNone(), PackAttrExpand(false))
 				if w.side == SideTop || w.side == SideBottom {
-					s.setHeight(s.space)
-					s.setWidth(0)
+					s.SetHeight(s.space)
+					s.SetWidth(0)
 				} else {
-					s.setWidth(s.space)
-					s.setHeight(0)
+					s.SetWidth(s.space)
+					s.SetHeight(0)
 				}
 			}
 		}
