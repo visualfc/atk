@@ -60,8 +60,34 @@ func (w *PackLayout) AddWidget(widget Widget, attributes ...*LayoutAttr) {
 	w.Repack()
 }
 
+func (w *PackLayout) InsertWidget(index int, widget Widget, attributes ...*LayoutAttr) {
+	if index < 0 {
+		w.AddWidget(widget, attributes...)
+		return
+	}
+	n := w.indexOfWidget(widget)
+	if n != -1 {
+		if n == index {
+			return
+		}
+		w.items = append(w.items[:n], w.items[n+1:]...)
+	}
+	if index >= len(w.items) {
+		w.AddWidget(widget, attributes...)
+		return
+	}
+	w.items = append(w.items[:index], append([]*LayoutItem{&LayoutItem{widget, attributes}}, w.items[index:]...)...)
+	w.Repack()
+}
+
 func (w *PackLayout) AddWidgetEx(widget Widget, fill Fill, expand bool, anchor Anchor) {
 	w.AddWidget(widget,
+		PackAttrFill(fill), PackAttrExpand(expand),
+		PackAttrAnchor(anchor))
+}
+
+func (w *PackLayout) InsertWidgetEx(index int, widget Widget, fill Fill, expand bool, anchor Anchor) {
+	w.InsertWidget(index, widget,
 		PackAttrFill(fill), PackAttrExpand(expand),
 		PackAttrAnchor(anchor))
 }
@@ -105,6 +131,19 @@ func (w *PackLayout) AddLayout(layout Layout, attributes ...*LayoutAttr) {
 
 func (w *PackLayout) AddLayoutEx(layout Layout, fill Fill, expand bool, anchor Anchor) {
 	w.AddLayout(layout,
+		PackAttrFill(fill), PackAttrExpand(expand),
+		PackAttrAnchor(anchor))
+}
+
+func (w *PackLayout) InsertLayout(index int, layout Layout, attributes ...*LayoutAttr) {
+	if !IsValidLayout(layout) {
+		return
+	}
+	w.InsertWidget(index, layout.Master(), attributes...)
+}
+
+func (w *PackLayout) InsertLayoutEx(index int, layout Layout, fill Fill, expand bool, anchor Anchor) {
+	w.InsertLayout(index, layout,
 		PackAttrFill(fill), PackAttrExpand(expand),
 		PackAttrAnchor(anchor))
 }
