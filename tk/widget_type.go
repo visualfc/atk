@@ -39,7 +39,8 @@ const (
 	WidgetTypeTextEdit
 	WidgetTypeWindow
 	WidgetTypeTreeView
-	WidgetTypeSpacer
+	WidgetTypeLayoutFrame
+	WidgetTypeLayoutSpacer
 	WidgetTypeLast
 )
 

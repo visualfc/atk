@@ -5,7 +5,7 @@ package tk
 import "fmt"
 
 type GridLayout struct {
-	master *Frame
+	master *LayoutFrame
 	items  []*LayoutItem
 }
 

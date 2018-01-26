@@ -5,7 +5,7 @@ package tk
 import "fmt"
 
 type PackLayout struct {
-	master Widget
+	master *LayoutFrame
 	side   Side
 	pad    *Pad
 	items  []*LayoutItem
@@ -170,7 +170,7 @@ func (w *PackLayout) itemAttr() []*LayoutAttr {
 	return itemsAttr
 }
 
-func (w *PackLayout) resetSpacerAttr(item *LayoutItem, s *Spacer) {
+func (w *PackLayout) resetSpacerAttr(item *LayoutItem, s *LayoutSpacer) {
 	if s.IsExpand() {
 		s.SetWidth(0)
 		s.SetHeight(0)
@@ -196,7 +196,7 @@ func (w *PackLayout) Repack() {
 		if item.widget == nil {
 			continue
 		}
-		if s, ok := item.widget.(*Spacer); ok {
+		if s, ok := item.widget.(*LayoutSpacer); ok {
 			w.resetSpacerAttr(item, s)
 		}
 		Pack(item.widget, AppendLayoutAttrs(item.attrs, w.itemAttr()...)...)
