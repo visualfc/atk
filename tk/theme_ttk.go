@@ -52,4 +52,5 @@ func init() {
 		s, _ := evalAsString("ttk::themes")
 		ttk_theme_list = fromTkList(s)
 	})
+	SetTheme(TtkTheme)
 }

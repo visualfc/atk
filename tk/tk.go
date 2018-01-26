@@ -25,14 +25,17 @@ func Init() error {
 func InitEx(tcl_library string, tk_library string) (err error) {
 	mainInterp, err = interp.NewInterp()
 	if err != nil {
+		dumpError(err)
 		return err
 	}
 	err = mainInterp.InitTcl(tcl_library)
 	if err != nil {
+		dumpError(err)
 		return err
 	}
 	err = mainInterp.InitTk(tk_library)
 	if err != nil {
+		dumpError(err)
 		return err
 	}
 	//hide console for macOS bundle
