@@ -85,3 +85,7 @@ func makeNamedWidgetId(parent Widget, typ string) string {
 func makeActionId() string {
 	return makeNamedId("atk_action")
 }
+
+func makeBindEventId() string {
+	return makeNamedId("atk_bindevent")
+}
