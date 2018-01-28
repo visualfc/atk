@@ -132,3 +132,19 @@ func (w *BaseWidget) SetAttributes(attributes ...*WidgetAttr) error {
 	}
 	return nil
 }
+
+func (w *BaseWidget) BindEvent(event string, fn func(e *Event)) error {
+	return BindEvent(w.id, event, fn)
+}
+
+func (w *BaseWidget) AddBindEvent(event string, fn func(e *Event)) error {
+	return AddBindEvent(w.id, event, fn)
+}
+
+func (w *BaseWidget) BindInfo() []string {
+	return BindInfo(w.id)
+}
+
+func (w *BaseWidget) ClearBind(event string) error {
+	return ClearBindEvent(w.id, event)
+}

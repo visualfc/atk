@@ -193,7 +193,7 @@ func ClearBindEvent(tag string, event string) error {
 	return eval(fmt.Sprintf("bind %v %v {}", tag, event))
 }
 
-func BindList(tag string) []string {
+func BindInfo(tag string) []string {
 	if tag == "" {
 		return nil
 	}

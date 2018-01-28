@@ -48,6 +48,9 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 	mainWindow = &Window{}
 	mainWindow.Attach(".")
 	mainWindow.Hide()
+
+	//hide wish menu on macos
+	mainWindow.SetMenu(NewMenu(nil))
 	return nil
 }
 
