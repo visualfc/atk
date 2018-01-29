@@ -92,7 +92,7 @@ func testWidgetParent(t *testing.T) {
 		t.Fatal("ParentWidget", p)
 	}
 	list := ChildrenOfWidget(mainWindow)
-	if len(list) != 2 || !findOfList(a1, list) || !findOfList(a2, list) {
+	if !findOfList(a1, list) || !findOfList(a2, list) {
 		t.Fatal("ChildrenOfWidget", list)
 	}
 	list = ChildrenOfWidget(a1_b1)
@@ -106,7 +106,7 @@ func testWidgetParent(t *testing.T) {
 	}
 	DestroyWidget(a1)
 	list = ChildrenOfWidget(mainWindow)
-	if len(list) != 1 {
+	if findOfList(a1, list) {
 		t.Fatal("DestroyWidget", list)
 	}
 	if IsValidWidget(a1_b1_c1) {
