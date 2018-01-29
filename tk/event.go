@@ -317,6 +317,7 @@ func VirtualEventInfo(virtual string) []string {
 	return FromTkList(v)
 }
 
+//TODO: event attr
 type EventAttr struct {
 	key   string
 	value string
