@@ -178,13 +178,13 @@ type KeyEvent struct {
 	KeyModifier KeyModifier
 }
 
-func (e *KeyEvent) addModify(sym string, name string, mod KeyModifier) {
+func (e *KeyEvent) addModifier(sym string, name string, mod KeyModifier) {
 	if strings.HasPrefix(sym, name) {
 		e.KeyModifier |= mod
 	}
 }
 
-func (e *KeyEvent) removeModify(sym string, name string, mod KeyModifier) {
+func (e *KeyEvent) removeModifier(sym string, name string, mod KeyModifier) {
 	if strings.HasPrefix(sym, name) {
 		if e.KeyModifier&mod == mod {
 			e.KeyModifier ^= mod
@@ -192,15 +192,16 @@ func (e *KeyEvent) removeModify(sym string, name string, mod KeyModifier) {
 	}
 }
 
+//TODO: almost check modifier
 func BindKeyEventEx(tag string, fnPress func(e *KeyEvent), fnRelease func(e *KeyEvent)) error {
 	var ke KeyEvent
 	var err error
 	err = BindEvent(tag, "<KeyPress>", func(e *Event) {
-		ke.addModify(e.KeySym, "Shift_", KeyModifierShift)
-		ke.addModify(e.KeySym, "Control_", KeyModifierControl)
-		ke.addModify(e.KeySym, "Alt_", KeyModifierAlt)
-		ke.addModify(e.KeySym, "Meta_", KeyModifierMeta)
-		ke.addModify(e.KeySym, "Super_", KeyModifierFn)
+		ke.addModifier(e.KeySym, "Shift_", KeyModifierShift)
+		ke.addModifier(e.KeySym, "Control_", KeyModifierControl)
+		ke.addModifier(e.KeySym, "Alt_", KeyModifierAlt)
+		ke.addModifier(e.KeySym, "Meta_", KeyModifierMeta)
+		ke.addModifier(e.KeySym, "Super_", KeyModifierFn)
 		ke.Event = e
 		if fnPress != nil {
 			fnPress(&ke)
@@ -214,11 +215,11 @@ func BindKeyEventEx(tag string, fnPress func(e *KeyEvent), fnRelease func(e *Key
 		if fnRelease != nil {
 			fnRelease(&ke)
 		}
-		ke.removeModify(e.KeySym, "Shift_", KeyModifierShift)
-		ke.removeModify(e.KeySym, "Control_", KeyModifierControl)
-		ke.removeModify(e.KeySym, "Alt_", KeyModifierAlt)
-		ke.removeModify(e.KeySym, "Meta_", KeyModifierMeta)
-		ke.removeModify(e.KeySym, "Super_", KeyModifierFn)
+		ke.removeModifier(e.KeySym, "Shift_", KeyModifierShift)
+		ke.removeModifier(e.KeySym, "Control_", KeyModifierControl)
+		ke.removeModifier(e.KeySym, "Alt_", KeyModifierAlt)
+		ke.removeModifier(e.KeySym, "Meta_", KeyModifierMeta)
+		ke.removeModifier(e.KeySym, "Super_", KeyModifierFn)
 	})
 	return err
 }
