@@ -192,7 +192,7 @@ func (e *KeyEvent) removeModifier(sym string, name string, mod KeyModifier) {
 	}
 }
 
-//TODO: almost check modifier
+//TODO: almost check key modifier
 func BindKeyEventEx(tag string, fnPress func(e *KeyEvent), fnRelease func(e *KeyEvent)) error {
 	var ke KeyEvent
 	var err error
@@ -259,17 +259,6 @@ func BindEvent(tag string, event string, fn func(e *Event)) error {
 		fn(&ev)
 	})
 }
-
-//func AddBindEvent(tag string, event string, fn func(e *Event)) error {
-//	if tag == "" || !IsEvent(event) {
-//		return os.ErrInvalid
-//	}
-//	fnid := makeBindEventId()
-//	var ev Event
-//	return addEventHelper(tag, event, fnid, &ev, func() {
-//		fn(&ev)
-//	})
-//}
 
 // clear tag event
 func ClearBindEvent(tag string, event string) error {
