@@ -137,8 +137,12 @@ func (w *BaseWidget) BindEvent(event string, fn func(e *Event)) error {
 	return BindEvent(w.id, event, fn)
 }
 
-func (w *BaseWidget) AddBindEvent(event string, fn func(e *Event)) error {
-	return AddBindEvent(w.id, event, fn)
+func (w *BaseWidget) BindKeyEvent(fn func(e *KeyEvent)) error {
+	return BindKeyEventEx(w.id, fn, nil)
+}
+
+func (w *BaseWidget) BindKeyEventEx(fnPress func(e *KeyEvent), fnRelease func(e *KeyEvent)) error {
+	return BindKeyEventEx(w.id, fnPress, fnRelease)
 }
 
 func (w *BaseWidget) BindInfo() []string {

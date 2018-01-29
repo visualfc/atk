@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 type Event struct {
@@ -44,9 +45,10 @@ type Event struct {
 	WheelDelta int
 
 	//The keycode field from the event. Valid only for KeyPress and KeyRelease events.
-	KeyScanCode int
-	KeySym      string
-	KeyText     string
+	KeyCode int
+	KeySym  string
+	KeyText string
+	KeyRune rune
 
 	//The detail or user_data field from the event. The %d is replaced by a string identifying the detail.
 	//For Enter, Leave, FocusIn, and FocusOut events, the string will be one of the following:
@@ -101,9 +103,12 @@ func (e *Event) parser(args []string) {
 	e.PosX = e.toInt(args[5])
 	e.PosY = e.toInt(args[6])
 	e.WheelDelta = e.toInt(args[7])
-	e.KeyScanCode = e.toInt(args[8])
+	e.KeyCode = e.toInt(args[8])
 	e.KeySym = e.toString(args[9])
 	e.KeyText = e.toString(args[10])
+	if e.KeyText != "" {
+		e.KeyRune, _ = utf8.DecodeRuneInString(e.KeyText)
+	}
 	e.UserData = e.toString(args[11])
 	e.Focus = e.toBool(args[12])
 	e.Width = e.toInt(args[13])
@@ -140,6 +145,82 @@ func (e *Event) toString(s string) string {
 	return s
 }
 
+type KeyModifier int
+
+const (
+	KeyModifierNone KeyModifier = 1 << iota
+	KeyModifierShift
+	KeyModifierControl
+	KeyModifierAlt
+	KeyModifierMeta
+	KeyModifierFn
+)
+
+func (k KeyModifier) String() string {
+	var ar []string
+	if k&KeyModifierShift == KeyModifierShift {
+		ar = append(ar, "Shift")
+	}
+	if k&KeyModifierControl == KeyModifierControl {
+		ar = append(ar, "Control")
+	}
+	if k&KeyModifierAlt == KeyModifierAlt {
+		ar = append(ar, "Alt")
+	}
+	if k&KeyModifierMeta == KeyModifierMeta {
+		ar = append(ar, "Meta")
+	}
+	return strings.Join(ar, " ")
+}
+
+type KeyEvent struct {
+	*Event
+	KeyModifier KeyModifier
+}
+
+func (e *KeyEvent) addModify(sym string, name string, mod KeyModifier) {
+	if strings.HasPrefix(sym, name) {
+		e.KeyModifier |= mod
+	}
+}
+
+func (e *KeyEvent) removeModify(sym string, name string, mod KeyModifier) {
+	if strings.HasPrefix(sym, name) {
+		e.KeyModifier ^= mod
+	}
+}
+
+func BindKeyEventEx(tag string, fnPress func(e *KeyEvent), fnRelease func(e *KeyEvent)) error {
+	var ke KeyEvent
+	var err error
+	err = BindEvent(tag, "<KeyPress>", func(e *Event) {
+		ke.addModify(e.KeySym, "Shift_", KeyModifierShift)
+		ke.addModify(e.KeySym, "Control_", KeyModifierControl)
+		ke.addModify(e.KeySym, "Alt_", KeyModifierAlt)
+		ke.addModify(e.KeySym, "Meta_", KeyModifierMeta)
+		ke.addModify(e.KeySym, "Super_", KeyModifierFn)
+		ke.Event = e
+		if fnPress != nil {
+			fnPress(&ke)
+		}
+	})
+	if err != nil {
+		return err
+	}
+	err = BindEvent(tag, "<KeyRelease>", func(e *Event) {
+		ke.Event = e
+		if fnRelease != nil {
+			fnRelease(&ke)
+		}
+		ke.removeModify(e.KeySym, "Shift_", KeyModifierShift)
+		ke.removeModify(e.KeySym, "Control_", KeyModifierControl)
+		ke.removeModify(e.KeySym, "Alt_", KeyModifierAlt)
+		ke.removeModify(e.KeySym, "Meta_", KeyModifierMeta)
+		ke.removeModify(e.KeySym, "Super_", KeyModifierFn)
+	})
+	return err
+}
+
 func bindEventHelper(tag string, event string, fnid string, ev *Event, fn func()) error {
 	mainInterp.CreateAction(fnid, func(args []string) {
 		ev.parser(args)
@@ -164,18 +245,8 @@ func IsVirtualEvent(event string) bool {
 	return strings.HasPrefix(event, "<<") && strings.HasSuffix(event, ">>")
 }
 
+// add bind event
 func BindEvent(tag string, event string, fn func(e *Event)) error {
-	if tag == "" || !IsEvent(event) {
-		return os.ErrInvalid
-	}
-	fnid := makeBindEventId()
-	var ev Event
-	return bindEventHelper(tag, event, fnid, &ev, func() {
-		fn(&ev)
-	})
-}
-
-func AddBindEvent(tag string, event string, fn func(e *Event)) error {
 	if tag == "" || !IsEvent(event) {
 		return os.ErrInvalid
 	}
@@ -186,6 +257,18 @@ func AddBindEvent(tag string, event string, fn func(e *Event)) error {
 	})
 }
 
+//func AddBindEvent(tag string, event string, fn func(e *Event)) error {
+//	if tag == "" || !IsEvent(event) {
+//		return os.ErrInvalid
+//	}
+//	fnid := makeBindEventId()
+//	var ev Event
+//	return addEventHelper(tag, event, fnid, &ev, func() {
+//		fn(&ev)
+//	})
+//}
+
+// clear tag event
 func ClearBindEvent(tag string, event string) error {
 	if tag == "" || !IsEvent(event) {
 		return os.ErrInvalid
