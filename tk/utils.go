@@ -79,3 +79,19 @@ func isValidKey(key string, keys []string) bool {
 	}
 	return false
 }
+
+func SubString(text string, start int, end int) string {
+	var n int
+	var r string
+	for _, v := range text {
+		if n < start {
+			continue
+		}
+		if n >= end {
+			break
+		}
+		r += string(v)
+		n++
+	}
+	return r
+}
