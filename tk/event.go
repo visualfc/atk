@@ -326,18 +326,18 @@ func NativeEventAttr(key string, value string) *EventAttr {
 	return &EventAttr{key, value}
 }
 
-func SendEvent(event string, widget Widget, attrs ...EventAttr) error {
+func SendEvent(event string, widget Widget, attrs ...*EventAttr) error {
 	if !IsValidWidget(widget) {
 		return os.ErrInvalid
 	}
 	return sendEvent(event, widget.Id(), attrs...)
 }
 
-func SendEventToFocus(event string, attrs ...EventAttr) error {
+func SendEventToFocus(event string, attrs ...*EventAttr) error {
 	return sendEvent(event, "[focus]", attrs...)
 }
 
-func sendEvent(event string, id string, attrs ...EventAttr) error {
+func sendEvent(event string, id string, attrs ...*EventAttr) error {
 	if !IsEvent(event) {
 		return os.ErrInvalid
 	}
@@ -346,7 +346,7 @@ func sendEvent(event string, id string, attrs ...EventAttr) error {
 		list = append(list, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
 	}
 	var script string
-	script = fmt.Sprintf("event genarate %v %v", id, event)
+	script = fmt.Sprintf("event generate %v %v", id, event)
 	if len(list) > 0 {
 		script += " " + strings.Join(list, " ")
 	}
