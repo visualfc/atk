@@ -3,6 +3,7 @@
 package tk
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -81,9 +82,10 @@ func isValidKey(key string, keys []string) bool {
 }
 
 func SubString(text string, start int, end int) string {
-	var n int
+	var n int = -1
 	var r string
 	for _, v := range text {
+		n++
 		if n < start {
 			continue
 		}
@@ -91,7 +93,7 @@ func SubString(text string, start int, end int) string {
 			break
 		}
 		r += string(v)
-		n++
 	}
+	fmt.Println(r, text, start, end)
 	return r
 }
