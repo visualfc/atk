@@ -188,9 +188,6 @@ func evalAsBoolEx(script string, dump bool) (bool, error) {
 	return r, err
 }
 
-func evalSetValue(id string, value string) error {
-	return eval(fmt.Sprintf("set %v {%v}", id, value))
-}
 
 func dumpError(err error) {
 	if fnErrorHandle != nil {

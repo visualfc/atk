@@ -89,3 +89,21 @@ func makeActionId() string {
 func makeBindEventId() string {
 	return makeNamedId("atk_bindevent")
 }
+
+func variableId(id string) string {
+	return "::atk" + id + "_variable"
+}
+
+func evalSetValue(id string, value string) error {
+	return eval(fmt.Sprintf("set %v {%v}", id, value))
+}
+
+func traceVariable(id string, fn func()) error {
+	act := makeActionId()
+	mainInterp.CreateAction(act, func(args []string) {
+		if fn != nil {
+			fn()
+		}
+	})
+	return eval(fmt.Sprintf("trace add variable %v write %v", id, act))
+}
