@@ -186,7 +186,9 @@ func (e *KeyEvent) addModify(sym string, name string, mod KeyModifier) {
 
 func (e *KeyEvent) removeModify(sym string, name string, mod KeyModifier) {
 	if strings.HasPrefix(sym, name) {
-		e.KeyModifier ^= mod
+		if e.KeyModifier&mod == mod {
+			e.KeyModifier ^= mod
+		}
 	}
 }
 
