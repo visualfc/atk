@@ -4,7 +4,6 @@ package tk
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -79,7 +78,7 @@ func Grid(widget Widget, attributes ...*LayoutAttr) error {
 
 func GridRemove(widget Widget) error {
 	if !IsValidWidget(widget) {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	return eval("grid forget " + widget.Id())
 }
@@ -111,7 +110,7 @@ func GridList(widgets []Widget, attributes ...*LayoutAttr) error {
 		}
 	}
 	if len(idList) == 0 {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	var attrList []string
 	for _, attr := range attributes {

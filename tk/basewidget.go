@@ -4,7 +4,6 @@ package tk
 
 import (
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -62,7 +61,7 @@ func (w *BaseWidget) Destroy() error {
 
 func (w *BaseWidget) DestroyChildren() error {
 	if !IsValidWidget(w) {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	for _, child := range w.Children() {
 		DestroyWidget(child)
@@ -107,7 +106,7 @@ func (w *BaseWidget) SetNativeAttribute(key string, value string) error {
 
 func (w *BaseWidget) SetNativeAttributes(attributes ...NativeAttr) error {
 	if !IsValidWidget(w) {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	var attrList []string
 	for _, attr := range attributes {
@@ -124,7 +123,7 @@ func (w *BaseWidget) SetNativeAttributes(attributes ...NativeAttr) error {
 
 func (w *BaseWidget) SetAttributes(attributes ...*WidgetAttr) error {
 	if !IsValidWidget(w) {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	extra := buildWidgetAttributeScript(w.info.MetaClass, w.info.IsTtk, attributes)
 	if len(extra) > 0 {

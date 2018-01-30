@@ -4,7 +4,6 @@ package tk
 
 import (
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -116,7 +115,7 @@ func IsValidWidget(w Widget) bool {
 
 func DestroyWidget(w Widget) error {
 	if !IsValidWidget(w) {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	id := w.Id()
 	eval(fmt.Sprintf("destroy %v", id))

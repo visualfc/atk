@@ -4,7 +4,6 @@ package tk
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -251,7 +250,7 @@ func IsVirtualEvent(event string) bool {
 // add bind event
 func BindEvent(tag string, event string, fn func(e *Event)) error {
 	if tag == "" || !IsEvent(event) {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	fnid := makeBindEventId()
 	var ev Event
@@ -263,7 +262,7 @@ func BindEvent(tag string, event string, fn func(e *Event)) error {
 // clear tag event
 func ClearBindEvent(tag string, event string) error {
 	if tag == "" || !IsEvent(event) {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	return eval(fmt.Sprintf("bind %v %v {}", tag, event))
 }
@@ -287,7 +286,7 @@ func BindInfo(tag string) []string {
 // sequences add to the existing sequences for the event.
 func AddVirtualEventPhysicalEvent(virtual string, event string, events ...string) error {
 	if !IsVirtualEvent(virtual) {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	eventList := append([]string{event}, events...)
 	return eval(fmt.Sprintf("event add %v %v", strings.Join(eventList, " ")))
@@ -301,7 +300,7 @@ func AddVirtualEventPhysicalEvent(virtual string, event string, events ...string
 // for virtual, so that the virtual event will not trigger anymore.
 func RemoveVirtualEventPhysicalEvent(virtual string, events ...string) error {
 	if !IsVirtualEvent(virtual) {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	return eval(fmt.Sprintf("event remove %v %v", strings.Join(events, " ")))
 }
@@ -329,7 +328,7 @@ func NativeEventAttr(key string, value string) *EventAttr {
 
 func SendEvent(widget Widget, event string, attrs ...*EventAttr) error {
 	if !IsValidWidget(widget) {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	return sendEvent(widget.Id(), event, attrs...)
 }
@@ -340,7 +339,7 @@ func SendEventToFocus(event string, attrs ...*EventAttr) error {
 
 func sendEvent(id string, event string, attrs ...*EventAttr) error {
 	if !IsEvent(event) {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	var list []string
 	for _, attr := range attrs {

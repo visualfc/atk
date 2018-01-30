@@ -98,6 +98,11 @@ func evalSetValue(id string, value string) error {
 	return eval(fmt.Sprintf("set %v {%v}", id, value))
 }
 
+func evalGetValue(id string) string {
+	r, _ := evalAsString(fmt.Sprintf("set %v", id))
+	return r
+}
+
 func traceVariable(id string, fn func()) error {
 	act := makeActionId()
 	mainInterp.CreateAction(act, func(args []string) {

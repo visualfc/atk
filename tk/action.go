@@ -4,7 +4,6 @@ package tk
 
 import (
 	"fmt"
-	"os"
 )
 
 type Action struct {
@@ -129,14 +128,15 @@ func (a *ActionGroup) radioCommand() {
 	}
 }
 
-func (a *ActionGroup) AddRadioAction(act *Action) {
+func (a *ActionGroup) AddRadioAction(act *Action) error {
 	if a.findAction(act) {
-		return
+		return ErrExist
 	}
 	act.groupid = a.groupid
 	act.radioid = makeNamedId("atk_radioaction")
 	act.fncmd = a.radioCommand
 	a.actions = append(a.actions, act)
+	return nil
 }
 
 func (a *ActionGroup) AddNewRadioAction(label string) *Action {
@@ -158,15 +158,16 @@ func (a *ActionGroup) checkedValue() string {
 }
 
 func (a *ActionGroup) SetCheckedIndex(index int) error {
-	if index >= 0 && index < len(a.actions) {
-		a.actions[index].SetChecked(true)
+	if index < 0 || index > len(a.actions) {
+		return ErrInvalid
 	}
-	return os.ErrNotExist
+	a.actions[index].SetChecked(true)
+	return nil
 }
 
 func (a *ActionGroup) SetCheckedAction(act *Action) error {
 	if act == nil {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	for _, v := range a.actions {
 		if v == act {
@@ -174,7 +175,7 @@ func (a *ActionGroup) SetCheckedAction(act *Action) error {
 			return nil
 		}
 	}
-	return os.ErrNotExist
+	return ErrNotExist
 }
 
 func (a *ActionGroup) CheckedActionIndex() int {

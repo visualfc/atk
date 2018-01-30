@@ -34,7 +34,7 @@ func ImageAttrGamma(gamma float64) *ImageAttr {
 
 func LoadImage(file string, attributes ...*ImageAttr) (*Image, error) {
 	if file == "" {
-		return nil, os.ErrInvalid
+		return nil, ErrInvalid
 	}
 	var fileImage image.Image
 	if filepath.Ext(file) == ".gif" {

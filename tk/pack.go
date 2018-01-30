@@ -4,7 +4,6 @@ package tk
 
 import (
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -117,7 +116,7 @@ func Pack(widget Widget, attributes ...*LayoutAttr) error {
 
 func PackRemove(widget Widget) error {
 	if !IsValidWidget(widget) {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	return eval("pack forget " + widget.Id())
 }
@@ -130,7 +129,7 @@ func PackList(widgets []Widget, attributes ...*LayoutAttr) error {
 		}
 	}
 	if len(idList) == 0 {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	var attrList []string
 	for _, attr := range attributes {

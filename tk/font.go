@@ -4,7 +4,6 @@ package tk
 
 import (
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -116,7 +115,7 @@ type UserFont struct {
 
 func (f *UserFont) Destroy() error {
 	if f.id == "" {
-		return os.ErrInvalid
+		return ErrInvalid
 	}
 	eval(fmt.Sprintf("font delete %v", f.id))
 	f.id = ""
