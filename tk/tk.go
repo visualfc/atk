@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	hasInit       bool
 	mainInterp    *interp.Interp
 	mainWindow    *Window
 	fnErrorHandle func(error) = func(err error) {
@@ -51,6 +52,7 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 
 	//hide wish menu on macos
 	mainWindow.SetMenu(NewMenu(nil))
+	hasInit = true
 	return nil
 }
 
@@ -88,10 +90,20 @@ func TkLibrary() (path string) {
 	return
 }
 
-func MainLoop(fn func()) {
+func MainLoop(fn func()) error {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
+
+	if !hasInit {
+		err := Init()
+		if err != nil {
+			dumpError(err)
+			return err
+		}
+	}
+
 	interp.MainLoop(fn)
+	return nil
 }
 
 func Async(fn func()) {
@@ -187,7 +199,6 @@ func evalAsBoolEx(script string, dump bool) (bool, error) {
 	}
 	return r, err
 }
-
 
 func dumpError(err error) {
 	if fnErrorHandle != nil {
