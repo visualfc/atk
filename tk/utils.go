@@ -3,7 +3,6 @@
 package tk
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -94,6 +93,5 @@ func SubString(text string, start int, end int) string {
 		}
 		r += string(v)
 	}
-	fmt.Println(r, text, start, end)
 	return r
 }
