@@ -67,6 +67,10 @@ func NewImage(attributes ...*ImageAttr) *Image {
 		if attr == nil {
 			continue
 		}
+		if s, ok := attr.value.(string); ok {
+			attrList = append(attrList, fmt.Sprintf("-%v %q", attr.key, s))
+			continue
+		}
 		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
 	}
 	iid := makeNamedId("atk_image")

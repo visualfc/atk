@@ -84,22 +84,34 @@ func (a *Action) OnCommand(fn func()) error {
 }
 
 func NewAction(label string) *Action {
-	action := &Action{}
-	action.label = label
-	action.actid = makeActionId()
-	action.command = &Command{}
-	mainInterp.CreateAction(action.actid, func([]string) {
-		action.command.Invoke()
+	act := &Action{}
+	act.label = label
+	act.actid = makeActionId()
+	act.command = &Command{}
+	mainInterp.CreateAction(act.actid, func([]string) {
+		act.command.Invoke()
 	})
-	return action
+	return act
+}
+
+func NewActionEx(label string, cmd func()) *Action {
+	act := NewAction(label)
+	act.OnCommand(cmd)
+	return act
 }
 
 func NewCheckAction(label string) *Action {
-	action := NewAction(label)
+	act := NewAction(label)
 	id := makeNamedId("atk_checkaction")
 	evalSetValue(id, "0")
-	action.checkid = id
-	return action
+	act.checkid = id
+	return act
+}
+
+func NewCheckActionEx(label string, cmd func()) *Action {
+	act := NewCheckAction(label)
+	act.OnCommand(cmd)
+	return act
 }
 
 func NewRadioAction(group *ActionGroup, label string) *Action {

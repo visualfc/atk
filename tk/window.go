@@ -22,7 +22,7 @@ type Window struct {
 }
 
 func (w *Window) SetTitle(title string) *Window {
-	eval(fmt.Sprintf("wm title %v {%v}", w.id, title))
+	eval(fmt.Sprintf("wm title %v %q", w.id, title))
 	return w
 }
 

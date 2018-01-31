@@ -96,7 +96,7 @@ func (w *BaseFont) IsOverstrike() bool {
 }
 
 func (w *BaseFont) MeasureTextWidth(text string) int {
-	r, _ := evalAsInt(fmt.Sprintf("font measure %v {%v}", w.id, text))
+	r, _ := evalAsInt(fmt.Sprintf("font measure %v %q", w.id, text))
 	return r
 }
 
@@ -128,10 +128,14 @@ func NewUserFont(family string, size int, attributes ...*FontAttr) *UserFont {
 		if attr == nil {
 			continue
 		}
+		if s, ok := attr.value.(string); ok {
+			attrList = append(attrList, fmt.Sprintf("-%v %q", attr.key, s))
+			continue
+		}
 		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
 	}
 	iid := makeNamedId("atk_font")
-	script := fmt.Sprintf("font create %v -family {%v} -size %v", iid, family, size)
+	script := fmt.Sprintf("font create %v -family %q -size %v", iid, family, size)
 	if len(attrList) > 0 {
 		script += " " + strings.Join(attrList, " ")
 	}
@@ -159,7 +163,7 @@ func NewUserFontFromClone(font Font) *UserFont {
 }
 
 func (w *UserFont) SetFamily(family string) *UserFont {
-	eval(fmt.Sprintf("font configure %v -family {%v}", w.id, family))
+	eval(fmt.Sprintf("font configure %v -family \"%v\"", w.id, escapeTS(family)))
 	return w
 }
 

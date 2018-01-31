@@ -72,7 +72,7 @@ func (typ WidgetType) ThemeConfigure() string {
 		if !meta.HasAttribute(attr.Key) {
 			continue
 		}
-		list = append(list, fmt.Sprintf("-%v {%v}", attr.Key, attr.Value))
+		list = append(list, fmt.Sprintf("-%v %q", attr.Key, attr.Value))
 	}
 	return strings.Join(list, " ")
 }
@@ -95,6 +95,10 @@ func buildWidgetAttributeScript(meta *MetaClass, ttk bool, attributes []*WidgetA
 			continue
 		}
 		if !meta.HasAttribute(attr.key) {
+			continue
+		}
+		if s, ok := attr.value.(string); ok {
+			list = append(list, fmt.Sprintf("-%v %q", attr.key, s))
 			continue
 		}
 		list = append(list, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
