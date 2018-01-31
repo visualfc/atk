@@ -92,7 +92,18 @@ func (w *PackLayout) InsertWidgetEx(index int, widget Widget, fill Fill, expand 
 		PackAttrAnchor(anchor))
 }
 
-func (w *PackLayout) AddWidgets(widgets []Widget, attributes ...*LayoutAttr) {
+func (w *PackLayout) AddWidgets(widgets ...Widget) {
+	for _, widget := range widgets {
+		n := w.indexOfWidget(widget)
+		if n != -1 {
+			w.items = append(w.items[:n], w.items[n+1:]...)
+		}
+		w.items = append(w.items, &LayoutItem{widget, nil})
+	}
+	w.Repack()
+}
+
+func (w *PackLayout) AddWidgetList(widgets []Widget, attributes ...*LayoutAttr) {
 	for _, widget := range widgets {
 		n := w.indexOfWidget(widget)
 		if n != -1 {
