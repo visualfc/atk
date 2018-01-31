@@ -12,7 +12,7 @@ type Action struct {
 	checkid string
 	groupid string
 	radioid string
-	fncmd   func()
+	command *Command
 	data    interface{}
 }
 
@@ -71,29 +71,39 @@ func (a *Action) Data() interface{} {
 	return a.data
 }
 
-func (a *Action) OnCommand(fn func()) {
-	a.fncmd = fn
+func (a *Action) Invoke() {
+	a.command.Invoke()
 }
 
-func NewAction(label string, fn func()) *Action {
+func (a *Action) OnCommand(fn func()) error {
+	if fn == nil {
+		return ErrInvalid
+	}
+	a.command.Bind(fn)
+	return nil
+}
+
+func NewAction(label string) *Action {
 	action := &Action{}
 	action.label = label
-	action.fncmd = fn
 	action.actid = makeActionId()
+	action.command = &Command{}
 	mainInterp.CreateAction(action.actid, func([]string) {
-		if action.fncmd != nil {
-			action.fncmd()
-		}
+		action.command.Invoke()
 	})
 	return action
 }
 
-func NewCheckAction(label string, fn func()) *Action {
-	action := NewAction(label, fn)
+func NewCheckAction(label string) *Action {
+	action := NewAction(label)
 	id := makeNamedId("atk_checkaction")
 	evalSetValue(id, "0")
 	action.checkid = id
 	return action
+}
+
+func NewRadioAction(group *ActionGroup, label string) *Action {
+	return group.AddNewRadioAction(label)
 }
 
 func NewSeparatorAction() *Action {
@@ -134,17 +144,14 @@ func (a *ActionGroup) AddRadioAction(act *Action) error {
 	}
 	act.groupid = a.groupid
 	act.radioid = makeNamedId("atk_radioaction")
-	act.fncmd = a.radioCommand
+	act.OnCommand(a.radioCommand)
 	a.actions = append(a.actions, act)
 	return nil
 }
 
 func (a *ActionGroup) AddNewRadioAction(label string) *Action {
-	act := NewCheckAction(label, nil)
-	act.groupid = a.groupid
-	act.radioid = makeNamedId("atk_radioaction")
-	act.fncmd = a.radioCommand
-	a.actions = append(a.actions, act)
+	act := NewAction(label)
+	a.AddRadioAction(act)
 	return act
 }
 

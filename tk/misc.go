@@ -220,6 +220,38 @@ func (v Sticky) String() string {
 	return s
 }
 
+type Direction int
+
+const (
+	DirectionBelow = iota
+	DirectionAbove
+	DirectionLeft
+	DirectionRight
+)
+
+var (
+	directionName = []string{"below", "above", "left", "right"}
+)
+
+func (v Direction) String() string {
+	if v >= 0 && int(v) < len(directionName) {
+		return directionName[v]
+	}
+	return ""
+}
+
+func parserDirectionResult(r string, err error) Direction {
+	if err != nil {
+		return 0
+	}
+	for n, s := range directionName {
+		if s == r {
+			return Direction(n)
+		}
+	}
+	return 0
+}
+
 type Compound int
 
 const (
