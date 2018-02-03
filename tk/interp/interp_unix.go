@@ -207,6 +207,10 @@ func (p *Interp) GetObjResult() *Obj {
 	return &Obj{C.Tcl_GetObjResult(p.interp), p.interp}
 }
 
+func (p *Interp) GetListObjResult() *ListObj {
+	return &ListObj{C.Tcl_GetObjResult(p.interp), p.interp}
+}
+
 func (p *Interp) Eval(script string) error {
 	cs := C.CString(script)
 	defer C.free(unsafe.Pointer(cs))
@@ -390,7 +394,7 @@ func (o *ListObj) IndexString(index int) string {
 	return objToString(o.interp, obj)
 }
 
-func (o *ListObj) ObjList() (list []*Obj) {
+func (o *ListObj) ToObjList() (list []*Obj) {
 	var objs **C.Tcl_Obj
 	var objnum C.int
 	C.Tcl_ListObjGetElements(o.interp, o.obj, &objnum, &objs)
@@ -401,7 +405,7 @@ func (o *ListObj) ObjList() (list []*Obj) {
 	return
 }
 
-func (o *ListObj) StringList() (list []string) {
+func (o *ListObj) ToStringList() (list []string) {
 	var objs **C.Tcl_Obj
 	var objnum C.int
 	C.Tcl_ListObjGetElements(o.interp, o.obj, &objnum, &objs)

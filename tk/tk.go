@@ -200,8 +200,28 @@ func evalAsBoolEx(script string, dump bool) (bool, error) {
 	return r, err
 }
 
+func evalAsStringList(script string) ([]string, error) {
+	r, err := mainInterp.EvalAsStringList(script)
+	if err != nil {
+		dumpError(err)
+	}
+	return r, err
+}
+
+func evalAsStringListEx(script string, dump bool) ([]string, error) {
+	r, err := mainInterp.EvalAsStringList(script)
+	if dump && err != nil {
+		dumpError(err)
+	}
+	return r, err
+}
+
 func dumpError(err error) {
 	if fnErrorHandle != nil {
 		fnErrorHandle(fmt.Errorf("%v", err))
 	}
+}
+
+func setObjText(obj string, text string) {
+	mainInterp.SetStringVar(obj, text, false)
 }

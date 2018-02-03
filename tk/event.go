@@ -271,11 +271,8 @@ func BindInfo(tag string) []string {
 	if tag == "" {
 		return nil
 	}
-	v, err := evalAsString(fmt.Sprintf("bind %v", tag))
-	if err != nil {
-		return nil
-	}
-	return FromTkList(v)
+	v, _ := evalAsStringList(fmt.Sprintf("bind %v", tag))
+	return v
 }
 
 //Associates the virtual event virtual with the physical event sequence(s)
@@ -309,11 +306,8 @@ func VirtualEventInfo(virtual string) []string {
 	if !IsVirtualEvent(virtual) {
 		return nil
 	}
-	v, err := evalAsString(fmt.Sprintf("event info %v", virtual))
-	if err != nil {
-		return nil
-	}
-	return FromTkList(v)
+	r, _ := evalAsStringList(fmt.Sprintf("event info %v", virtual))
+	return r
 }
 
 //TODO: event attr

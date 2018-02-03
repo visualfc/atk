@@ -96,7 +96,8 @@ func (w *BaseFont) IsOverstrike() bool {
 }
 
 func (w *BaseFont) MeasureTextWidth(text string) int {
-	r, _ := evalAsInt(fmt.Sprintf("font measure %v {%v}", w.id, buildTkString(text)))
+	setObjText("atk_tmp_text", text)
+	r, _ := evalAsInt(fmt.Sprintf("font measure %v $atk_tmp_text", w.id))
 	return r
 }
 
@@ -128,14 +129,11 @@ func NewUserFont(family string, size int, attributes ...*FontAttr) *UserFont {
 		if attr == nil {
 			continue
 		}
-		if s, ok := attr.value.(string); ok {
-			attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, buildTkString(s)))
-			continue
-		}
 		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
 	}
 	iid := makeNamedId("atk_font")
-	script := fmt.Sprintf("font create %v -family {%v} -size %v", iid, buildTkString(family), size)
+	setObjText("atk_tmp_family", family)
+	script := fmt.Sprintf("font create %v -family $atk_tmp_family -size %v", iid, size)
 	if len(attrList) > 0 {
 		script += " " + strings.Join(attrList, " ")
 	}
@@ -163,7 +161,8 @@ func NewUserFontFromClone(font Font) *UserFont {
 }
 
 func (w *UserFont) SetFamily(family string) *UserFont {
-	eval(fmt.Sprintf("font configure %v -family {%v}", w.id, buildTkString(family)))
+	setObjText("atk_tmp_family", family)
+	eval(fmt.Sprintf("font configure %v -family $atk_tmp_family", w.id))
 	return w
 }
 
@@ -205,11 +204,8 @@ func (w *UserFont) SetOverstrike(overstrike bool) *UserFont {
 }
 
 func FontFamilieList() []string {
-	s, err := evalAsString("font families")
-	if err != nil {
-		return nil
-	}
-	return FromTkList(s)
+	r, _ := evalAsStringList("font families")
+	return r
 }
 
 //tk system default font

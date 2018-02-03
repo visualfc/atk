@@ -133,6 +133,30 @@ func (interp *Interp) EvalAsBool(script string) (bool, error) {
 	return interp.GetBoolResult(), nil
 }
 
+func (interp *Interp) EvalAsObj(script string) (*Obj, error) {
+	err := interp.Eval(script)
+	if err != nil {
+		return nil, err
+	}
+	return interp.GetObjResult(), nil
+}
+
+func (interp *Interp) EvalAsListObj(script string) (*ListObj, error) {
+	err := interp.Eval(script)
+	if err != nil {
+		return nil, err
+	}
+	return interp.GetListObjResult(), nil
+}
+
+func (interp *Interp) EvalAsStringList(script string) ([]string, error) {
+	err := interp.Eval(script)
+	if err != nil {
+		return nil, err
+	}
+	return interp.GetListObjResult().ToStringList(), nil
+}
+
 func (interp *Interp) TclVersion() string {
 	ver, _ := interp.EvalAsString("set tcl_version")
 	return ver

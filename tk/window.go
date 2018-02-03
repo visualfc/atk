@@ -22,8 +22,8 @@ type Window struct {
 }
 
 func (w *Window) SetTitle(title string) *Window {
-	fmt.Println(title, buildTkString(title))
-	eval(fmt.Sprintf("wm title %v {%s}", w.id, title)) // buildTkString(title)))
+	setObjText("atk_tmp_title", title)
+	eval(fmt.Sprintf("wm title %v $atk_tmp_title", w.id))
 	return w
 }
 

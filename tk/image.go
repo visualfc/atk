@@ -68,7 +68,9 @@ func NewImage(attributes ...*ImageAttr) *Image {
 			continue
 		}
 		if s, ok := attr.value.(string); ok {
-			attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, buildTkString(s)))
+			pname := "atk_tmp_" + attr.key
+			setObjText(pname, s)
+			attrList = append(attrList, fmt.Sprintf("-%v $%v", attr.key, pname))
 			continue
 		}
 		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
