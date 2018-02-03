@@ -75,7 +75,7 @@ var (
 
 //export _go_tcl_objcmd_proc
 func _go_tcl_objcmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, objc C.int, objv unsafe.Pointer) C.int {
-	objs := (*(*[1 << 20]*C.Tcl_Obj)(objv))[1:objc]
+	objs := (*(*[1 << 20]*C.Tcl_Obj)(objv))[1:objc:objc]
 	var args []string
 	for _, obj := range objs {
 		args = append(args, objToString(interp, obj))
@@ -101,7 +101,7 @@ func _go_tcl_deletecmd_proc(clientData unsafe.Pointer) {
 
 //export _go_tcl_actioncmd_proc
 func _go_tcl_actioncmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, objc C.int, objv unsafe.Pointer) C.int {
-	objs := (*(*[1 << 20]*C.Tcl_Obj)(objv))[1:objc]
+	objs := (*(*[1 << 20]*C.Tcl_Obj)(objv))[1:objc:objc]
 	var args []string
 	for _, obj := range objs {
 		args = append(args, objToString(interp, obj))
