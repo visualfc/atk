@@ -78,7 +78,7 @@ func _go_tcl_objcmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, objc C
 	objs := (*(*[1 << 20]*C.Tcl_Obj)(objv))[1:objc]
 	var args []string
 	for _, obj := range objs {
-		args = append(args, ObjToString(interp, obj))
+		args = append(args, objToString(interp, obj))
 	}
 	result, err := globalCommandMap.Invoke(uintptr(clientData), args)
 	if err != nil {
@@ -88,7 +88,7 @@ func _go_tcl_objcmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, objc C
 		return TCL_ERROR
 	}
 	if result != "" {
-		C.Tcl_SetObjResult(interp, StringToObj(result))
+		C.Tcl_SetObjResult(interp, stringToObj(result))
 	}
 	return TCL_OK
 }
@@ -104,7 +104,7 @@ func _go_tcl_actioncmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, obj
 	objs := (*(*[1 << 20]*C.Tcl_Obj)(objv))[1:objc]
 	var args []string
 	for _, obj := range objs {
-		args = append(args, ObjToString(interp, obj))
+		args = append(args, objToString(interp, obj))
 	}
 	err := globalActionMap.Invoke(uintptr(clientData), args)
 	if err != nil {
@@ -251,13 +251,219 @@ func (p *Interp) InvokeAction(id uintptr, args []string) error {
 	return globalActionMap.Invoke(id, args)
 }
 
+func (p *Interp) GetVar(name string, global bool) *Obj {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	var flag C.int = C.TCL_LEAVE_ERR_MSG
+	if global {
+		flag |= C.TCL_GLOBAL_ONLY
+	}
+	obj := C.Tcl_GetVar2Ex(p.interp, cname, nil, flag)
+	if obj == nil {
+		return nil
+	}
+	return &Obj{obj, p.interp}
+}
+
+func (p *Interp) GetList(name string, global bool) *ListObj {
+	return (*ListObj)(p.GetVar(name, global))
+}
+
+func (p *Interp) SetStringList(name string, list []string, global bool) error {
+	obj := NewListObj(p)
+	obj.AppendStringList(list)
+	return p.SetVarObj(name, (*Obj)(obj), global)
+}
+
+func (p *Interp) AppendStringList(name string, value string, global bool) error {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	cvalue := C.CString(value)
+	defer C.free(unsafe.Pointer(cvalue))
+	var flag C.int = C.TCL_LEAVE_ERR_MSG | C.TCL_APPEND_VALUE | C.TCL_LIST_ELEMENT
+	if global {
+		flag |= C.TCL_GLOBAL_ONLY
+	}
+	r := C.Tcl_SetVar(p.interp, cname, cvalue, flag)
+	if r == nil {
+		return p.GetErrorResult()
+	}
+	return nil
+}
+
+func (p *Interp) SetVarObj(name string, obj *Obj, global bool) error {
+	if obj == nil {
+		return os.ErrInvalid
+	}
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	var flag C.int = C.TCL_LEAVE_ERR_MSG
+	if global {
+		flag |= C.TCL_GLOBAL_ONLY
+	}
+	r := C.Tcl_SetVar2Ex(p.interp, cname, nil, obj.obj, flag)
+	if r == nil {
+		return p.GetErrorResult()
+	}
+	return nil
+}
+
+func (p *Interp) SetStringVar(name string, value string, global bool) error {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	cvalue := C.CString(value)
+	defer C.free(unsafe.Pointer(cvalue))
+	var flag C.int = C.TCL_LEAVE_ERR_MSG
+	if global {
+		flag |= C.TCL_GLOBAL_ONLY
+	}
+	r := C.Tcl_SetVar(p.interp, cname, cvalue, flag)
+	if r == nil {
+		return p.GetErrorResult()
+	}
+	return nil
+}
+
+func (p *Interp) AppendStringVar(name string, value string, global bool) error {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	cvalue := C.CString(value)
+	defer C.free(unsafe.Pointer(cvalue))
+	var flag C.int = C.TCL_LEAVE_ERR_MSG | C.TCL_APPEND_VALUE
+	if global {
+		flag |= C.TCL_GLOBAL_ONLY
+	}
+	r := C.Tcl_SetVar(p.interp, cname, cvalue, flag)
+	if r == nil {
+		return p.GetErrorResult()
+	}
+	return nil
+}
+
+func (p *Interp) UnsetVar(name string, global bool) error {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	var flag C.int = C.TCL_LEAVE_ERR_MSG
+	if global {
+		flag |= C.TCL_GLOBAL_ONLY
+	}
+	r := C.Tcl_UnsetVar(p.interp, cname, flag)
+	if r != C.TCL_OK {
+		return p.GetErrorResult()
+	}
+	return nil
+}
+
 type Obj struct {
 	obj    *C.Tcl_Obj
 	interp *C.Tcl_Interp
 }
 
-func NewRawObj(obj *C.Tcl_Obj, interp *C.Tcl_Interp) *Obj {
-	return &Obj{obj, interp}
+type ListObj Obj
+
+func NewListObj(p *Interp) *ListObj {
+	o := C.Tcl_NewListObj(0, nil)
+	return &ListObj{o, p.interp}
+}
+
+func (o *ListObj) Length() int {
+	var length C.int
+	C.Tcl_ListObjLength(o.interp, o.obj, &length)
+	return int(length)
+}
+
+func (o *ListObj) IndexObj(index int) *Obj {
+	var obj *C.Tcl_Obj
+	r := C.Tcl_ListObjIndex(o.interp, o.obj, C.int(index), &obj)
+	if r != C.TCL_OK || obj == nil {
+		return nil
+	}
+	return &Obj{obj, o.interp}
+}
+
+func (o *ListObj) IndexString(index int) string {
+	var obj *C.Tcl_Obj
+	r := C.Tcl_ListObjIndex(o.interp, o.obj, C.int(index), &obj)
+	if r != C.TCL_OK || obj == nil {
+		return ""
+	}
+	return objToString(o.interp, obj)
+}
+
+func (o *ListObj) ObjList() (list []*Obj) {
+	var objs **C.Tcl_Obj
+	var objnum C.int
+	C.Tcl_ListObjGetElements(o.interp, o.obj, &objnum, &objs)
+	lst := (*[1 << 30]*C.Tcl_Obj)(unsafe.Pointer(objs))[:int(objnum):int(objnum)]
+	for _, v := range lst {
+		list = append(list, &Obj{v, o.interp})
+	}
+	return
+}
+
+func (o *ListObj) StringList() (list []string) {
+	var objs **C.Tcl_Obj
+	var objnum C.int
+	C.Tcl_ListObjGetElements(o.interp, o.obj, &objnum, &objs)
+	lst := (*[1 << 30]*C.Tcl_Obj)(unsafe.Pointer(objs))[:int(objnum):int(objnum)]
+	var n C.int
+	for _, obj := range lst {
+		out := C.Tcl_GetStringFromObj(obj, &n)
+		list = append(list, C.GoStringN(out, n))
+	}
+	return
+}
+
+func (o *ListObj) SetStringList(list []string) {
+	C.Tcl_SetListObj(o.obj, 0, nil)
+	o.AppendStringList(list)
+}
+
+func (o *ListObj) AppendStringList(list []string) {
+	for _, v := range list {
+		cs := C.CString(v)
+		obj := C.Tcl_NewStringObj(cs, C.int(len(v)))
+		C.Tcl_ListObjAppendElement(o.interp, o.obj, obj)
+		C.free(unsafe.Pointer(cs))
+	}
+}
+
+func (o *ListObj) AppendObj(obj *Obj) bool {
+	if obj == nil {
+		return false
+	}
+	C.Tcl_ListObjAppendElement(o.interp, o.obj, obj.obj)
+	return true
+}
+
+func (o *ListObj) AppendString(s string) {
+	C.Tcl_ListObjAppendElement(o.interp, o.obj, stringToObj(s))
+}
+
+func (o *ListObj) InsertObj(index int, obj *Obj) {
+	C.Tcl_ListObjReplace(o.interp, o.obj, C.int(index), 0, 1, &obj.obj)
+}
+
+func (o *ListObj) InsertString(index int, s string) {
+	obj := stringToObj(s)
+	C.Tcl_ListObjReplace(o.interp, o.obj, C.int(index), 0, 1, &obj)
+}
+
+func (o *ListObj) SetIndexObj(index int, obj *Obj) bool {
+	if obj == nil {
+		return false
+	}
+	C.Tcl_ListObjReplace(o.interp, o.obj, C.int(index), 1, 1, &obj.obj)
+	return true
+}
+
+func (o *ListObj) SetIndexString(index int, s string) {
+	obj := stringToObj(s)
+	C.Tcl_ListObjReplace(o.interp, o.obj, C.int(index), 1, 1, &obj)
+}
+
+func (o *ListObj) Remove(first int, count int) {
+	C.Tcl_ListObjReplace(o.interp, o.obj, C.int(first), C.int(count), 0, nil)
 }
 
 func (o *Obj) ToFloat64() float64 {
@@ -323,13 +529,13 @@ func NewBoolObj(value bool, p *Interp) *Obj {
 	}
 }
 
-func ObjToString(interp *C.Tcl_Interp, obj *C.Tcl_Obj) string {
+func objToString(interp *C.Tcl_Interp, obj *C.Tcl_Obj) string {
 	var n C.int
 	out := C.Tcl_GetStringFromObj(obj, &n)
 	return C.GoStringN(out, n)
 }
 
-func StringToObj(value string) *C.Tcl_Obj {
+func stringToObj(value string) *C.Tcl_Obj {
 	cs := C.CString(value)
 	defer C.free(unsafe.Pointer(cs))
 	return C.Tcl_NewStringObj(cs, C.int(len(value)))

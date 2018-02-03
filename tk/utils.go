@@ -6,16 +6,34 @@ import (
 	"strings"
 )
 
-func escapeTS(s string) string {
-	return strings.Replace(s, `"`, `\"`, -1)
-}
+var (
+	rep1 = strings.NewReplacer("\\", "\\\\", "{", "\\{", "}", "\\}")
+	rep2 = strings.NewReplacer(string([]byte{0x00}), "")
+)
 
 func ToTkList(ar []string) string {
 	var list []string
 	for _, v := range ar {
-		list = append(list, "{"+v+"}")
+		list = append(list, "{"+rep1.Replace(v)+"}")
 	}
 	return strings.Join(list, " ")
+}
+
+func buildTkString(gostring string) string {
+	return rep1.Replace(gostring)
+}
+
+// TODO extract string and remove backslash, no optimization
+func extractGoString(tklist string, start int, n int, bsList []int) string {
+	s := tklist[start:n]
+	if bsList == nil {
+		return s
+	}
+	data := []byte(s)
+	for _, n := range bsList {
+		data[n-start] = 0x00
+	}
+	return rep2.Replace(string(data))
 }
 
 func FromTkList(tklist string) (ar []string) {
@@ -23,8 +41,21 @@ func FromTkList(tklist string) (ar []string) {
 	inBrace := false
 	inString := false
 	nBrace := 0
+	firstBackslash := false
+	var bsList []int
 	for n, v := range tklist {
-		if v == '{' {
+		if firstBackslash {
+			firstBackslash = false
+			continue
+		}
+		if v == '\\' && !firstBackslash {
+			bsList = append(bsList, n)
+			firstBackslash = true
+			if !inBrace && !inString {
+				inString = true
+				lastIndex = n
+			}
+		} else if v == '{' {
 			nBrace++
 			if nBrace == 1 {
 				inBrace = true
@@ -34,14 +65,16 @@ func FromTkList(tklist string) (ar []string) {
 		} else if v == '}' {
 			nBrace--
 			if nBrace == 0 {
-				ar = append(ar, tklist[lastIndex+1:n])
+				ar = append(ar, extractGoString(tklist, lastIndex+1, n, bsList))
+				bsList = nil
 				inBrace = false
 				inString = false
 			}
 		} else if !inBrace {
 			if v == ' ' {
 				if inString {
-					ar = append(ar, tklist[lastIndex+1:n])
+					ar = append(ar, extractGoString(tklist, lastIndex+1, n, bsList))
+					bsList = nil
 				}
 				lastIndex = n
 				inString = false
@@ -51,7 +84,7 @@ func FromTkList(tklist string) (ar []string) {
 		}
 	}
 	if inString {
-		ar = append(ar, tklist[lastIndex+1:])
+		ar = append(ar, extractGoString(tklist, lastIndex+1, len(tklist), bsList))
 	}
 	return
 }

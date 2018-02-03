@@ -98,7 +98,7 @@ func buildWidgetAttributeScript(meta *MetaClass, ttk bool, attributes []*WidgetA
 			continue
 		}
 		if s, ok := attr.value.(string); ok {
-			list = append(list, fmt.Sprintf("-%v %q", attr.key, s))
+			list = append(list, fmt.Sprintf("-%v {%v}", attr.key, buildTkString(s)))
 			continue
 		}
 		list = append(list, fmt.Sprintf("-%v {%v}", attr.key, attr.value))

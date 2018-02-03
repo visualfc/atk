@@ -65,6 +65,71 @@ func TestInterp(t *testing.T) {
 	}
 }
 
+func TestVar(t *testing.T) {
+	var err error
+	err = interp.SetStringVar("a", "$hello world {", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if r := interp.GetStringVar("a", true); r != "$hello world {" {
+		t.Fatal("string", r)
+	}
+	err = interp.AppendStringVar("a", "$ok}\"", true)
+	if r := interp.GetStringVar("a", true); r != "$hello world {$ok}\"" {
+		t.Fatal("string", r)
+	}
+	interp.SetIntVar("a", 100, true)
+	if r := interp.GetIntVar("a", true); r != 100 {
+		t.Fatal("int", r)
+	}
+	interp.SetFloat64Var("a", 1.123456789e9, true)
+	if r := interp.GetFloadt64Var("a", true); r != 1.123456789e9 {
+		t.Fatal("float64", r)
+	}
+	interp.SetBoolVar("a", true, true)
+	if r := interp.GetBoolVar("a", true); r != true {
+		t.Fatal("bool", r)
+	}
+	err = interp.UnsetVar("a", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	lst := NewListObj(interp)
+	lst.AppendStringList([]string{"123", "OK {$ok"})
+	if v := lst.Length(); v != 2 {
+		t.Fatal("length", v)
+	}
+	lst.SetStringList([]string{"abc", "中文 $var\t{", "{}$OK"})
+	if v := lst.Length(); v != 3 {
+		t.Fatal("SetStringList", v)
+	}
+	lst.AppendString("$OK")
+	lst.AppendStringList([]string{"end"})
+	if v := lst.Length(); v != 5 {
+		t.Fatal("AppendStringList", v)
+	}
+	if v := lst.IndexString(1); v != "中文 $var\t{" {
+		t.Fatal("IndexString", v)
+	}
+	lst.InsertString(0, "first")
+	if v := lst.Length(); v != 6 {
+		t.Fatal("InsertString", v)
+	}
+	if v := lst.IndexString(0); v != "first" {
+		t.Fatal("IndexString", v)
+	}
+	lst.SetIndexObj(0, nil)
+	lst.SetIndexString(0, "update")
+	if v := lst.IndexString(0); v != "update" {
+		t.Fatal("SetIndexString", v)
+	}
+	lst.Remove(1, 2)
+	if v := lst.Length(); v != 4 {
+		t.Fatal("Remove", v)
+	}
+}
+
 func TestCommand(t *testing.T) {
 	interp.CreateCommand("go::join", func(args []string) (string, error) {
 		return strings.Join(args, ","), nil

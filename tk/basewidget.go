@@ -113,7 +113,7 @@ func (w *BaseWidget) SetNativeAttributes(attributes ...NativeAttr) error {
 		if !w.info.MetaClass.HasAttribute(attr.Key) {
 			continue
 		}
-		attrList = append(attrList, fmt.Sprintf("-%v %q", attr.Key, attr.Value))
+		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.Key, buildTkString(attr.Value)))
 	}
 	if len(attrList) > 0 {
 		return eval(fmt.Sprintf("%v configure %v", w.id, strings.Join(attrList, " ")))

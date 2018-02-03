@@ -4,6 +4,7 @@ package interp
 
 import (
 	"errors"
+	"strconv"
 )
 
 const (
@@ -164,4 +165,63 @@ func (p *Interp) GetBoolResult() bool {
 
 func (p *Interp) GetErrorResult() error {
 	return errors.New(p.GetObjResult().ToString())
+}
+
+func (p *Interp) GetStringVar(name string, global bool) string {
+	obj := p.GetVar(name, global)
+	if obj == nil {
+		return ""
+	}
+	return obj.ToString()
+}
+
+func (p *Interp) GetIntVar(name string, global bool) int {
+	obj := p.GetVar(name, global)
+	if obj == nil {
+		return 0
+	}
+	return obj.ToInt()
+}
+
+func (p *Interp) GetInt64Var(name string, global bool) int64 {
+	obj := p.GetVar(name, global)
+	if obj == nil {
+		return 0
+	}
+	return obj.ToInt64()
+}
+
+func (p *Interp) GetFloadt64Var(name string, global bool) float64 {
+	obj := p.GetVar(name, global)
+	if obj == nil {
+		return 0
+	}
+	return obj.ToFloat64()
+}
+
+func (p *Interp) GetBoolVar(name string, global bool) bool {
+	obj := p.GetVar(name, global)
+	if obj == nil {
+		return false
+	}
+	return obj.ToBool()
+}
+
+func (p *Interp) SetIntVar(name string, value int, global bool) error {
+	return p.SetStringVar(name, strconv.Itoa(value), global)
+}
+
+func (p *Interp) SetInt64Var(name string, value int64, global bool) error {
+	return p.SetStringVar(name, strconv.FormatInt(value, 10), global)
+}
+
+func (p *Interp) SetFloat64Var(name string, value float64, global bool) error {
+	return p.SetStringVar(name, strconv.FormatFloat(value, 'E', -1, 64), global)
+}
+
+func (p *Interp) SetBoolVar(name string, b bool, global bool) error {
+	if b {
+		return p.SetStringVar(name, "1", global)
+	}
+	return p.SetStringVar(name, "0", global)
 }
