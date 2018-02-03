@@ -157,6 +157,14 @@ func (interp *Interp) EvalAsStringList(script string) ([]string, error) {
 	return interp.GetListObjResult().ToStringList(), nil
 }
 
+func (interp *Interp) EvalAsIntList(script string) ([]int, error) {
+	err := interp.Eval(script)
+	if err != nil {
+		return nil, err
+	}
+	return interp.GetListObjResult().ToIntList(), nil
+}
+
 func (interp *Interp) TclVersion() string {
 	ver, _ := interp.EvalAsString("set tcl_version")
 	return ver

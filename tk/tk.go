@@ -216,6 +216,22 @@ func evalAsStringListEx(script string, dump bool) ([]string, error) {
 	return r, err
 }
 
+func evalAsIntList(script string) ([]int, error) {
+	r, err := mainInterp.EvalAsIntList(script)
+	if err != nil {
+		dumpError(err)
+	}
+	return r, err
+}
+
+func evalAsIntListEx(script string, dump bool) ([]int, error) {
+	r, err := mainInterp.EvalAsIntList(script)
+	if dump && err != nil {
+		dumpError(err)
+	}
+	return r, err
+}
+
 func dumpError(err error) {
 	if fnErrorHandle != nil {
 		fnErrorHandle(fmt.Errorf("%v", err))

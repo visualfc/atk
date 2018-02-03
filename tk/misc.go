@@ -318,6 +318,38 @@ func parserStateResult(r string, err error) State {
 	return 0
 }
 
+type SelectMode int
+
+const (
+	SelectSingle = iota
+	SelectBrowse
+	SelectMultiple
+	SelectExtended
+)
+
+var (
+	selectName = []string{"single", "browse", "multiple", "extended"}
+)
+
+func (v SelectMode) String() string {
+	if v >= 0 && int(v) < len(selectName) {
+		return selectName[v]
+	}
+	return ""
+}
+
+func parserSelectModeResult(r string, err error) SelectMode {
+	if err != nil {
+		return 0
+	}
+	for n, s := range selectName {
+		if s == r {
+			return SelectMode(n)
+		}
+	}
+	return 0
+}
+
 func parserPaddingResult(r string, err error) (int, int) {
 	if err != nil {
 		return 0, 0

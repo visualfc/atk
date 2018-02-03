@@ -417,6 +417,9 @@ func (o *ListObj) ToObjList() (list []*Obj) {
 	var objs **C.Tcl_Obj
 	var objnum C.int
 	C.Tcl_ListObjGetElements(o.interp, o.obj, &objnum, &objs)
+	if objnum == 0 {
+		return
+	}
 	lst := (*[1 << 30]*C.Tcl_Obj)(unsafe.Pointer(objs))[:int(objnum):int(objnum)]
 	for _, v := range lst {
 		list = append(list, &Obj{v, o.interp})
@@ -428,11 +431,30 @@ func (o *ListObj) ToStringList() (list []string) {
 	var objs **C.Tcl_Obj
 	var objnum C.int
 	C.Tcl_ListObjGetElements(o.interp, o.obj, &objnum, &objs)
+	if objnum == 0 {
+		return
+	}
 	lst := (*[1 << 30]*C.Tcl_Obj)(unsafe.Pointer(objs))[:int(objnum):int(objnum)]
 	var n C.int
 	for _, obj := range lst {
 		out := C.Tcl_GetStringFromObj(obj, &n)
 		list = append(list, C.GoStringN(out, n))
+	}
+	return
+}
+
+func (o *ListObj) ToIntList() (list []int) {
+	var objs **C.Tcl_Obj
+	var objnum C.int
+	C.Tcl_ListObjGetElements(o.interp, o.obj, &objnum, &objs)
+	if objnum == 0 {
+		return
+	}
+	lst := (*[1 << 30]*C.Tcl_Obj)(unsafe.Pointer(objs))[:int(objnum):int(objnum)]
+	var out C.Tcl_WideInt
+	for _, obj := range lst {
+		C.Tcl_GetWideIntFromObj(o.interp, obj, &out)
+		list = append(list, int(out))
 	}
 	return
 }
