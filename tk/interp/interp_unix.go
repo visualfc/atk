@@ -279,6 +279,21 @@ func (p *Interp) SetStringList(name string, list []string, global bool) error {
 	return p.SetVarObj(name, (*Obj)(obj), global)
 }
 
+func (p *Interp) AppendStringListList(name string, list []string, global bool) error {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	var flag C.int = C.TCL_LEAVE_ERR_MSG | C.TCL_APPEND_VALUE | C.TCL_LIST_ELEMENT
+	if global {
+		flag |= C.TCL_GLOBAL_ONLY
+	}
+	for _, value := range list {
+		cvalue := C.CString(value)
+		C.Tcl_SetVar(p.interp, cname, cvalue, flag)
+		C.free(unsafe.Pointer(cvalue))
+	}
+	return nil
+}
+
 func (p *Interp) AppendStringList(name string, value string, global bool) error {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
@@ -310,6 +325,10 @@ func (p *Interp) SetVarObj(name string, obj *Obj, global bool) error {
 		return p.GetErrorResult()
 	}
 	return nil
+}
+
+func (p *Interp) SetVarListObj(name string, obj *ListObj, global bool) error {
+	return p.SetVarObj(name, (*Obj)(obj), global)
 }
 
 func (p *Interp) SetStringVar(name string, value string, global bool) error {

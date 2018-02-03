@@ -225,3 +225,7 @@ func dumpError(err error) {
 func setObjText(obj string, text string) {
 	mainInterp.SetStringVar(obj, text, false)
 }
+
+func setObjTextList(obj string, list []string) {
+	mainInterp.SetStringList(obj, list, false)
+}
