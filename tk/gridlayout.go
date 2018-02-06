@@ -20,8 +20,8 @@ func (w *GridLayout) AddWidget(widget Widget, attrs ...*LayoutAttr) {
 	Grid(widget, AppendLayoutAttrs(attrs, GridAttrInMaster(w.master))...)
 }
 
-func (w *GridLayout) AddWidgets(widgets []Widget, attrs ...*LayoutAttr) {
-	GridList(widgets, AppendLayoutAttrs(attrs, GridAttrInMaster(w.master))...)
+func (w *GridLayout) AddWidgets(widgets ...Widget) {
+	GridList(widgets, GridAttrInMaster(w.master))
 }
 
 func (w *GridLayout) AddWidgetEx(widget Widget, row int, column int, rowspan int, columnspan int, sticky Sticky) {
