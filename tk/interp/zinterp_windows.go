@@ -38,39 +38,50 @@ var (
 	modtcl86t = syscall.NewLazyDLL("tcl86t.dll")
 	modtk86t  = syscall.NewLazyDLL("tk86t.dll")
 
-	procTcl_CreateInterp       = modtcl86t.NewProc("Tcl_CreateInterp")
-	procTcl_DeleteInterp       = modtcl86t.NewProc("Tcl_DeleteInterp")
-	procTcl_Alloc              = modtcl86t.NewProc("Tcl_Alloc")
-	procTcl_Eval               = modtcl86t.NewProc("Tcl_Eval")
-	procTcl_EvalEx             = modtcl86t.NewProc("Tcl_EvalEx")
-	procTcl_GetStringResult    = modtcl86t.NewProc("Tcl_GetStringResult")
-	procTcl_GetObjResult       = modtcl86t.NewProc("Tcl_GetObjResult")
-	procTcl_GetWideIntFromObj  = modtcl86t.NewProc("Tcl_GetWideIntFromObj")
-	procTcl_GetDoubleFromObj   = modtcl86t.NewProc("Tcl_GetDoubleFromObj")
-	procTcl_GetBooleanFromObj  = modtcl86t.NewProc("Tcl_GetBooleanFromObj")
-	procTcl_GetStringFromObj   = modtcl86t.NewProc("Tcl_GetStringFromObj")
-	procTcl_NewWideIntObj      = modtcl86t.NewProc("Tcl_NewWideIntObj")
-	procTcl_NewDoubleObj       = modtcl86t.NewProc("Tcl_NewDoubleObj")
-	procTcl_NewBooleanObj      = modtcl86t.NewProc("Tcl_NewBooleanObj")
-	procTcl_NewStringObj       = modtcl86t.NewProc("Tcl_NewStringObj")
-	procTcl_Init               = modtcl86t.NewProc("Tcl_Init")
-	procTcl_GetCurrentThread   = modtcl86t.NewProc("Tcl_GetCurrentThread")
-	procTcl_ThreadQueueEvent   = modtcl86t.NewProc("Tcl_ThreadQueueEvent")
-	procTcl_ThreadAlert        = modtcl86t.NewProc("Tcl_ThreadAlert")
-	procTcl_CreateObjCommand   = modtcl86t.NewProc("Tcl_CreateObjCommand")
-	procTcl_CreateCommand      = modtcl86t.NewProc("Tcl_CreateCommand")
-	procTcl_SetObjResult       = modtcl86t.NewProc("Tcl_SetObjResult")
-	procTcl_WrongNumArgs       = modtcl86t.NewProc("Tcl_WrongNumArgs")
-	procTk_Init                = modtk86t.NewProc("Tk_Init")
-	procTk_MainLoop            = modtk86t.NewProc("Tk_MainLoop")
-	procTk_FindPhoto           = modtk86t.NewProc("Tk_FindPhoto")
-	procTk_PhotoBlank          = modtk86t.NewProc("Tk_PhotoBlank")
-	procTk_PhotoSetSize        = modtk86t.NewProc("Tk_PhotoSetSize")
-	procTk_PhotoGetSize        = modtk86t.NewProc("Tk_PhotoGetSize")
-	procTk_PhotoExpand         = modtk86t.NewProc("Tk_PhotoExpand")
-	procTk_PhotoGetImage       = modtk86t.NewProc("Tk_PhotoGetImage")
-	procTk_PhotoPutBlock       = modtk86t.NewProc("Tk_PhotoPutBlock")
-	procTk_PhotoPutZoomedBlock = modtk86t.NewProc("Tk_PhotoPutZoomedBlock")
+	procTcl_CreateInterp         = modtcl86t.NewProc("Tcl_CreateInterp")
+	procTcl_DeleteInterp         = modtcl86t.NewProc("Tcl_DeleteInterp")
+	procTcl_Alloc                = modtcl86t.NewProc("Tcl_Alloc")
+	procTcl_Eval                 = modtcl86t.NewProc("Tcl_Eval")
+	procTcl_EvalEx               = modtcl86t.NewProc("Tcl_EvalEx")
+	procTcl_GetStringResult      = modtcl86t.NewProc("Tcl_GetStringResult")
+	procTcl_GetObjResult         = modtcl86t.NewProc("Tcl_GetObjResult")
+	procTcl_GetWideIntFromObj    = modtcl86t.NewProc("Tcl_GetWideIntFromObj")
+	procTcl_GetDoubleFromObj     = modtcl86t.NewProc("Tcl_GetDoubleFromObj")
+	procTcl_GetBooleanFromObj    = modtcl86t.NewProc("Tcl_GetBooleanFromObj")
+	procTcl_GetStringFromObj     = modtcl86t.NewProc("Tcl_GetStringFromObj")
+	procTcl_NewWideIntObj        = modtcl86t.NewProc("Tcl_NewWideIntObj")
+	procTcl_NewDoubleObj         = modtcl86t.NewProc("Tcl_NewDoubleObj")
+	procTcl_NewBooleanObj        = modtcl86t.NewProc("Tcl_NewBooleanObj")
+	procTcl_NewStringObj         = modtcl86t.NewProc("Tcl_NewStringObj")
+	procTcl_Init                 = modtcl86t.NewProc("Tcl_Init")
+	procTcl_GetCurrentThread     = modtcl86t.NewProc("Tcl_GetCurrentThread")
+	procTcl_ThreadQueueEvent     = modtcl86t.NewProc("Tcl_ThreadQueueEvent")
+	procTcl_ThreadAlert          = modtcl86t.NewProc("Tcl_ThreadAlert")
+	procTcl_CreateObjCommand     = modtcl86t.NewProc("Tcl_CreateObjCommand")
+	procTcl_CreateCommand        = modtcl86t.NewProc("Tcl_CreateCommand")
+	procTcl_SetObjResult         = modtcl86t.NewProc("Tcl_SetObjResult")
+	procTcl_WrongNumArgs         = modtcl86t.NewProc("Tcl_WrongNumArgs")
+	procTcl_NewListObj           = modtcl86t.NewProc("Tcl_NewListObj")
+	procTcl_ListObjLength        = modtcl86t.NewProc("Tcl_ListObjLength")
+	procTcl_ListObjIndex         = modtcl86t.NewProc("Tcl_ListObjIndex")
+	procTcl_ListObjGetElements   = modtcl86t.NewProc("Tcl_ListObjGetElements")
+	procTcl_SetListObj           = modtcl86t.NewProc("Tcl_SetListObj")
+	procTcl_ListObjAppendElement = modtcl86t.NewProc("Tcl_ListObjAppendElement")
+	procTcl_ListObjReplace       = modtcl86t.NewProc("Tcl_ListObjReplace")
+	procTcl_GetVar2Ex            = modtcl86t.NewProc("Tcl_GetVar2Ex")
+	procTcl_SetVar               = modtcl86t.NewProc("Tcl_SetVar")
+	procTcl_SetVar2Ex            = modtcl86t.NewProc("Tcl_SetVar2Ex")
+	procTcl_UnsetVar             = modtcl86t.NewProc("Tcl_UnsetVar")
+	procTk_Init                  = modtk86t.NewProc("Tk_Init")
+	procTk_MainLoop              = modtk86t.NewProc("Tk_MainLoop")
+	procTk_FindPhoto             = modtk86t.NewProc("Tk_FindPhoto")
+	procTk_PhotoBlank            = modtk86t.NewProc("Tk_PhotoBlank")
+	procTk_PhotoSetSize          = modtk86t.NewProc("Tk_PhotoSetSize")
+	procTk_PhotoGetSize          = modtk86t.NewProc("Tk_PhotoGetSize")
+	procTk_PhotoExpand           = modtk86t.NewProc("Tk_PhotoExpand")
+	procTk_PhotoGetImage         = modtk86t.NewProc("Tk_PhotoGetImage")
+	procTk_PhotoPutBlock         = modtk86t.NewProc("Tk_PhotoPutBlock")
+	procTk_PhotoPutZoomedBlock   = modtk86t.NewProc("Tk_PhotoPutZoomedBlock")
 )
 
 func Tcl_CreateInterp() (interp *Tcl_Interp) {
@@ -203,6 +214,71 @@ func Tcl_SetObjResult(interp *Tcl_Interp, resultObjPtr *Tcl_Obj) {
 
 func Tcl_WrongNumArgs(interp *Tcl_Interp, objc int32, objv uintptr, message *byte) {
 	syscall.Syscall6(procTcl_WrongNumArgs.Addr(), 4, uintptr(unsafe.Pointer(interp)), uintptr(objc), uintptr(objv), uintptr(unsafe.Pointer(message)), 0, 0)
+	return
+}
+
+func Tcl_NewListObj(objc int, objv **Tcl_Obj) (obj *Tcl_Obj) {
+	r0, _, _ := syscall.Syscall(procTcl_NewListObj.Addr(), 2, uintptr(objc), uintptr(unsafe.Pointer(objv)), 0)
+	obj = (*Tcl_Obj)(unsafe.Pointer(r0))
+	return
+}
+
+func Tcl_ListObjLength(interp *Tcl_Interp, listobj *Tcl_Obj, length *int32) (status int32) {
+	r0, _, _ := syscall.Syscall(procTcl_ListObjLength.Addr(), 3, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(listobj)), uintptr(unsafe.Pointer(length)))
+	status = int32(r0)
+	return
+}
+
+func Tcl_ListObjIndex(interp *Tcl_Interp, listobj *Tcl_Obj, index int32, out **Tcl_Obj) (status int32) {
+	r0, _, _ := syscall.Syscall6(procTcl_ListObjIndex.Addr(), 4, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(listobj)), uintptr(index), uintptr(unsafe.Pointer(out)), 0, 0)
+	status = int32(r0)
+	return
+}
+
+func Tcl_ListObjGetElements(interp *Tcl_Interp, listobj *Tcl_Obj, objc *int32, objv ***Tcl_Obj) (status int32) {
+	r0, _, _ := syscall.Syscall6(procTcl_ListObjGetElements.Addr(), 4, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(listobj)), uintptr(unsafe.Pointer(objc)), uintptr(unsafe.Pointer(objv)), 0, 0)
+	status = int32(r0)
+	return
+}
+
+func Tcl_SetListObj(listobj *Tcl_Obj, objc int, objv **Tcl_Obj) {
+	syscall.Syscall(procTcl_SetListObj.Addr(), 3, uintptr(unsafe.Pointer(listobj)), uintptr(objc), uintptr(unsafe.Pointer(objv)))
+	return
+}
+
+func Tcl_ListObjAppendElement(interp *Tcl_Interp, listobj *Tcl_Obj, obj *Tcl_Obj) (status int32) {
+	r0, _, _ := syscall.Syscall(procTcl_ListObjAppendElement.Addr(), 3, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(listobj)), uintptr(unsafe.Pointer(obj)))
+	status = int32(r0)
+	return
+}
+
+func Tcl_ListObjReplace(interp *Tcl_Interp, listobj *Tcl_Obj, first int32, count int32, objc int32, objv **Tcl_Obj) (status int32) {
+	r0, _, _ := syscall.Syscall6(procTcl_ListObjReplace.Addr(), 6, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(listobj)), uintptr(first), uintptr(count), uintptr(objc), uintptr(unsafe.Pointer(objv)))
+	status = int32(r0)
+	return
+}
+
+func Tcl_GetVar2Ex(interp *Tcl_Interp, part1 *byte, part2 *byte, flags int32) (obj *Tcl_Obj) {
+	r0, _, _ := syscall.Syscall6(procTcl_GetVar2Ex.Addr(), 4, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(part1)), uintptr(unsafe.Pointer(part2)), uintptr(flags), 0, 0)
+	obj = (*Tcl_Obj)(unsafe.Pointer(r0))
+	return
+}
+
+func Tcl_SetVar(interp *Tcl_Interp, name *byte, value *byte, flags int32) (r *byte) {
+	r0, _, _ := syscall.Syscall6(procTcl_SetVar.Addr(), 4, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(value)), uintptr(flags), 0, 0)
+	r = (*byte)(unsafe.Pointer(r0))
+	return
+}
+
+func Tcl_SetVar2Ex(interp *Tcl_Interp, part1 *byte, part2 *byte, value *Tcl_Obj, flags int32) (r *byte) {
+	r0, _, _ := syscall.Syscall6(procTcl_SetVar2Ex.Addr(), 5, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(part1)), uintptr(unsafe.Pointer(part2)), uintptr(unsafe.Pointer(value)), uintptr(flags), 0)
+	r = (*byte)(unsafe.Pointer(r0))
+	return
+}
+
+func Tcl_UnsetVar(interp *Tcl_Interp, part1 *byte, flags int32) (status int32) {
+	r0, _, _ := syscall.Syscall(procTcl_UnsetVar.Addr(), 3, uintptr(unsafe.Pointer(interp)), uintptr(unsafe.Pointer(part1)), uintptr(flags))
+	status = int32(r0)
 	return
 }
 

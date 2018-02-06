@@ -382,6 +382,81 @@ type Obj struct {
 	interp *C.Tcl_Interp
 }
 
+func (o *Obj) ToFloat64() float64 {
+	var out C.double
+	status := C.Tcl_GetDoubleFromObj(o.interp, o.obj, &out)
+	if status == C.TCL_OK {
+		return float64(out)
+	}
+	return 0
+}
+
+func (o *Obj) ToInt64() int64 {
+	var out C.Tcl_WideInt
+	status := C.Tcl_GetWideIntFromObj(o.interp, o.obj, &out)
+	if status == TCL_OK {
+		return int64(out)
+	}
+	return 0
+}
+
+func (o *Obj) ToInt() int {
+	return int(o.ToInt64())
+}
+
+func (o *Obj) ToBool() bool {
+	var out C.int
+	status := C.Tcl_GetBooleanFromObj(o.interp, o.obj, &out)
+	if status == C.TCL_OK {
+		return out == 1
+	}
+	return false
+}
+
+func (o *Obj) ToString() string {
+	var n C.int
+	out := C.Tcl_GetStringFromObj(o.obj, &n)
+	return C.GoStringN(out, n)
+}
+
+func NewStringObj(value string, p *Interp) *Obj {
+	cs := C.CString(value)
+	defer C.free(unsafe.Pointer(cs))
+	return &Obj{C.Tcl_NewStringObj(cs, C.int(len(value))), p.interp}
+}
+
+func NewFloat64Obj(value float64, p *Interp) *Obj {
+	return &Obj{C.Tcl_NewDoubleObj(C.double(value)), p.interp}
+}
+
+func NewInt64Obj(value int64, p *Interp) *Obj {
+	return &Obj{C.Tcl_NewWideIntObj(C.Tcl_WideInt(value)), p.interp}
+}
+
+func NewIntObj(value int, p *Interp) *Obj {
+	return &Obj{C.Tcl_NewWideIntObj(C.Tcl_WideInt(value)), p.interp}
+}
+
+func NewBoolObj(value bool, p *Interp) *Obj {
+	if value {
+		return &Obj{C.Tcl_NewBooleanObj(1), p.interp}
+	} else {
+		return &Obj{C.Tcl_NewBooleanObj(0), p.interp}
+	}
+}
+
+func objToString(interp *C.Tcl_Interp, obj *C.Tcl_Obj) string {
+	var n C.int
+	out := C.Tcl_GetStringFromObj(obj, &n)
+	return C.GoStringN(out, n)
+}
+
+func stringToObj(value string) *C.Tcl_Obj {
+	cs := C.CString(value)
+	defer C.free(unsafe.Pointer(cs))
+	return C.Tcl_NewStringObj(cs, C.int(len(value)))
+}
+
 type ListObj Obj
 
 func NewListObj(p *Interp) *ListObj {
@@ -509,81 +584,6 @@ func (o *ListObj) SetIndexString(index int, s string) {
 
 func (o *ListObj) Remove(first int, count int) {
 	C.Tcl_ListObjReplace(o.interp, o.obj, C.int(first), C.int(count), 0, nil)
-}
-
-func (o *Obj) ToFloat64() float64 {
-	var out C.double
-	status := C.Tcl_GetDoubleFromObj(o.interp, o.obj, &out)
-	if status == C.TCL_OK {
-		return float64(out)
-	}
-	return 0
-}
-
-func (o *Obj) ToInt64() int64 {
-	var out C.Tcl_WideInt
-	status := C.Tcl_GetWideIntFromObj(o.interp, o.obj, &out)
-	if status == TCL_OK {
-		return int64(out)
-	}
-	return 0
-}
-
-func (o *Obj) ToInt() int {
-	return int(o.ToInt64())
-}
-
-func (o *Obj) ToBool() bool {
-	var out C.int
-	status := C.Tcl_GetBooleanFromObj(o.interp, o.obj, &out)
-	if status == C.TCL_OK {
-		return out == 1
-	}
-	return false
-}
-
-func (o *Obj) ToString() string {
-	var n C.int
-	out := C.Tcl_GetStringFromObj(o.obj, &n)
-	return C.GoStringN(out, n)
-}
-
-func NewStringObj(value string, p *Interp) *Obj {
-	cs := C.CString(value)
-	defer C.free(unsafe.Pointer(cs))
-	return &Obj{C.Tcl_NewStringObj(cs, C.int(len(value))), p.interp}
-}
-
-func NewFloat64Obj(value float64, p *Interp) *Obj {
-	return &Obj{C.Tcl_NewDoubleObj(C.double(value)), p.interp}
-}
-
-func NewInt64Obj(value int64, p *Interp) *Obj {
-	return &Obj{C.Tcl_NewWideIntObj(C.Tcl_WideInt(value)), p.interp}
-}
-
-func NewIntObj(value int, p *Interp) *Obj {
-	return &Obj{C.Tcl_NewWideIntObj(C.Tcl_WideInt(value)), p.interp}
-}
-
-func NewBoolObj(value bool, p *Interp) *Obj {
-	if value {
-		return &Obj{C.Tcl_NewBooleanObj(1), p.interp}
-	} else {
-		return &Obj{C.Tcl_NewBooleanObj(0), p.interp}
-	}
-}
-
-func objToString(interp *C.Tcl_Interp, obj *C.Tcl_Obj) string {
-	var n C.int
-	out := C.Tcl_GetStringFromObj(obj, &n)
-	return C.GoStringN(out, n)
-}
-
-func stringToObj(value string) *C.Tcl_Obj {
-	cs := C.CString(value)
-	defer C.free(unsafe.Pointer(cs))
-	return C.Tcl_NewStringObj(cs, C.int(len(value)))
 }
 
 type Photo struct {
