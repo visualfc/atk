@@ -286,7 +286,7 @@ func AddVirtualEventPhysicalEvent(virtual string, event string, events ...string
 		return ErrInvalid
 	}
 	eventList := append([]string{event}, events...)
-	return eval(fmt.Sprintf("event add %v %v", strings.Join(eventList, " ")))
+	return eval(fmt.Sprintf("event add %v %v", virtual, strings.Join(eventList, " ")))
 }
 
 //Deletes each of the sequences from those associated with the virtual event
@@ -299,7 +299,7 @@ func RemoveVirtualEventPhysicalEvent(virtual string, events ...string) error {
 	if !IsVirtualEvent(virtual) {
 		return ErrInvalid
 	}
-	return eval(fmt.Sprintf("event remove %v %v", strings.Join(events, " ")))
+	return eval(fmt.Sprintf("event remove %v %v", virtual, strings.Join(events, " ")))
 }
 
 func VirtualEventInfo(virtual string) []string {
