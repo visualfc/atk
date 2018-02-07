@@ -51,5 +51,5 @@ func init() {
 	registerInit(func() {
 		ttk_theme_list, _ = evalAsStringList("ttk::themes")
 	})
-	SetTheme(TtkTheme)
+	SetMainTheme(TtkTheme)
 }

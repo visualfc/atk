@@ -13,7 +13,7 @@ type Theme interface {
 	InitAttributes(typ WidgetType) []NativeAttr
 }
 
-func SetTheme(theme Theme) {
+func SetMainTheme(theme Theme) {
 	mainTheme = theme
 }
 
