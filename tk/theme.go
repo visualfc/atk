@@ -17,6 +17,14 @@ func SetTheme(theme Theme) {
 	mainTheme = theme
 }
 
+func MainTheme() Theme {
+	return mainTheme
+}
+
+func HasTheme() bool {
+	return mainTheme != nil
+}
+
 var (
 	mainTheme Theme
 )
