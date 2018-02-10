@@ -24,6 +24,36 @@ type Geometry struct {
 	Height int
 }
 
+type Orient int
+
+const (
+	Horizontal Orient = iota
+	Vertical
+)
+
+var (
+	orientName = []string{"horizontal", "vertical"}
+)
+
+func (v Orient) String() string {
+	if v >= 0 && int(v) < len(orientName) {
+		return orientName[v]
+	}
+	return ""
+}
+
+func parserOrientResult(r string, err error) Orient {
+	if err != nil {
+		return -1
+	}
+	for n, s := range orientName {
+		if s == r {
+			return Orient(n)
+		}
+	}
+	return -1
+}
+
 type Alignment int
 
 const (
