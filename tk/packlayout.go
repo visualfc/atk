@@ -5,14 +5,10 @@ package tk
 import "fmt"
 
 type PackLayout struct {
-	master *LayoutFrame
-	side   Side
-	pad    *Pad
-	items  []*LayoutItem
-}
-
-func (w *PackLayout) Master() Widget {
-	return w.master
+	*LayoutFrame
+	side  Side
+	pad   *Pad
+	items []*LayoutItem
 }
 
 func (w *PackLayout) SetSide(side Side) {
@@ -133,48 +129,8 @@ func (w *PackLayout) SetWidgetAttr(widget Widget, attributes ...*LayoutAttr) {
 	w.Repack()
 }
 
-func (w *PackLayout) AddLayout(layout Layout, attributes ...*LayoutAttr) {
-	if !IsValidLayout(layout) {
-		return
-	}
-	w.AddWidget(layout.Master(), attributes...)
-}
-
-func (w *PackLayout) AddLayoutEx(layout Layout, fill Fill, expand bool, anchor Anchor) {
-	w.AddLayout(layout,
-		PackAttrFill(fill), PackAttrExpand(expand),
-		PackAttrAnchor(anchor))
-}
-
-func (w *PackLayout) InsertLayout(index int, layout Layout, attributes ...*LayoutAttr) {
-	if !IsValidLayout(layout) {
-		return
-	}
-	w.InsertWidget(index, layout.Master(), attributes...)
-}
-
-func (w *PackLayout) InsertLayoutEx(index int, layout Layout, fill Fill, expand bool, anchor Anchor) {
-	w.InsertLayout(index, layout,
-		PackAttrFill(fill), PackAttrExpand(expand),
-		PackAttrAnchor(anchor))
-}
-
-func (w *PackLayout) RemoveLayout(layout Layout) bool {
-	if !IsValidLayout(layout) {
-		return false
-	}
-	return w.removeItem(layout.Master())
-}
-
-func (w *PackLayout) SetLayoutAttr(layout Layout, attributes ...*LayoutAttr) {
-	if !IsValidLayout(layout) {
-		return
-	}
-	w.SetWidgetAttr(layout.Master(), attributes...)
-}
-
 func (w *PackLayout) itemAttr() []*LayoutAttr {
-	itemsAttr := []*LayoutAttr{PackAttrSide(w.side), PackAttrInMaster(w.master)}
+	itemsAttr := []*LayoutAttr{PackAttrSide(w.side), PackAttrInMaster(w)}
 	if w.pad != nil {
 		itemsAttr = append(itemsAttr, PackAttrPadx(w.pad.X), PackAttrPady(w.pad.Y))
 	}
@@ -212,15 +168,15 @@ func (w *PackLayout) Repack() {
 		}
 		Pack(item.widget, AppendLayoutAttrs(item.attrs, w.itemAttr()...)...)
 	}
-	Pack(w.master, PackAttrFill(FillBoth), PackAttrExpand(true))
+	Pack(w, PackAttrFill(FillBoth), PackAttrExpand(true))
 }
 
 func (w *PackLayout) SetBorderWidth(width int) {
-	evalAsInt(fmt.Sprintf("%v configure -borderwidth {%v}", w.master.Id(), width))
+	evalAsInt(fmt.Sprintf("%v configure -borderwidth {%v}", w.Id(), width))
 }
 
 func (w *PackLayout) BorderWidth() int {
-	r, _ := evalAsInt(fmt.Sprintf("%v cget -borderwidth", w.master.Id()))
+	r, _ := evalAsInt(fmt.Sprintf("%v cget -borderwidth", w.Id()))
 	return r
 }
 
