@@ -39,10 +39,10 @@ func (c *Command) Invoke() {
 
 type CommandEx struct {
 	sync.RWMutex
-	cmds []func([]string)
+	cmds []func([]string) error
 }
 
-func (c *CommandEx) Bind(fn func([]string)) {
+func (c *CommandEx) Bind(fn func([]string) error) {
 	if fn == nil {
 		return
 	}
