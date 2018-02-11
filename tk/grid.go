@@ -104,6 +104,7 @@ func GridList(widgets []Widget, attributes ...*LayoutAttr) error {
 	var idList []string
 	for _, w := range widgets {
 		if IsValidWidget(w) {
+			w = checkLayoutWidget(w)
 			idList = append(idList, w.Id())
 		} else {
 			idList = append(idList, "x")

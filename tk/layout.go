@@ -4,6 +4,26 @@ package tk
 
 import "fmt"
 
+type LayoutWidget interface {
+	Widget
+	LayoutWidget() Widget
+}
+
+func checkLayoutWidget(widget Widget) Widget {
+	if w, ok := (widget).(LayoutWidget); ok {
+		return w.LayoutWidget()
+	}
+	return widget
+}
+
+type Layout interface {
+	Widget
+	AddWidget(widget Widget, attrs ...*LayoutAttr)
+	AddLayout(layout Layout, attrs ...*LayoutAttr)
+	RemoveWidget(widget Widget) bool
+	RemoveLayout(layout Layout) bool
+}
+
 type LayoutAttr struct {
 	key   string
 	value interface{}
@@ -109,18 +129,6 @@ func NewLayoutFrame(parent Widget, attributes ...*WidgetAttr) *LayoutFrame {
 	RegisterWidget(w)
 	eval("lower " + iid)
 	return w
-}
-
-type Layout interface {
-	Master() Widget
-	AddWidget(widget Widget, attrs ...*LayoutAttr)
-	AddLayout(layout Layout, attrs ...*LayoutAttr)
-	RemoveWidget(widget Widget) bool
-	RemoveLayout(layout Layout) bool
-}
-
-func IsValidLayout(layout Layout) bool {
-	return layout != nil && IsValidWidget(layout.Master())
 }
 
 func AppendLayoutAttrs(org []*LayoutAttr, attributes ...*LayoutAttr) []*LayoutAttr {

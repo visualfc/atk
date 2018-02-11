@@ -118,6 +118,7 @@ func PackRemove(widget Widget) error {
 	if !IsValidWidget(widget) {
 		return ErrInvalid
 	}
+	widget = checkLayoutWidget(widget)
 	return eval("pack forget " + widget.Id())
 }
 
@@ -125,6 +126,7 @@ func PackList(widgets []Widget, attributes ...*LayoutAttr) error {
 	var idList []string
 	for _, w := range widgets {
 		if IsValidWidget(w) {
+			w = checkLayoutWidget(w)
 			idList = append(idList, w.Id())
 		}
 	}
