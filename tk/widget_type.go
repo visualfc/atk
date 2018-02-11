@@ -28,7 +28,7 @@ const (
 	WidgetTypeMenu
 	WidgetTypeMenuButton
 	WidgetTypeNoteBook
-	WidgetTypePanedWindow
+	WidgetTypeSplitter
 	WidgetTypeProgressBar
 	WidgetTypeRadioButton
 	WidgetTypeScale

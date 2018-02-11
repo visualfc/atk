@@ -556,9 +556,9 @@ func init() {
 					"style",
 					"class"}},
 		}
-	typeMetaMap[WidgetTypePanedWindow] =
+	typeMetaMap[WidgetTypeSplitter] =
 		&MetaType{
-			Type: "PanedWindow",
+			Type: "Splitter",
 			Tk: &MetaClass{"tk::panedwindow", "Panedwindow",
 				[]string{"background",
 					"borderwidth",

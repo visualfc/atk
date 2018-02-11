@@ -27,12 +27,12 @@ type Geometry struct {
 type Orient int
 
 const (
-	Horizontal Orient = iota
-	Vertical
+	Vertical Orient = iota
+	Horizontal
 )
 
 var (
-	orientName = []string{"horizontal", "vertical"}
+	orientName = []string{"vertical", "horizontal"}
 )
 
 func (v Orient) String() string {
