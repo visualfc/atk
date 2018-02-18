@@ -16,8 +16,6 @@ import (
 
 //NOTE: BytePtrToString replace cgo C.GoStringN
 
-//import "C"
-
 type Tcl_Interp struct{}
 type Tcl_ThreadId struct{}
 type Tcl_Obj struct{}
@@ -583,7 +581,7 @@ func (o *ListObj) ToObjList() (list []*Obj) {
 	if objnum == 0 {
 		return
 	}
-	lst := (*[1 << 30]*Tcl_Obj)(unsafe.Pointer(objs))[:int(objnum):int(objnum)]
+	lst := (*[1 << 20]*Tcl_Obj)(unsafe.Pointer(objs))[:int(objnum):int(objnum)]
 	for _, v := range lst {
 		list = append(list, &Obj{v, o.interp})
 	}
@@ -597,7 +595,7 @@ func (o *ListObj) ToStringList() (list []string) {
 	if objnum == 0 {
 		return
 	}
-	lst := (*[1 << 30]*Tcl_Obj)(unsafe.Pointer(objs))[:int(objnum):int(objnum)]
+	lst := (*[1 << 20]*Tcl_Obj)(unsafe.Pointer(objs))[:int(objnum):int(objnum)]
 	var n int32
 	for _, obj := range lst {
 		out := Tcl_GetStringFromObj(obj, &n)
@@ -613,7 +611,7 @@ func (o *ListObj) ToIntList() (list []int) {
 	if objnum == 0 {
 		return
 	}
-	lst := (*[1 << 30]*Tcl_Obj)(unsafe.Pointer(objs))[:int(objnum):int(objnum)]
+	lst := (*[1 << 20]*Tcl_Obj)(unsafe.Pointer(objs))[:int(objnum):int(objnum)]
 	var out Tcl_WideInt
 	for _, obj := range lst {
 		Tcl_GetWideIntFromObj(o.interp, obj, &out)
