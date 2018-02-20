@@ -153,3 +153,19 @@ func (w *BaseWidget) BindInfo() []string {
 func (w *BaseWidget) ClearBind(event string) error {
 	return ClearBindEvent(w.id, event)
 }
+
+func (w *BaseWidget) Lower(below Widget) error {
+	script := fmt.Sprintf("lower %v", w.id)
+	if IsValidWidget(below) {
+		script += " " + below.Id()
+	}
+	return eval(script)
+}
+
+func (w *BaseWidget) Raise(above Widget) error {
+	script := fmt.Sprintf("raise %v", w.id)
+	if IsValidWidget(above) {
+		script += " " + above.Id()
+	}
+	return eval(script)
+}

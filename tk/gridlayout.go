@@ -62,6 +62,7 @@ func (w *GridLayout) SetColumnAttr(column int, pad int, weight int, group string
 
 func NewGridLayout(parent Widget) *GridLayout {
 	grid := &GridLayout{NewLayoutFrame(parent), nil}
+	grid.Lower(nil)
 	grid.Repack()
 	return grid
 }

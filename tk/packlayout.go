@@ -182,6 +182,7 @@ func (w *PackLayout) BorderWidth() int {
 
 func NewPackLayout(parent Widget, side Side) *PackLayout {
 	pack := &PackLayout{NewLayoutFrame(parent), side, nil, nil}
+	pack.Lower(nil)
 	pack.Repack()
 	return pack
 }

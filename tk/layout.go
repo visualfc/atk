@@ -127,7 +127,6 @@ func NewLayoutFrame(parent Widget, attributes ...*WidgetAttr) *LayoutFrame {
 	w.id = iid
 	w.info = info
 	RegisterWidget(w)
-	eval("lower " + iid)
 	return w
 }
 

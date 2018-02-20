@@ -543,7 +543,7 @@ func init() {
 					"style",
 					"class"}},
 		}
-	typeMetaMap[WidgetTypeNoteBook] =
+	typeMetaMap[WidgetTypeNotebook] =
 		&MetaType{
 			Type: "NoteBook",
 			Tk:   nil,
@@ -556,7 +556,7 @@ func init() {
 					"style",
 					"class"}},
 		}
-	typeMetaMap[WidgetTypeSplitter] =
+	typeMetaMap[WidgetTypePaned] =
 		&MetaType{
 			Type: "Splitter",
 			Tk: &MetaClass{"tk::panedwindow", "Panedwindow",
