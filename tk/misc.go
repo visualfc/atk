@@ -358,12 +358,12 @@ const (
 )
 
 var (
-	selectName = []string{"single", "browse", "multiple", "extended"}
+	listSelectName = []string{"single", "browse", "multiple", "extended"}
 )
 
 func (v ListSelectMode) String() string {
-	if v >= 0 && int(v) < len(selectName) {
-		return selectName[v]
+	if v >= 0 && int(v) < len(listSelectName) {
+		return listSelectName[v]
 	}
 	return ""
 }
@@ -372,9 +372,40 @@ func parserListSelectModeResult(r string, err error) ListSelectMode {
 	if err != nil {
 		return 0
 	}
-	for n, s := range selectName {
+	for n, s := range listSelectName {
 		if s == r {
 			return ListSelectMode(n)
+		}
+	}
+	return 0
+}
+
+type TreeSelectMode int
+
+const (
+	TreeSelectExtended = iota
+	TreeSelectBrowse
+	TreeSelectNode
+)
+
+var (
+	treeSelectName = []string{"extended", "browse", "none"}
+)
+
+func (v TreeSelectMode) String() string {
+	if v >= 0 && int(v) < len(treeSelectName) {
+		return treeSelectName[v]
+	}
+	return ""
+}
+
+func parserTreeSelectModeResult(r string, err error) TreeSelectMode {
+	if err != nil {
+		return 0
+	}
+	for n, s := range treeSelectName {
+		if s == r {
+			return TreeSelectMode(n)
 		}
 	}
 	return 0
