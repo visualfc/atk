@@ -169,3 +169,23 @@ func (w *BaseWidget) Raise(above Widget) error {
 	}
 	return eval(script)
 }
+
+func (w *BaseWidget) SetFocus() error {
+	return eval(fmt.Sprintf("focus %v", w.id))
+}
+
+func (w *BaseWidget) IsFocus() bool {
+	id, err := evalAsString("focus")
+	if err != nil || id == "" {
+		return false
+	}
+	return w.id == id
+}
+
+func FocusWidget() Widget {
+	id, err := evalAsString("focus")
+	if err != nil || id == "" {
+		return nil
+	}
+	return FindWidget(id)
+}
