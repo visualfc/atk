@@ -68,7 +68,7 @@ func NewNamedId(safe bool) NamedId {
 }
 
 var (
-	atkNamedId = NewNamedId(true)
+	atkNamedId = NewNamedId(false)
 )
 
 func makeNamedId(name string) string {
@@ -88,6 +88,13 @@ func makeActionId() string {
 
 func makeBindEventId() string {
 	return makeNamedId("atk_bindevent")
+}
+
+func makeTreeItemId(treeid string, pid string) string {
+	if pid != "" {
+		return makeNamedId(pid + ".I")
+	}
+	return makeNamedId(treeid + ".I")
 }
 
 func variableId(id string) string {
