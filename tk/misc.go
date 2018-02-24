@@ -380,6 +380,37 @@ func parserListSelectModeResult(r string, err error) ListSelectMode {
 	return 0
 }
 
+type DisplyCursor int
+
+const (
+	DisplyCursorNone = iota
+	DisplyCursorHollow
+	DisplyCursorSolid
+)
+
+var (
+	displyCursorName = []string{"node", "hollow", "solid"}
+)
+
+func (v DisplyCursor) String() string {
+	if v >= 0 && int(v) < len(displyCursorName) {
+		return displyCursorName[v]
+	}
+	return ""
+}
+
+func parserDisplyCursorResult(r string, err error) DisplyCursor {
+	if err != nil {
+		return 0
+	}
+	for n, s := range displyCursorName {
+		if s == r {
+			return DisplyCursor(n)
+		}
+	}
+	return 0
+}
+
 type TreeSelectMode int
 
 const (
