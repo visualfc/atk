@@ -389,7 +389,7 @@ const (
 )
 
 var (
-	displyCursorName = []string{"node", "hollow", "solid"}
+	displyCursorName = []string{"none", "hollow", "solid"}
 )
 
 func (v DisplyCursor) String() string {
@@ -420,7 +420,7 @@ const (
 )
 
 var (
-	lineWrapName = []string{"node", "char", "word"}
+	lineWrapName = []string{"none", "char", "word"}
 )
 
 func (v LineWrapMode) String() string {
