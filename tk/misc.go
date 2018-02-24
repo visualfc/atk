@@ -54,32 +54,32 @@ func parserOrientResult(r string, err error) Orient {
 	return -1
 }
 
-type Alignment int
+type Justify int
 
 const (
-	AlignmentCenter Alignment = iota
-	AlignmentLeft
-	AlignmentRight
+	JustifyCenter Justify = iota
+	JustifyLeft
+	JustifyRight
 )
 
 var (
 	alignmentName = []string{"center", "left", "right"}
 )
 
-func (v Alignment) String() string {
+func (v Justify) String() string {
 	if v >= 0 && int(v) < len(alignmentName) {
 		return alignmentName[v]
 	}
 	return ""
 }
 
-func parserAlignmentResult(r string, err error) Alignment {
+func parserJustifyResult(r string, err error) Justify {
 	if err != nil {
 		return -1
 	}
 	for n, s := range alignmentName {
 		if s == r {
-			return Alignment(n)
+			return Justify(n)
 		}
 	}
 	return -1
