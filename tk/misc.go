@@ -411,6 +411,37 @@ func parserDisplyCursorResult(r string, err error) DisplyCursor {
 	return 0
 }
 
+type LineWrapMode int
+
+const (
+	LineWrapNone = iota
+	LineWrapChar
+	LineWrapWord
+)
+
+var (
+	lineWrapName = []string{"node", "char", "word"}
+)
+
+func (v LineWrapMode) String() string {
+	if v >= 0 && int(v) < len(lineWrapName) {
+		return lineWrapName[v]
+	}
+	return ""
+}
+
+func parserLineWrapModeResult(r string, err error) LineWrapMode {
+	if err != nil {
+		return 0
+	}
+	for n, s := range lineWrapName {
+		if s == r {
+			return LineWrapMode(n)
+		}
+	}
+	return 0
+}
+
 type TreeSelectMode int
 
 const (
