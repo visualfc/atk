@@ -4,6 +4,7 @@ package tk
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -23,8 +24,15 @@ var (
 	globalWidgetMap = make(map[string]Widget)
 )
 
-func RegisterWidget(w Widget) {
+func IsNilInterface(w Widget) bool {
 	if w == nil {
+		return true
+	}
+	return reflect.ValueOf(w).IsNil()
+}
+
+func RegisterWidget(w Widget) {
+	if IsNilInterface(w) {
 		return
 	}
 	globalWidgetMap[w.Id()] = w
@@ -40,7 +48,7 @@ func LookupWidget(id string) (w Widget, ok bool) {
 }
 
 func ParentOfWidget(w Widget) Widget {
-	if w == nil {
+	if IsNilInterface(w) {
 		return nil
 	}
 	id := w.Id()
@@ -57,7 +65,7 @@ func ParentOfWidget(w Widget) Widget {
 }
 
 func ChildrenOfWidget(w Widget) (list []Widget) {
-	if w == nil {
+	if IsNilInterface(w) {
 		return nil
 	}
 	id := w.Id()
@@ -106,7 +114,7 @@ func removeWidget(id string) {
 }
 
 func IsValidWidget(w Widget) bool {
-	if w == nil {
+	if IsNilInterface(w) {
 		return false
 	}
 	_, ok := globalWidgetMap[w.Id()]
