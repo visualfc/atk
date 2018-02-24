@@ -117,6 +117,14 @@ func (interp *Interp) EvalAsInt(script string) (int, error) {
 	return interp.GetIntResult(), nil
 }
 
+func (interp *Interp) EvalAsUint(script string) (uint, error) {
+	err := interp.Eval(script)
+	if err != nil {
+		return 0, err
+	}
+	return interp.GetUintResult(), nil
+}
+
 func (interp *Interp) EvalAsFloat64(script string) (float64, error) {
 	err := interp.Eval(script)
 	if err != nil {
@@ -181,6 +189,10 @@ func (p *Interp) GetStringResult() string {
 
 func (p *Interp) GetIntResult() int {
 	return p.GetObjResult().ToInt()
+}
+
+func (p *Interp) GetUintResult() uint {
+	return p.GetObjResult().ToUint()
 }
 
 func (p *Interp) GetInt64Result() int64 {

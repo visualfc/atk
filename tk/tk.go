@@ -168,6 +168,22 @@ func evalAsIntEx(script string, dump bool) (int, error) {
 	return r, err
 }
 
+func evalAsUint(script string) (uint, error) {
+	r, err := mainInterp.EvalAsUint(script)
+	if err != nil {
+		dumpError(err)
+	}
+	return r, err
+}
+
+func evalAsUintEx(script string, dump bool) (uint, error) {
+	r, err := mainInterp.EvalAsUint(script)
+	if dump && err != nil {
+		dumpError(err)
+	}
+	return r, err
+}
+
 func evalAsFloat64(script string) (float64, error) {
 	r, err := mainInterp.EvalAsFloat64(script)
 	if err != nil {

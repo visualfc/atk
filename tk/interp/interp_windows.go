@@ -479,6 +479,10 @@ func (o *Obj) ToInt() int {
 	return int(o.ToInt64())
 }
 
+func (o *Obj) ToUint() uint {
+	return uint(o.ToInt64())
+}
+
 func (o *Obj) ToBool() bool {
 	var out int32
 	status := Tcl_GetBooleanFromObj(o.interp, o.obj, &out)
