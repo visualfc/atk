@@ -36,7 +36,7 @@ const (
 	WidgetTypeSeparator
 	WidgetTypeSizeGrip
 	WidgetTypeSpinBox
-	WidgetTypeTextEdit
+	WidgetTypeText
 	WidgetTypeWindow
 	WidgetTypeTreeView
 	WidgetTypeLayoutFrame

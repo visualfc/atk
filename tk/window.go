@@ -349,7 +349,7 @@ func WindowOptBorderWidth(width int) *WidgetAttr {
 	return &WidgetAttr{"borderwidth", width}
 }
 
-func WindowOptBorderStyle(style BorderStyle) *WidgetAttr {
+func WindowOptReliefStyle(style ReliefStyle) *WidgetAttr {
 	return &WidgetAttr{"relief", style}
 }
 

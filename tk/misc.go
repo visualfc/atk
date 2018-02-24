@@ -149,35 +149,35 @@ func parserFillResult(r string, err error) Fill {
 	return -1
 }
 
-type BorderStyle int
+type ReliefStyle int
 
 const (
-	BorderStyleFlat BorderStyle = iota
-	BorderStyleGroove
-	BorderStyleRaised
-	BorderStyleRidge
-	BorderStyleSolid
-	BorderStyleSunken
+	ReliefStyleFlat ReliefStyle = iota
+	ReliefStyleGroove
+	ReliefStyleRaised
+	ReliefStyleRidge
+	ReliefStyleSolid
+	ReliefStyleSunken
 )
 
 var (
 	borderStyleName = []string{"flat", "groove", "raised", "ridge", "solid", "sunken"}
 )
 
-func (v BorderStyle) String() string {
+func (v ReliefStyle) String() string {
 	if v >= 0 && int(v) < len(borderStyleName) {
 		return borderStyleName[v]
 	}
 	return ""
 }
 
-func parserBorderStyleResult(r string, err error) BorderStyle {
+func parserReliefStyleResult(r string, err error) ReliefStyle {
 	if err != nil {
 		return -1
 	}
 	for n, s := range borderStyleName {
 		if s == r {
-			return BorderStyle(n)
+			return ReliefStyle(n)
 		}
 	}
 	return -1

@@ -545,7 +545,7 @@ func init() {
 		}
 	typeMetaMap[WidgetTypeNotebook] =
 		&MetaType{
-			Type: "NoteBook",
+			Type: "Notebook",
 			Tk:   nil,
 			Ttk: &MetaClass{"ttk::notebook", "TNotebook",
 				[]string{"width",
@@ -558,7 +558,7 @@ func init() {
 		}
 	typeMetaMap[WidgetTypePaned] =
 		&MetaType{
-			Type: "Splitter",
+			Type: "Paned",
 			Tk: &MetaClass{"tk::panedwindow", "Panedwindow",
 				[]string{"background",
 					"borderwidth",
@@ -810,9 +810,9 @@ func init() {
 					"xscrollcommand"}},
 			Ttk: nil,
 		}
-	typeMetaMap[WidgetTypeTextEdit] =
+	typeMetaMap[WidgetTypeText] =
 		&MetaType{
-			Type: "TextEdit",
+			Type: "Text",
 			Tk: &MetaClass{"tk::text", "Text",
 				[]string{"autoseparators",
 					"background",

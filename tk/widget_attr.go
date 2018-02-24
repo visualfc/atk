@@ -49,7 +49,7 @@ func WidgetAttrImage(image *Image) *WidgetAttr {
 }
 
 // setup widget border style (tk relief attribute)
-func WidgetAttrBorderStyle(style BorderStyle) *WidgetAttr {
+func WidgetAttrReliefStyle(style ReliefStyle) *WidgetAttr {
 	return &WidgetAttr{"relief", style}
 }
 
