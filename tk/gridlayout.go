@@ -20,6 +20,10 @@ func (w *GridLayout) AddWidgets(widgets ...Widget) {
 	GridList(widgets, GridAttrInMaster(w))
 }
 
+func (w *GridLayout) AddWidgetList(widgets []Widget, attrs ...*LayoutAttr) {
+	GridList(widgets, AppendLayoutAttrs(attrs, GridAttrInMaster(w))...)
+}
+
 func (w *GridLayout) AddWidgetEx(widget Widget, row int, column int, rowspan int, columnspan int, sticky Sticky) {
 	if !IsValidWidget(widget) {
 		return
