@@ -5,9 +5,8 @@ package tk
 import "fmt"
 
 // NOTE: update must
-func (w *Window) ShowMaximized() *Window {
-	eval(fmt.Sprintf("update\nwm state %v zoomed", w.id))
-	return w
+func (w *Window) ShowMaximized() error {
+	return eval(fmt.Sprintf("update\nwm state %v zoomed", w.id))
 }
 
 func (w *Window) IsMaximized() bool {

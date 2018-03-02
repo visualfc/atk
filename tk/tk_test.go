@@ -47,10 +47,12 @@ func TestMain(t *testing.T) {
 func testMainWindow(t *testing.T) {
 	mw := MainWindow()
 
-	if mw.SetTitle("Hello").Title() != "Hello" {
+	mw.SetTitle("Hello")
+	if mw.Title() != "Hello" {
 		t.Error("SetTitle")
 	}
-	if mw.SetAlpha(0.9).Alpha() != 0.9 {
+	mw.SetAlpha(0.9)
+	if mw.Alpha() != 0.9 {
 		t.Error("SetAlpha")
 	}
 
@@ -105,7 +107,8 @@ func testMainWindow(t *testing.T) {
 	}
 	mw.SetResizable(true, true)
 
-	mw.SetWidth(311).SetHeight(312)
+	mw.SetWidth(311)
+	mw.SetHeight(312)
 	if mw.Width() != 311 || mw.Height() != 312 {
 		t.Error("Width/Height")
 	}

@@ -4,12 +4,11 @@ package tk
 
 import "fmt"
 
-func (w *Window) ShowMaximized() *Window {
+func (w *Window) ShowMaximized() error {
 	if !w.IsVisible() {
 		w.ShowNormal()
 	}
-	eval(fmt.Sprintf("wm attributes %v -zoomed 1", w.id))
-	return w
+	return eval(fmt.Sprintf("wm attributes %v -zoomed 1", w.id))
 }
 
 func (w *Window) IsMaximized() bool {

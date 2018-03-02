@@ -21,10 +21,9 @@ type Window struct {
 	BaseWidget
 }
 
-func (w *Window) SetTitle(title string) *Window {
+func (w *Window) SetTitle(title string) error {
 	setObjText("atk_tmp_title", title)
-	eval(fmt.Sprintf("wm title %v $atk_tmp_title", w.id))
-	return w
+	return eval(fmt.Sprintf("wm title %v $atk_tmp_title", w.id))
 }
 
 func (w *Window) Title() string {
@@ -32,9 +31,8 @@ func (w *Window) Title() string {
 	return s
 }
 
-func (w *Window) SetAlpha(alpha float64) *Window {
-	eval(fmt.Sprintf("wm attributes %v -alpha {%v}", w.id, alpha))
-	return w
+func (w *Window) SetAlpha(alpha float64) error {
+	return eval(fmt.Sprintf("wm attributes %v -alpha {%v}", w.id, alpha))
 }
 
 func (w *Window) Alpha() float64 {
@@ -42,9 +40,8 @@ func (w *Window) Alpha() float64 {
 	return r
 }
 
-func (w *Window) SetFullScreen(full bool) *Window {
-	eval(fmt.Sprintf("wm attributes %v -fullscreen %v", w.id, boolToInt(full)))
-	return w
+func (w *Window) SetFullScreen(full bool) error {
+	return eval(fmt.Sprintf("wm attributes %v -fullscreen %v", w.id, boolToInt(full)))
 }
 
 func (w *Window) IsFullScreen() bool {
@@ -52,9 +49,8 @@ func (w *Window) IsFullScreen() bool {
 	return r
 }
 
-func (w *Window) SetTopmost(full bool) *Window {
-	eval(fmt.Sprintf("wm attributes %v -topmost %v", w.id, boolToInt(full)))
-	return w
+func (w *Window) SetTopmost(full bool) error {
+	return eval(fmt.Sprintf("wm attributes %v -topmost %v", w.id, boolToInt(full)))
 }
 
 func (w *Window) IsTopmost() bool {
@@ -62,13 +58,12 @@ func (w *Window) IsTopmost() bool {
 	return r
 }
 
-func (w *Window) SetGeometryN(x int, y int, width int, height int) *Window {
+func (w *Window) SetGeometryN(x int, y int, width int, height int) error {
 	globalWindowInfoMap[w.id] = &WindowInfo{x, y, width, height}
-	eval(fmt.Sprintf("wm geometry %v %vx%v+%v+%v", w.id, width, height, x, y))
-	return w
+	return eval(fmt.Sprintf("wm geometry %v %vx%v+%v+%v", w.id, width, height, x, y))
 }
 
-func (w *Window) SetGeometry(v Geometry) *Window {
+func (w *Window) SetGeometry(v Geometry) error {
 	return w.SetGeometryN(v.X, v.Y, v.Width, v.Height)
 }
 
@@ -101,22 +96,21 @@ func (w *Window) Geometry() Geometry {
 	return Geometry{x, y, width, height}
 }
 
-func (w *Window) MoveN(x int, y int) *Window {
+func (w *Window) MoveN(x int, y int) error {
 	return w.SetPosN(x, y)
 }
 
-func (w *Window) Move(pos Pos) *Window {
+func (w *Window) Move(pos Pos) error {
 	return w.SetPosN(pos.X, pos.Y)
 }
 
-func (w *Window) SetPosN(x int, y int) *Window {
+func (w *Window) SetPosN(x int, y int) error {
 	globalWindowInfoMap[w.id].X = x
 	globalWindowInfoMap[w.id].Y = y
-	eval(fmt.Sprintf("wm geometry %v +%v+%v", w.id, x, y))
-	return w
+	return eval(fmt.Sprintf("wm geometry %v +%v+%v", w.id, x, y))
 }
 
-func (w *Window) SetPos(pos Pos) *Window {
+func (w *Window) SetPos(pos Pos) error {
 	return w.SetPosN(pos.X, pos.Y)
 }
 
@@ -130,22 +124,21 @@ func (w *Window) Pos() Pos {
 	return Pos{x, y}
 }
 
-func (w *Window) ResizeN(width int, height int) *Window {
+func (w *Window) ResizeN(width int, height int) error {
 	return w.SetSizeN(width, height)
 }
 
-func (w *Window) Resize(sz Size) *Window {
+func (w *Window) Resize(sz Size) error {
 	return w.SetSizeN(sz.Width, sz.Height)
 }
 
-func (w *Window) SetSizeN(width int, height int) *Window {
+func (w *Window) SetSizeN(width int, height int) error {
 	globalWindowInfoMap[w.id].Width = width
 	globalWindowInfoMap[w.id].Height = height
-	eval(fmt.Sprintf("wm geometry %v %vx%v", w.id, width, height))
-	return w
+	return eval(fmt.Sprintf("wm geometry %v %vx%v", w.id, width, height))
 }
 
-func (w *Window) SetSize(sz Size) *Window {
+func (w *Window) SetSize(sz Size) error {
 	return w.SetSizeN(sz.Width, sz.Height)
 }
 
@@ -159,10 +152,9 @@ func (w *Window) Size() Size {
 	return Size{width, height}
 }
 
-func (w *Window) SetWidth(width int) *Window {
+func (w *Window) SetWidth(width int) error {
 	_, _, _, height := w.GeometryN()
-	w.SetSizeN(width, height)
-	return w
+	return w.SetSizeN(width, height)
 }
 
 func (w *Window) Width() (width int) {
@@ -170,10 +162,9 @@ func (w *Window) Width() (width int) {
 	return
 }
 
-func (w *Window) SetHeight(height int) *Window {
+func (w *Window) SetHeight(height int) error {
 	_, _, width, _ := w.GeometryN()
-	w.SetSizeN(width, height)
-	return w
+	return w.SetSizeN(width, height)
 }
 
 func (w *Window) Height() (height int) {
@@ -181,14 +172,12 @@ func (w *Window) Height() (height int) {
 	return
 }
 
-func (w *Window) SetNaturalSize() *Window {
-	eval(fmt.Sprintf("wm geometry %v {}", w.id))
-	return w
+func (w *Window) SetNaturalSize() error {
+	return eval(fmt.Sprintf("wm geometry %v {}", w.id))
 }
 
-func (w *Window) SetResizable(enableWidth bool, enableHeight bool) *Window {
-	eval(fmt.Sprintf("wm resizable %v %v %v", w.id, boolToInt(enableWidth), boolToInt(enableHeight)))
-	return w
+func (w *Window) SetResizable(enableWidth bool, enableHeight bool) error {
+	return eval(fmt.Sprintf("wm resizable %v %v %v", w.id, boolToInt(enableWidth), boolToInt(enableHeight)))
 }
 
 func (w *Window) IsResizable() (enableWidth bool, enableHeight bool) {
@@ -201,9 +190,8 @@ func (w *Window) IsResizable() (enableWidth bool, enableHeight bool) {
 	return
 }
 
-func (w *Window) Iconify() *Window {
-	eval(fmt.Sprintf("wm iconify %v", w.id))
-	return w
+func (w *Window) Iconify() error {
+	return eval(fmt.Sprintf("wm iconify %v", w.id))
 }
 
 func (w *Window) IsIconify() bool {
@@ -211,19 +199,18 @@ func (w *Window) IsIconify() bool {
 	return r == "iconic"
 }
 
-func (w *Window) ShowNormal() *Window {
+func (w *Window) ShowNormal() error {
 	if w.IsFullScreen() {
 		w.SetFullScreen(false)
 	}
-	eval(fmt.Sprintf("wm state %v normal", w.id))
-	return w
+	return eval(fmt.Sprintf("wm state %v normal", w.id))
 }
 
-func (w *Window) ShowFullScreen() *Window {
+func (w *Window) ShowFullScreen() error {
 	return w.SetFullScreen(true)
 }
 
-func (w *Window) ShowMinimized() *Window {
+func (w *Window) ShowMinimized() error {
 	return w.Iconify()
 }
 
@@ -231,9 +218,8 @@ func (w *Window) IsMinimized() bool {
 	return w.IsIconify()
 }
 
-func (w *Window) Hide() *Window {
-	eval(fmt.Sprintf("wm state %v withdrawn", w.id))
-	return w
+func (w *Window) Hide() error {
+	return eval(fmt.Sprintf("wm state %v withdrawn", w.id))
 }
 
 func (w *Window) IsVisible() bool {
@@ -241,28 +227,26 @@ func (w *Window) IsVisible() bool {
 	return s != "withdrawn"
 }
 
-func (w *Window) SetVisible(b bool) *Window {
+func (w *Window) SetVisible(b bool) error {
 	if w.IsVisible() != b {
 		if b {
-			w.ShowNormal()
+			return w.ShowNormal()
 		} else {
-			w.Hide()
+			return w.Hide()
 		}
 	}
-	return w
+	return nil
 }
 
-func (w *Window) Deiconify() *Window {
-	eval(fmt.Sprintf("wm deiconify %v", w.id))
-	return w
+func (w *Window) Deiconify() error {
+	return eval(fmt.Sprintf("wm deiconify %v", w.id))
 }
 
-func (w *Window) SetMaximumSizeN(width int, height int) *Window {
-	eval(fmt.Sprintf("wm maxsize %v %v %v", w.id, width, height))
-	return w
+func (w *Window) SetMaximumSizeN(width int, height int) error {
+	return eval(fmt.Sprintf("wm maxsize %v %v %v", w.id, width, height))
 }
 
-func (w *Window) SetMaximumSize(sz Size) *Window {
+func (w *Window) SetMaximumSize(sz Size) error {
 	return w.SetMaximumSizeN(sz.Width, sz.Height)
 }
 
@@ -276,12 +260,11 @@ func (w *Window) MaximumSize() Size {
 	return Size{width, height}
 }
 
-func (w *Window) SetMinimumSizeN(width int, height int) *Window {
-	eval(fmt.Sprintf("wm minsize %v %v %v", w.id, width, height))
-	return w
+func (w *Window) SetMinimumSizeN(width int, height int) error {
+	return eval(fmt.Sprintf("wm minsize %v %v %v", w.id, width, height))
 }
 
-func (w *Window) SetMinimumSize(sz Size) *Window {
+func (w *Window) SetMinimumSize(sz Size) error {
 	return w.SetMinimumSizeN(sz.Width, sz.Height)
 }
 
@@ -306,7 +289,7 @@ func (w *Window) ScreenSize() Size {
 	return Size{width, height}
 }
 
-func (w *Window) Center() *Window {
+func (w *Window) Center() error {
 	sw, sh := w.ScreenSizeN()
 	width, height := w.SizeN()
 	x := (sw - width) / 2
@@ -388,13 +371,12 @@ func (w *Window) Attach(id string) error {
 	return nil
 }
 
-func (w *Window) SetMenu(m *Menu) *Window {
+func (w *Window) SetMenu(m *Menu) error {
 	var mid string
 	if m != nil {
 		mid = m.Id()
 	}
-	eval(fmt.Sprintf("%v configure -menu {%v}", w.id, mid))
-	return w
+	return eval(fmt.Sprintf("%v configure -menu {%v}", w.id, mid))
 }
 
 func (w *Window) Menu() *Menu {

@@ -13,28 +13,28 @@ type PackLayout struct {
 	items []*LayoutItem
 }
 
-func (w *PackLayout) SetSide(side Side) {
+func (w *PackLayout) SetSide(side Side) error {
 	w.side = side
-	w.Repack()
+	return w.Repack()
 }
 
-func (w *PackLayout) SetPadding(pad Pad) {
-	w.SetPaddingN(pad.X, pad.Y)
+func (w *PackLayout) SetPadding(pad Pad) error {
+	return w.SetPaddingN(pad.X, pad.Y)
 }
 
-func (w *PackLayout) SetPaddingN(padx int, pady int) {
+func (w *PackLayout) SetPaddingN(padx int, pady int) error {
 	w.pad = &Pad{padx, pady}
-	w.Repack()
+	return w.Repack()
 }
 
-func (w *PackLayout) removeItem(widget Widget) bool {
+func (w *PackLayout) removeItem(widget Widget) error {
 	n := w.indexOfWidget(widget)
 	if n == -1 {
-		return false
+		return ErrInvalid
 	}
 	PackRemove(widget)
 	w.items = append(w.items[:n], w.items[n+1:]...)
-	return true
+	return nil
 }
 
 func (w *PackLayout) indexOfWidget(widget Widget) int {
@@ -46,51 +46,49 @@ func (w *PackLayout) indexOfWidget(widget Widget) int {
 	return -1
 }
 
-func (w *PackLayout) AddWidget(widget Widget, attributes ...*LayoutAttr) {
+func (w *PackLayout) AddWidget(widget Widget, attributes ...*LayoutAttr) error {
 	if !IsValidWidget(widget) {
-		return
+		return ErrInvalid
 	}
 	n := w.indexOfWidget(widget)
 	if n != -1 {
 		w.items = append(w.items[:n], w.items[n+1:]...)
 	}
 	w.items = append(w.items, &LayoutItem{widget, attributes})
-	w.Repack()
+	return w.Repack()
 }
 
-func (w *PackLayout) InsertWidget(index int, widget Widget, attributes ...*LayoutAttr) {
+func (w *PackLayout) InsertWidget(index int, widget Widget, attributes ...*LayoutAttr) error {
 	if index < 0 {
-		w.AddWidget(widget, attributes...)
-		return
+		return w.AddWidget(widget, attributes...)
 	}
 	n := w.indexOfWidget(widget)
 	if n != -1 {
 		if n == index {
-			return
+			return ErrExist
 		}
 		w.items = append(w.items[:n], w.items[n+1:]...)
 	}
 	if index >= len(w.items) {
-		w.AddWidget(widget, attributes...)
-		return
+		return w.AddWidget(widget, attributes...)
 	}
 	w.items = append(w.items[:index], append([]*LayoutItem{&LayoutItem{widget, attributes}}, w.items[index:]...)...)
-	w.Repack()
+	return w.Repack()
 }
 
-func (w *PackLayout) AddWidgetEx(widget Widget, fill Fill, expand bool, anchor Anchor) {
-	w.AddWidget(widget,
+func (w *PackLayout) AddWidgetEx(widget Widget, fill Fill, expand bool, anchor Anchor) error {
+	return w.AddWidget(widget,
 		PackAttrFill(fill), PackAttrExpand(expand),
 		PackAttrAnchor(anchor))
 }
 
-func (w *PackLayout) InsertWidgetEx(index int, widget Widget, fill Fill, expand bool, anchor Anchor) {
-	w.InsertWidget(index, widget,
+func (w *PackLayout) InsertWidgetEx(index int, widget Widget, fill Fill, expand bool, anchor Anchor) error {
+	return w.InsertWidget(index, widget,
 		PackAttrFill(fill), PackAttrExpand(expand),
 		PackAttrAnchor(anchor))
 }
 
-func (w *PackLayout) AddWidgets(widgets ...Widget) {
+func (w *PackLayout) AddWidgets(widgets ...Widget) error {
 	for _, widget := range widgets {
 		n := w.indexOfWidget(widget)
 		if n != -1 {
@@ -98,10 +96,10 @@ func (w *PackLayout) AddWidgets(widgets ...Widget) {
 		}
 		w.items = append(w.items, &LayoutItem{widget, nil})
 	}
-	w.Repack()
+	return w.Repack()
 }
 
-func (w *PackLayout) AddWidgetList(widgets []Widget, attributes ...*LayoutAttr) {
+func (w *PackLayout) AddWidgetList(widgets []Widget, attributes ...*LayoutAttr) error {
 	for _, widget := range widgets {
 		n := w.indexOfWidget(widget)
 		if n != -1 {
@@ -109,26 +107,26 @@ func (w *PackLayout) AddWidgetList(widgets []Widget, attributes ...*LayoutAttr) 
 		}
 		w.items = append(w.items, &LayoutItem{widget, attributes})
 	}
-	w.Repack()
+	return w.Repack()
 }
 
-func (w *PackLayout) RemoveWidget(widget Widget) bool {
+func (w *PackLayout) RemoveWidget(widget Widget) error {
 	if !IsValidWidget(widget) {
-		return false
+		return ErrInvalid
 	}
 	return w.removeItem(widget)
 }
 
-func (w *PackLayout) SetWidgetAttr(widget Widget, attributes ...*LayoutAttr) {
+func (w *PackLayout) SetWidgetAttr(widget Widget, attributes ...*LayoutAttr) error {
 	if !IsValidWidget(widget) {
-		return
+		return ErrInvalid
 	}
 	n := w.indexOfWidget(widget)
 	if n == -1 {
-		return
+		return ErrInvalid
 	}
 	w.items[n].attrs = attributes
-	w.Repack()
+	return w.Repack()
 }
 
 func (w *PackLayout) itemAttr() []*LayoutAttr {
@@ -160,7 +158,7 @@ func (w *PackLayout) resetSpacerAttr(item *LayoutItem, s *LayoutSpacer) {
 	}
 }
 
-func (w *PackLayout) Repack() {
+func (w *PackLayout) Repack() error {
 	for _, item := range w.items {
 		if item.widget == nil {
 			continue
@@ -170,11 +168,11 @@ func (w *PackLayout) Repack() {
 		}
 		Pack(item.widget, AppendLayoutAttrs(item.attrs, w.itemAttr()...)...)
 	}
-	Pack(w, PackAttrFill(FillBoth), PackAttrExpand(true))
+	return Pack(w, PackAttrFill(FillBoth), PackAttrExpand(true))
 }
 
-func (w *PackLayout) SetBorderWidth(width int) {
-	evalAsInt(fmt.Sprintf("%v configure -borderwidth {%v}", w.Id(), width))
+func (w *PackLayout) SetBorderWidth(width int) error {
+	return eval(fmt.Sprintf("%v configure -borderwidth {%v}", w.Id(), width))
 }
 
 func (w *PackLayout) BorderWidth() int {

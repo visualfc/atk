@@ -4,9 +4,8 @@ package tk
 
 import "fmt"
 
-func (w *Window) ShowMaximized() *Window {
-	eval(fmt.Sprintf("wm state %v zoomed", w.id))
-	return w
+func (w *Window) ShowMaximized() error {
+	return eval(fmt.Sprintf("wm state %v zoomed", w.id))
 }
 
 func (w *Window) IsMaximized() bool {
