@@ -11,19 +11,20 @@ import (
 )
 
 var (
-	hasInit       bool
-	mainInterp    *interp.Interp
-	mainWindow    *Window
-	fnErrorHandle func(error) = func(err error) {
+	tkHasInit            bool
+	tkWindowInitAutoHide bool
+	mainInterp         *interp.Interp
+	mainWindow         *Window
+	fnErrorHandle      func(error) = func(err error) {
 		log.Println(err)
 	}
 )
 
 func Init() error {
-	return InitEx("", "")
+	return InitEx(true, "", "")
 }
 
-func InitEx(tcl_library string, tk_library string) (err error) {
+func InitEx(tk_window_init_hide bool, tcl_library string, tk_library string) (err error) {
 	mainInterp, err = interp.NewInterp()
 	if err != nil {
 		dumpError(err)
@@ -39,20 +40,21 @@ func InitEx(tcl_library string, tk_library string) (err error) {
 		dumpError(err)
 		return err
 	}
+	tkWindowInitAutoHide = tk_window_init_hide
 	//hide console for macOS bundle
 	mainInterp.Eval("if {[info commands console] == \"console\"} {console hide}")
 
 	for _, fn := range init_func_list {
 		fn()
 	}
-
 	mainWindow = &Window{}
 	mainWindow.Attach(".")
-	mainWindow.Hide()
-
+	if tkWindowInitAutoHide {
+		mainWindow.Hide()
+	}
 	//hide wish menu on macos
 	mainWindow.SetMenu(NewMenu(nil))
-	hasInit = true
+	tkHasInit = true
 	return nil
 }
 
@@ -94,7 +96,7 @@ func MainLoop(fn func()) error {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
 
-	if !hasInit {
+	if !tkHasInit {
 		err := Init()
 		if err != nil {
 			dumpError(err)

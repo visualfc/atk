@@ -3,6 +3,7 @@
 package tk
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -15,6 +16,8 @@ func init() {
 	fnErrorHandle = func(err error) {
 		panic(err)
 	}
+	fmt.Println("TkVersion", TkVersion())
+	fmt.Println("TkLibrary", TkLibrary())
 }
 
 var (

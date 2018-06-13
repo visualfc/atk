@@ -353,7 +353,9 @@ func NewWindow(attributes ...*WidgetAttr) *Window {
 	w := &Window{}
 	w.id = iid
 	w.info = info
-	w.Hide()
+	if tkWindowInitAutoHide {
+		w.Hide()
+	}
 	w.registerWindowInfo()
 	RegisterWidget(w)
 	return w
