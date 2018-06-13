@@ -89,7 +89,6 @@ func Place(widget Widget, attributes ...*LayoutAttr) error {
 	if len(attrList) > 0 {
 		script += " " + strings.Join(attrList, " ")
 	}
-	fmt.Println(script)
 	return eval(script)
 }
 
