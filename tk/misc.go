@@ -117,6 +117,37 @@ func parserSideResult(r string, err error) Side {
 	return -1
 }
 
+type BorderMode int
+
+const (
+	BorderModeInside BorderMode = iota
+	BorderModeOutside
+	BorderModeIgnore
+)
+
+var (
+	borderModeName = []string{"inside", "outside", "ignore"}
+)
+
+func (v BorderMode) String() string {
+	if v >= 0 && int(v) < len(borderModeName) {
+		return borderModeName[v]
+	}
+	return ""
+}
+
+func parserBorderModeResult(r string, err error) BorderMode {
+	if err != nil {
+		return -1
+	}
+	for n, s := range borderModeName {
+		if s == r {
+			return BorderMode(n)
+		}
+	}
+	return -1
+}
+
 type Fill int
 
 const (
