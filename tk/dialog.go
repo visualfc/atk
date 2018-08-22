@@ -7,7 +7,7 @@ import (
 )
 
 //tk_chooseColor — pops up a dialog box for the user to select a color.
-func ChooseColor(parent Widget, initcolor string, title string) (string, error) {
+func ChooseColor(parent Widget, title string, initcolor string) (string, error) {
 	script := fmt.Sprintf("tk_chooseColor")
 	if parent != nil {
 		script += " -parent " + parent.Id()
@@ -23,7 +23,7 @@ func ChooseColor(parent Widget, initcolor string, title string) (string, error) 
 }
 
 //tk_chooseDirectory — pops up a dialog box for the user to select a directory.
-func ChooseDirectory(parent Widget, initialdir string, mustexist bool, title string) (string, error) {
+func ChooseDirectory(parent Widget, title string, initialdir string, mustexist bool) (string, error) {
 	script := fmt.Sprintf("tk_chooseDirectory")
 	if parent != nil {
 		script += " -parent " + parent.Id()
@@ -52,7 +52,7 @@ func (v FileType) String() string {
 }
 
 //tk_getOpenFile, tk_getSaveFile — pop up a dialog box for the user to select a file to open or save.
-func GetOpenFile(parent Widget, filetypes []FileType, initialdir string, initialfile string, title string) (string, error) {
+func GetOpenFile(parent Widget, title string, filetypes []FileType, initialdir string, initialfile string) (string, error) {
 	script := fmt.Sprintf("tk_getOpenFile")
 	if parent != nil {
 		script += " -parent " + parent.Id()
@@ -80,7 +80,7 @@ func GetOpenFile(parent Widget, filetypes []FileType, initialdir string, initial
 	return evalAsString(script)
 }
 
-func GetOpenMultipleFile(parent Widget, filetypes []FileType, initialdir string, initialfile string, title string) ([]string, error) {
+func GetOpenMultipleFile(parent Widget, title string, filetypes []FileType, initialdir string, initialfile string) ([]string, error) {
 	script := fmt.Sprintf("tk_getOpenFile")
 	if parent != nil {
 		script += " -parent " + parent.Id()
@@ -110,7 +110,7 @@ func GetOpenMultipleFile(parent Widget, filetypes []FileType, initialdir string,
 }
 
 //tk_getOpenFile, tk_getSaveFile — pop up a dialog box for the user to select a file to open or save.
-func GetSaveFile(parent Widget, confirmoverwrite bool, defaultextension string, filetypes []FileType, initialdir string, initialfile string, title string) (string, error) {
+func GetSaveFile(parent Widget, title string, confirmoverwrite bool, defaultextension string, filetypes []FileType, initialdir string, initialfile string) (string, error) {
 	script := fmt.Sprintf("tk_getSaveFile")
 	if parent != nil {
 		script += " -parent " + parent.Id()
@@ -187,7 +187,7 @@ func (v MessageBoxType) String() string {
 }
 
 //tk_messageBox — pops up a message window and waits for user response.
-func MessageBox(parent Widget, message string, detail string, title string, defaultbutton string, icon MessageBoxIcon, typ MessageBoxType) (string, error) {
+func MessageBox(parent Widget, title string, message string, detail string, defaultbutton string, icon MessageBoxIcon, typ MessageBoxType) (string, error) {
 	script := fmt.Sprintf("tk_messageBox")
 	if parent != nil {
 		script += " -parent " + parent.Id()
