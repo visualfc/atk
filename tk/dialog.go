@@ -167,17 +167,16 @@ func (v MessageBoxIcon) String() string {
 type MessageBoxType int
 
 const (
-	MessageBoxTypeNone MessageBoxType = iota
-	MessageBoxTypeAbortRetryIgnore
-	MessageBoxTypeOk
+	MessageBoxTypeOk MessageBoxType = iota
 	MessageBoxTypeOkCancel
+	MessageBoxTypeAbortRetryIgnore
 	MessageBoxTypeRetryCancel
 	MessageBoxTypeYesNo
 	MessageBoxTypeYesNoCancel
 )
 
 var (
-	messageBoxTypeName = []string{"", "abortretryignore", "ok", "okcancel", "retrycancel", "yesno", "yesnocancel"}
+	messageBoxTypeName = []string{"ok", "okcancel", "abortretryignore", "retrycancel", "yesno", "yesnocancel"}
 )
 
 func (v MessageBoxType) String() string {

@@ -182,6 +182,26 @@ func (w *BaseWidget) IsFocus() bool {
 	return w.id == id
 }
 
+func (w *BaseWidget) FocusNextWidget() Widget {
+	id, err := evalAsString("tk_focusNext " + w.id)
+	if err != nil || id == "" {
+		return nil
+	}
+	return FindWidget(id)
+}
+
+func (w *BaseWidget) FocusPrevWidget() Widget {
+	id, err := evalAsString("tk_focusPrev " + w.id)
+	if err != nil || id == "" {
+		return nil
+	}
+	return FindWidget(id)
+}
+
+func SetFocusFollowsMouse() error {
+	return eval("tk_focusFollowsMouse")
+}
+
 func FocusWidget() Widget {
 	id, err := evalAsString("focus")
 	if err != nil || id == "" {
