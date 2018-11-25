@@ -178,8 +178,18 @@ func (interp *Interp) TclVersion() string {
 	return ver
 }
 
+func (interp *Interp) TclPatchLevel() string {
+	ver, _ := interp.EvalAsString("set tcl_patchLevel")
+	return ver
+}
+
 func (interp *Interp) TkVersion() string {
 	ver, _ := interp.EvalAsString("set tk_version")
+	return ver
+}
+
+func (interp *Interp) TkPatchLevel() string {
+	ver, _ := interp.EvalAsString("set tk_patchLevel")
 	return ver
 }
 

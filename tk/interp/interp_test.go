@@ -26,12 +26,12 @@ func init() {
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println("tcl_version", interp.TclVersion())
+	fmt.Println("tcl version", interp.TclPatchLevel())
 	err = interp.InitTk("")
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println("tk_version", interp.TkVersion())
+	fmt.Println("tk version", interp.TkPatchLevel())
 }
 
 func TestInterp(t *testing.T) {
