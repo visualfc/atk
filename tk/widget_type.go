@@ -165,7 +165,7 @@ func CheckWidgetInfo(id string, typ WidgetType) (*WidgetInfo, error) {
 	if info == nil {
 		return nil, ErrorInvalidWidgetInfo
 	}
-	if info.Type != WidgetTypeWindow {
+	if info.Type != typ {
 		return nil, ErrorNotMatchWidgetInfo
 	}
 	return info, nil

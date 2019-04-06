@@ -30,8 +30,8 @@ func registerTest(name string, fn func(*testing.T)) {
 
 func TestMain(t *testing.T) {
 	MainLoop(func() {
-		t.Log("sub test", "MainWindow")
-		testMainWindow(t)
+		t.Log("sub test", "RootWindow")
+		testRootWindow(t)
 
 		for name, fn := range allTestMap {
 			t.Log("sub test", name)
@@ -47,8 +47,8 @@ func TestMain(t *testing.T) {
 	})
 }
 
-func testMainWindow(t *testing.T) {
-	mw := MainWindow()
+func testRootWindow(t *testing.T) {
+	mw := RootWindow()
 
 	mw.SetTitle("Hello")
 	if mw.Title() != "Hello" {

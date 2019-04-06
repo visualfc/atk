@@ -59,7 +59,7 @@ func ParentOfWidget(w Widget) Widget {
 	if pos == -1 {
 		return nil
 	} else if pos == 0 {
-		return mainWindow
+		return rootWindow
 	}
 	return globalWidgetMap[id[:pos]]
 }

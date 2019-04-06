@@ -139,7 +139,7 @@ func GridColumnIndex(master Widget, index int, attributes ...*GridIndexAttr) err
 
 func gridIndex(master Widget, row bool, index int, attributes []*GridIndexAttr) error {
 	if master == nil {
-		master = mainWindow
+		master = rootWindow
 	}
 	var sindex string
 	if index < 0 {

@@ -82,7 +82,7 @@ func testWidgetParent(t *testing.T) {
 	a2_b1_c2 := NewTestWidget(a2_b1, "c2")
 	a2_b1_c3 := NewTestWidget(a2_b1, "c3")
 
-	if p := ParentOfWidget(a1); p != MainWindow() {
+	if p := ParentOfWidget(a1); p != RootWindow() {
 		t.Fatal("ParentWidget", p)
 	}
 	if p := ParentOfWidget(a1_b1); p != a1 {
@@ -91,7 +91,7 @@ func testWidgetParent(t *testing.T) {
 	if p := ParentOfWidget(a1_b1_c1); p != a1_b1 {
 		t.Fatal("ParentWidget", p)
 	}
-	list := ChildrenOfWidget(mainWindow)
+	list := ChildrenOfWidget(rootWindow)
 	if !findOfList(a1, list) || !findOfList(a2, list) {
 		t.Fatal("ChildrenOfWidget", list)
 	}
@@ -105,7 +105,7 @@ func testWidgetParent(t *testing.T) {
 		t.Fatal("DestroyWidget", list)
 	}
 	DestroyWidget(a1)
-	list = ChildrenOfWidget(mainWindow)
+	list = ChildrenOfWidget(rootWindow)
 	if findOfList(a1, list) {
 		t.Fatal("DestroyWidget", list)
 	}

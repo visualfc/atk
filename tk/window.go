@@ -320,8 +320,8 @@ func (w *Window) registerWindowInfo() {
 	globalWindowInfoMap[w.id] = &WindowInfo{0, 0, 200, 200}
 }
 
-func MainWindow() *Window {
-	return mainWindow
+func RootWindow() *Window {
+	return rootWindow
 }
 
 func WindowOptId(id string) *WidgetAttr {

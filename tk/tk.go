@@ -15,7 +15,7 @@ var (
 	tkWindowInitAutoHide bool
 	tkVersion85          bool
 	mainInterp           *interp.Interp
-	mainWindow           *Window
+	rootWindow           *Window
 	fnErrorHandle        func(error) = func(err error) {
 		log.Println(err)
 	}
@@ -48,13 +48,13 @@ func InitEx(tk_window_init_hide bool, tcl_library string, tk_library string) (er
 	for _, fn := range init_func_list {
 		fn()
 	}
-	mainWindow = &Window{}
-	mainWindow.Attach(".")
+	rootWindow = &Window{}
+	rootWindow.Attach(".")
 	if tkWindowInitAutoHide {
-		mainWindow.Hide()
+		rootWindow.Hide()
 	}
 	//hide wish menu on macos
-	mainWindow.SetMenu(NewMenu(nil))
+	rootWindow.SetMenu(NewMenu(nil))
 	tkHasInit = true
 	return nil
 }
@@ -119,7 +119,7 @@ func Update() {
 
 func Quit() {
 	Async(func() {
-		DestroyWidget(mainWindow)
+		DestroyWidget(rootWindow)
 	})
 }
 
