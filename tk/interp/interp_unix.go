@@ -73,11 +73,6 @@ var (
 	mainLoopThreadId C.Tcl_ThreadId
 )
 
-const (
-	TCL_MAJOR_VERSION = C.TCL_MAJOR_VERSION
-	TCL_MINOR_VERSION = C.TCL_MINOR_VERSION
-)
-
 //export _go_tcl_objcmd_proc
 func _go_tcl_objcmd_proc(clientData unsafe.Pointer, interp *C.Tcl_Interp, objc C.int, objv unsafe.Pointer) C.int {
 	objs := (*(*[1 << 20]*C.Tcl_Obj)(objv))[1:objc:objc]

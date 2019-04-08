@@ -13,7 +13,6 @@ import (
 var (
 	tkHasInit            bool
 	tkWindowInitAutoHide bool
-	tkVersion85          bool
 	mainInterp           *interp.Interp
 	rootWindow           *Window
 	fnErrorHandle        func(error) = func(err error) {
