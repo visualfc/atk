@@ -136,7 +136,8 @@ func MainLoop(fn func()) {
 }
 
 type Interp struct {
-	interp *Tcl_Interp
+	interp       *Tcl_Interp
+	supportVer86 bool
 }
 
 func NewInterp() (*Interp, error) {
@@ -148,7 +149,7 @@ func NewInterp() (*Interp, error) {
 	if interp == nil {
 		return nil, errors.New("Tcl_CreateInterp failed")
 	}
-	return &Interp{interp}, nil
+	return &Interp{interp, false}, nil
 }
 
 func (p *Interp) InitTcl(tcl_library string) error {
@@ -159,6 +160,7 @@ func (p *Interp) InitTcl(tcl_library string) error {
 		err := errors.New("Tcl_Init failed")
 		return err
 	}
+	p.supportVer86 = p.TclVersion() >= "8.6"
 	return nil
 }
 
@@ -739,21 +741,50 @@ const (
 )
 
 func (p *Photo) PutImage(img image.Image) error {
-	dstImage, ok := img.(*image.NRGBA)
-	if !ok {
-		dstImage = image.NewNRGBA(img.Bounds())
-		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+	if img == nil || img.Bounds().Empty() {
+		return os.ErrInvalid
 	}
-	block := Tk_PhotoImageBlock{
-		&dstImage.Pix[0],
-		int32(dstImage.Rect.Max.X),
-		int32(dstImage.Rect.Max.Y),
-		int32(dstImage.Stride),
-		4,
-		[...]int32{0, 1, 2, 3},
+	width := img.Bounds().Dx()
+	height := img.Bounds().Dy()
+	var block Tk_PhotoImageBlock
+	if p.interp.supportVer86 {
+		dstImage, ok := img.(*image.NRGBA)
+		if !ok {
+			dstImage = image.NewNRGBA(img.Bounds())
+			draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+		}
+		block = Tk_PhotoImageBlock{
+			&dstImage.Pix[0],
+			int32(width),
+			int32(height),
+			int32(dstImage.Stride),
+			4,
+			[...]int32{0, 1, 2, 3},
+		}
+	} else {
+		dstImage := image.NewRGBA(img.Bounds())
+		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+		i0, i1 := 3, dstImage.Rect.Dx()*4
+		for y := dstImage.Rect.Min.Y; y < dstImage.Rect.Max.Y; y++ {
+			for i := i0; i < i1; i += 4 {
+				if dstImage.Pix[i] != 0xff {
+					dstImage.Pix[i] = 0xff
+				}
+			}
+			i0 += dstImage.Stride
+			i1 += dstImage.Stride
+		}
+		block = Tk_PhotoImageBlock{
+			&dstImage.Pix[0],
+			int32(width),
+			int32(height),
+			int32(dstImage.Stride),
+			4,
+			[...]int32{0, 1, 2, 3},
+		}
 	}
 	status := Tk_PhotoPutBlock(p.interp.interp, p.handle, &block, 0, 0,
-		int32(dstImage.Rect.Max.X), int32(dstImage.Rect.Max.Y),
+		int32(img.Bounds().Dx()), int32(img.Bounds().Dy()),
 		TK_PHOTO_COMPOSITE_SET)
 	if status != TCL_OK {
 		return p.interp.GetErrorResult()
@@ -762,22 +793,50 @@ func (p *Photo) PutImage(img image.Image) error {
 }
 
 func (p *Photo) PutZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsampleY int) error {
-	dstImage, ok := img.(*image.NRGBA)
-	if !ok {
-		dstImage = image.NewNRGBA(img.Bounds())
-		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+	if img == nil || img.Bounds().Empty() {
+		return os.ErrInvalid
 	}
-
-	block := Tk_PhotoImageBlock{
-		&dstImage.Pix[0],
-		int32(dstImage.Rect.Max.X),
-		int32(dstImage.Rect.Max.Y),
-		int32(dstImage.Stride),
-		4,
-		[...]int32{0, 1, 2, 3},
+	width := img.Bounds().Dx()
+	height := img.Bounds().Dy()
+	var block Tk_PhotoImageBlock
+	if p.interp.supportVer86 {
+		dstImage, ok := img.(*image.NRGBA)
+		if !ok {
+			dstImage = image.NewNRGBA(img.Bounds())
+			draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+		}
+		block = Tk_PhotoImageBlock{
+			&dstImage.Pix[0],
+			int32(width),
+			int32(height),
+			int32(dstImage.Stride),
+			4,
+			[...]int32{0, 1, 2, 3},
+		}
+	} else {
+		dstImage := image.NewRGBA(img.Bounds())
+		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+		i0, i1 := 3, dstImage.Rect.Dx()*4
+		for y := dstImage.Rect.Min.Y; y < dstImage.Rect.Max.Y; y++ {
+			for i := i0; i < i1; i += 4 {
+				if dstImage.Pix[i] != 0xff {
+					dstImage.Pix[i] = 0xff
+				}
+			}
+			i0 += dstImage.Stride
+			i1 += dstImage.Stride
+		}
+		block = Tk_PhotoImageBlock{
+			&dstImage.Pix[0],
+			int32(width),
+			int32(height),
+			int32(dstImage.Stride),
+			4,
+			[...]int32{0, 1, 2, 3},
+		}
 	}
 	status := Tk_PhotoPutZoomedBlock(p.interp.interp, p.handle, &block,
-		0, 0, int32(dstImage.Rect.Max.X), int32(dstImage.Rect.Max.Y),
+		0, 0, int32(width), int32(height),
 		int32(zoomX), int32(zoomY), int32(subsampleX), int32(subsampleY),
 		TK_PHOTO_COMPOSITE_SET)
 	if status != TCL_OK {

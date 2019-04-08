@@ -115,7 +115,9 @@ func GetSaveFile(parent Widget, title string, confirmoverwrite bool, defaultexte
 	if parent != nil {
 		script += " -parent " + parent.Id()
 	}
-	script += " -confirmoverwrite " + fmt.Sprint(confirmoverwrite)
+	if mainInterp.SupportVer86() {
+		script += " -confirmoverwrite " + fmt.Sprint(confirmoverwrite)
+	}
 	if defaultextension != "" {
 		setObjText("atk_tmp_defaultextension", defaultextension)
 		script += " -defaultextension $atk_tmp_defaultextension"

@@ -15,7 +15,7 @@ import (
 
 /*
 #cgo darwin CFLAGS: -I/Library/Frameworks/Tcl.framework/Headers -I/Library/Frameworks/Tk.framework/Headers
-#cgo darwin LDFLAGS: -framework Tcl -framework Tk
+#cgo darwin LDFLAGS: -framework tcl -framework tk
 #cgo linux CFLAGS: -I/usr/include/tcl
 #cgo linux LDFLAGS: -ltcl -ltk
 
@@ -71,6 +71,11 @@ import "C"
 
 var (
 	mainLoopThreadId C.Tcl_ThreadId
+)
+
+const (
+	TCL_MAJOR_VERSION = C.TCL_MAJOR_VERSION
+	TCL_MINOR_VERSION = C.TCL_MINOR_VERSION
 )
 
 //export _go_tcl_objcmd_proc
@@ -161,7 +166,8 @@ func MainLoop(fn func()) {
 }
 
 type Interp struct {
-	interp *C.Tcl_Interp
+	interp       *C.Tcl_Interp
+	supportVer86 bool
 }
 
 func NewInterp() (*Interp, error) {
@@ -169,7 +175,11 @@ func NewInterp() (*Interp, error) {
 	if interp == nil {
 		return nil, errors.New("Tcl_CreateInterp failed")
 	}
-	return &Interp{interp}, nil
+	return &Interp{interp, false}, nil
+}
+
+func (p *Interp) SupportVer86() bool {
+	return p.supportVer86
 }
 
 func (p *Interp) InitTcl(tcl_library string) error {
@@ -180,6 +190,7 @@ func (p *Interp) InitTcl(tcl_library string) error {
 		err := errors.New("Tcl_Init failed")
 		return err
 	}
+	p.supportVer86 = p.TclVersion() >= "8.6"
 	return nil
 }
 
@@ -643,27 +654,49 @@ func (p *Photo) ToImage() image.Image {
 }
 
 func (p *Photo) PutImage(img image.Image) error {
-	dstImage, ok := img.(*image.NRGBA)
-	if !ok {
-		dstImage = image.NewNRGBA(img.Bounds())
-		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
-	}
-	if len(dstImage.Pix) == 0 {
+	if img == nil || img.Bounds().Empty() {
 		return os.ErrInvalid
 	}
-	pixelPtr := toCBytes(dstImage.Pix)
+	var pixelPtr unsafe.Pointer
+	var stride int
+	if p.interp.supportVer86 {
+		dstImage, ok := img.(*image.NRGBA)
+		if !ok {
+			dstImage = image.NewNRGBA(img.Bounds())
+			draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+		}
+		stride = dstImage.Stride
+		pixelPtr = toCBytes(dstImage.Pix)
+	} else {
+		dstImage := image.NewRGBA(img.Bounds())
+		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+		i0, i1 := 3, dstImage.Rect.Dx()*4
+		for y := dstImage.Rect.Min.Y; y < dstImage.Rect.Max.Y; y++ {
+			for i := i0; i < i1; i += 4 {
+				if dstImage.Pix[i] != 0xff {
+					dstImage.Pix[i] = 0xff
+				}
+			}
+			i0 += dstImage.Stride
+			i1 += dstImage.Stride
+		}
+		stride = dstImage.Stride
+		pixelPtr = toCBytes(dstImage.Pix)
+	}
 	defer C.free(pixelPtr)
-
+	width := img.Bounds().Dx()
+	height := img.Bounds().Dy()
+	offset := [4]C.int{0, 1, 2, 3}
 	block := C.Tk_PhotoImageBlock{
 		(*C.uchar)(pixelPtr),
-		C.int(dstImage.Rect.Max.X),
-		C.int(dstImage.Rect.Max.Y),
-		C.int(dstImage.Stride),
+		C.int(width),
+		C.int(height),
+		C.int(stride),
 		4,
-		[...]C.int{0, 1, 2, 3},
+		offset,
 	}
-	status := C.Tk_PhotoPutBlock(p.interp.interp, p.handle, &block, 0, 0,
-		C.int(dstImage.Rect.Max.X), C.int(dstImage.Rect.Max.Y),
+	status := C.Tk_PhotoPutBlock(p.interp.interp, p.handle, &block,
+		0, 0, C.int(width), C.int(height),
 		C.TK_PHOTO_COMPOSITE_SET)
 	if status != C.TCL_OK {
 		return p.interp.GetErrorResult()
@@ -672,28 +705,46 @@ func (p *Photo) PutImage(img image.Image) error {
 }
 
 func (p *Photo) PutZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsampleY int) error {
-	dstImage, ok := img.(*image.NRGBA)
-	if !ok {
-		dstImage = image.NewNRGBA(img.Bounds())
+	var pixelPtr unsafe.Pointer
+	var stride int
+	if !p.interp.supportVer86 {
+		dstImage := image.NewRGBA(img.Bounds())
 		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+		i0, i1 := 3, dstImage.Rect.Dx()*4
+		for y := dstImage.Rect.Min.Y; y < dstImage.Rect.Max.Y; y++ {
+			for i := i0; i < i1; i += 4 {
+				if dstImage.Pix[i] != 0xff {
+					dstImage.Pix[i] = 0xff
+				}
+			}
+			i0 += dstImage.Stride
+			i1 += dstImage.Stride
+		}
+		stride = dstImage.Stride
+		pixelPtr = toCBytes(dstImage.Pix)
+	} else {
+		dstImage, ok := img.(*image.NRGBA)
+		if !ok {
+			dstImage = image.NewNRGBA(img.Bounds())
+			draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
+		}
+		stride = dstImage.Stride
+		pixelPtr = toCBytes(dstImage.Pix)
 	}
-	if len(dstImage.Pix) == 0 {
-		return os.ErrInvalid
-	}
-
-	pixelPtr := toCBytes(dstImage.Pix)
 	defer C.free(pixelPtr)
-
+	width := img.Bounds().Dx()
+	height := img.Bounds().Dy()
+	offset := [4]C.int{0, 1, 2, 3}
 	block := C.Tk_PhotoImageBlock{
 		(*C.uchar)(pixelPtr),
-		C.int(dstImage.Rect.Max.X),
-		C.int(dstImage.Rect.Max.Y),
-		C.int(dstImage.Stride),
+		C.int(width),
+		C.int(height),
+		C.int(stride),
 		4,
-		[...]C.int{0, 1, 2, 3},
+		offset,
 	}
 	status := C.Tk_PhotoPutZoomedBlock(p.interp.interp, p.handle, &block,
-		0, 0, C.int(dstImage.Rect.Max.X), C.int(dstImage.Rect.Max.Y),
+		0, 0, C.int(width), C.int(height),
 		C.int(zoomX), C.int(zoomY), C.int(subsampleX), C.int(subsampleY),
 		C.TK_PHOTO_COMPOSITE_SET)
 	if status != C.TCL_OK {
