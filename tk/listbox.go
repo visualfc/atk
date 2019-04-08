@@ -92,10 +92,16 @@ func (w *ListBox) Font() Font {
 }
 
 func (w *ListBox) SetJustify(justify Justify) error {
+	if !mainInterp.SupportVer86() {
+		return ErrUnsupport
+	}
 	return eval(fmt.Sprintf("%v configure -justify {%v}", w.id, justify))
 }
 
 func (w *ListBox) Justify() Justify {
+	if !mainInterp.SupportVer86() {
+		return JustifyLeft
+	}
 	r, err := evalAsString(fmt.Sprintf("%v cget -justify", w.id))
 	return parserJustifyResult(r, err)
 }
@@ -352,6 +358,9 @@ func ListBoxAttrFont(font Font) *WidgetAttr {
 }
 
 func ListBoxAttrJustify(justify Justify) *WidgetAttr {
+	if !mainInterp.SupportVer86() {
+		return nil
+	}
 	return &WidgetAttr{"justify", justify}
 }
 

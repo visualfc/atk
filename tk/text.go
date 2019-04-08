@@ -296,10 +296,16 @@ func (w *Text) Height() int {
 }
 
 func (w *Text) SetInsertUnfocussed(style DisplyCursor) error {
+	if !mainInterp.SupportVer86() {
+		return ErrUnsupport
+	}
 	return eval(fmt.Sprintf("%v configure -insertunfocussed {%v}", w.id, style))
 }
 
 func (w *Text) InsertUnfocussed() DisplyCursor {
+	if !mainInterp.SupportVer86() {
+		return DisplyCursorHollow
+	}
 	r, err := evalAsString(fmt.Sprintf("%v cget -insertunfocussed", w.id))
 	return parserDisplyCursorResult(r, err)
 }
@@ -594,6 +600,9 @@ func TextAttrHeight(height int) *WidgetAttr {
 }
 
 func TextAttrInsertUnfocussed(style DisplyCursor) *WidgetAttr {
+	if !mainInterp.SupportVer86() {
+		return nil
+	}
 	return &WidgetAttr{"insertunfocussed", style}
 }
 
