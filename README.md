@@ -1,6 +1,8 @@
 # atk
 Another Golang Tcl/Tk binding GUI ToolKit
 
+	go get github.com/visualfc/atk
+
 
 ### Install Tcl/Tk
 
