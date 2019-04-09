@@ -16,7 +16,7 @@ import (
 
 /*
 #cgo darwin CFLAGS: -I/Library/Frameworks/Tcl.framework/Headers -I/Library/Frameworks/Tk.framework/Headers
-#cgo darwin LDFLAGS: -framework tcl -framework tk
+#cgo darwin LDFLAGS: -F/Library/Frameworks -framework tcl -framework tk
 #cgo linux CFLAGS: -I/usr/include/tcl
 #cgo linux LDFLAGS: -ltcl -ltk
 
