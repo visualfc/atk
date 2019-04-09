@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"image/color"
 	"image/draw"
 	"os"
 	"unsafe"
@@ -161,8 +162,8 @@ func MainLoop(fn func()) {
 }
 
 type Interp struct {
-	interp       *C.Tcl_Interp
-	supportVer86 bool
+	interp      *C.Tcl_Interp
+	supportTk86 bool
 }
 
 func NewInterp() (*Interp, error) {
@@ -173,8 +174,8 @@ func NewInterp() (*Interp, error) {
 	return &Interp{interp, false}, nil
 }
 
-func (p *Interp) SupportVer86() bool {
-	return p.supportVer86
+func (p *Interp) SupportTk86() bool {
+	return p.supportTk86
 }
 
 func (p *Interp) InitTcl(tcl_library string) error {
@@ -185,7 +186,6 @@ func (p *Interp) InitTcl(tcl_library string) error {
 		err := errors.New("Tcl_Init failed")
 		return err
 	}
-	p.supportVer86 = p.TclVersion() >= "8.6"
 	return nil
 }
 
@@ -197,6 +197,7 @@ func (p *Interp) InitTk(tk_library string) error {
 		err := errors.New("Tk_Init failed")
 		return err
 	}
+	p.supportTk86 = p.TkVersion() >= "8.6"
 	return nil
 }
 
@@ -648,13 +649,13 @@ func (p *Photo) ToImage() image.Image {
 	return &image.NRGBA{pix, 4 * int(block.width), r}
 }
 
-func (p *Photo) PutImage(img image.Image) error {
+func (p *Photo) PutImage(img image.Image, tk85alphacolor color.Color) error {
 	if img == nil || img.Bounds().Empty() {
 		return os.ErrInvalid
 	}
 	var pixelPtr unsafe.Pointer
 	var stride int
-	if p.interp.supportVer86 {
+	if p.interp.supportTk86 {
 		dstImage, ok := img.(*image.NRGBA)
 		if !ok {
 			dstImage = image.NewNRGBA(img.Bounds())
@@ -663,18 +664,19 @@ func (p *Photo) PutImage(img image.Image) error {
 		stride = dstImage.Stride
 		pixelPtr = toCBytes(dstImage.Pix)
 	} else {
-		dstImage := image.NewRGBA(img.Bounds())
-		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
-		i0, i1 := 3, dstImage.Rect.Dx()*4
-		for y := dstImage.Rect.Min.Y; y < dstImage.Rect.Max.Y; y++ {
-			for i := i0; i < i1; i += 4 {
-				if dstImage.Pix[i] != 0xff {
-					dstImage.Pix[i] = 0xff
-				}
-			}
-			i0 += dstImage.Stride
-			i1 += dstImage.Stride
+		var r, g, b uint8
+		if tk85alphacolor != nil {
+			clr := color.RGBAModel.Convert(tk85alphacolor).(color.RGBA)
+			r, g, b = clr.R, clr.G, clr.B
 		}
+		dstImage := image.NewRGBA(img.Bounds())
+		for i := 0; i < len(dstImage.Pix); i += 4 {
+			dstImage.Pix[i+0] = r
+			dstImage.Pix[i+1] = g
+			dstImage.Pix[i+2] = b
+			dstImage.Pix[i+3] = 0xff
+		}
+		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Over)
 		stride = dstImage.Stride
 		pixelPtr = toCBytes(dstImage.Pix)
 	}
@@ -699,30 +701,34 @@ func (p *Photo) PutImage(img image.Image) error {
 	return nil
 }
 
-func (p *Photo) PutZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsampleY int) error {
+func (p *Photo) PutZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsampleY int, tk85alphacolor color.Color) error {
+	if img == nil || img.Bounds().Empty() {
+		return os.ErrInvalid
+	}
 	var pixelPtr unsafe.Pointer
 	var stride int
-	if !p.interp.supportVer86 {
-		dstImage := image.NewRGBA(img.Bounds())
-		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
-		i0, i1 := 3, dstImage.Rect.Dx()*4
-		for y := dstImage.Rect.Min.Y; y < dstImage.Rect.Max.Y; y++ {
-			for i := i0; i < i1; i += 4 {
-				if dstImage.Pix[i] != 0xff {
-					dstImage.Pix[i] = 0xff
-				}
-			}
-			i0 += dstImage.Stride
-			i1 += dstImage.Stride
-		}
-		stride = dstImage.Stride
-		pixelPtr = toCBytes(dstImage.Pix)
-	} else {
+	if p.interp.supportTk86 {
 		dstImage, ok := img.(*image.NRGBA)
 		if !ok {
 			dstImage = image.NewNRGBA(img.Bounds())
 			draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
 		}
+		stride = dstImage.Stride
+		pixelPtr = toCBytes(dstImage.Pix)
+	} else {
+		var r, g, b uint8
+		if tk85alphacolor != nil {
+			clr := color.RGBAModel.Convert(tk85alphacolor).(color.RGBA)
+			r, g, b = clr.R, clr.G, clr.B
+		}
+		dstImage := image.NewRGBA(img.Bounds())
+		for i := 0; i < len(dstImage.Pix); i += 4 {
+			dstImage.Pix[i+0] = r
+			dstImage.Pix[i+1] = g
+			dstImage.Pix[i+2] = b
+			dstImage.Pix[i+3] = 0xff
+		}
+		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Over)
 		stride = dstImage.Stride
 		pixelPtr = toCBytes(dstImage.Pix)
 	}

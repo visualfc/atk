@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"image/color"
 	_ "image/png"
 	"os"
 	"path/filepath"
@@ -15,8 +16,9 @@ import (
 )
 
 type Image struct {
-	id    string
-	photo *interp.Photo
+	id        string
+	photo     *interp.Photo
+	tk85alpha color.Color
 }
 
 func (i *Image) Id() string {
@@ -30,6 +32,10 @@ type ImageAttr struct {
 
 func ImageAttrGamma(gamma float64) *ImageAttr {
 	return &ImageAttr{"gamma", gamma}
+}
+
+func ImageAttrTk85AlphaColor(color color.Color) *ImageAttr {
+	return &ImageAttr{"tk85alphacolor", color}
 }
 
 func LoadImage(file string, attributes ...*ImageAttr) (*Image, error) {
@@ -63,8 +69,15 @@ func LoadImage(file string, attributes ...*ImageAttr) (*Image, error) {
 
 func NewImage(attributes ...*ImageAttr) *Image {
 	var attrList []string
+	var tk85alphacolor color.Color
 	for _, attr := range attributes {
 		if attr == nil {
+			continue
+		}
+		if attr.key == "tk85alphacolor" {
+			if clr, ok := attr.value.(color.Color); ok {
+				tk85alphacolor = clr
+			}
 			continue
 		}
 		if s, ok := attr.value.(string); ok {
@@ -88,7 +101,7 @@ func NewImage(attributes ...*ImageAttr) *Image {
 	if photo == nil {
 		return nil
 	}
-	return &Image{iid, photo}
+	return &Image{iid, photo, tk85alphacolor}
 }
 
 func (i *Image) IsValid() bool {
@@ -96,7 +109,7 @@ func (i *Image) IsValid() bool {
 }
 
 func (i *Image) SetImage(img image.Image) *Image {
-	err := i.photo.PutImage(img)
+	err := i.photo.PutImage(img, i.tk85alpha)
 	if err != nil {
 		dumpError(err)
 	}
@@ -104,7 +117,7 @@ func (i *Image) SetImage(img image.Image) *Image {
 }
 
 func (i *Image) SetZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsampleY int) *Image {
-	err := i.photo.PutZoomedImage(img, zoomX, zoomY, subsampleX, subsampleY)
+	err := i.photo.PutZoomedImage(img, zoomX, zoomY, subsampleX, subsampleY, i.tk85alpha)
 	if err != nil {
 		dumpError(err)
 	}
@@ -159,5 +172,5 @@ func parserImageResult(id string, err error) *Image {
 	if photo == nil {
 		return nil
 	}
-	return &Image{id, photo}
+	return &Image{id, photo, nil}
 }

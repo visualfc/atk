@@ -232,11 +232,11 @@ func TestPhoto(t *testing.T) {
 	if photo2 == nil {
 		t.Fatal("FindPhoto")
 	}
-	err = photo2.PutImage(goImage)
+	err = photo2.PutImage(goImage, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = photo2.PutZoomedImage(goImage, 1, 2, 3, 6)
+	err = photo2.PutZoomedImage(goImage, 1, 2, 3, 6, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

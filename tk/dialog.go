@@ -115,7 +115,7 @@ func GetSaveFile(parent Widget, title string, confirmoverwrite bool, defaultexte
 	if parent != nil {
 		script += " -parent " + parent.Id()
 	}
-	if mainInterp.SupportVer86() {
+	if mainInterp.SupportTk86() {
 		script += " -confirmoverwrite " + fmt.Sprint(confirmoverwrite)
 	}
 	if defaultextension != "" {

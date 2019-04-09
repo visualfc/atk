@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"image/color"
 	"image/draw"
 	"os"
 	"syscall"
@@ -136,8 +137,8 @@ func MainLoop(fn func()) {
 }
 
 type Interp struct {
-	interp       *Tcl_Interp
-	supportVer86 bool
+	interp      *Tcl_Interp
+	supportTk86 bool
 }
 
 func NewInterp() (*Interp, error) {
@@ -152,6 +153,10 @@ func NewInterp() (*Interp, error) {
 	return &Interp{interp, false}, nil
 }
 
+func (p *Interp) SupportTk86() bool {
+	return p.supportTk86
+}
+
 func (p *Interp) InitTcl(tcl_library string) error {
 	if tcl_library != "" {
 		p.Eval(fmt.Sprintf("set tcl_library {%s}", tcl_library))
@@ -160,7 +165,6 @@ func (p *Interp) InitTcl(tcl_library string) error {
 		err := errors.New("Tcl_Init failed")
 		return err
 	}
-	p.supportVer86 = p.TclVersion() >= "8.6"
 	return nil
 }
 
@@ -176,6 +180,7 @@ func (p *Interp) InitTk(tk_library string) error {
 		err := errors.New("Tk_Init failed")
 		return err
 	}
+	p.supportTk86 = p.TkVersion() >= "8.6"
 	return nil
 }
 
@@ -740,14 +745,14 @@ const (
 	TK_PHOTO_COMPOSITE_SET     = 1
 )
 
-func (p *Photo) PutImage(img image.Image) error {
+func (p *Photo) PutImage(img image.Image, tk85alphacolor color.Color) error {
 	if img == nil || img.Bounds().Empty() {
 		return os.ErrInvalid
 	}
 	width := img.Bounds().Dx()
 	height := img.Bounds().Dy()
 	var block Tk_PhotoImageBlock
-	if p.interp.supportVer86 {
+	if p.interp.supportTk86 {
 		dstImage, ok := img.(*image.NRGBA)
 		if !ok {
 			dstImage = image.NewNRGBA(img.Bounds())
@@ -762,18 +767,19 @@ func (p *Photo) PutImage(img image.Image) error {
 			[...]int32{0, 1, 2, 3},
 		}
 	} else {
-		dstImage := image.NewRGBA(img.Bounds())
-		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
-		i0, i1 := 3, dstImage.Rect.Dx()*4
-		for y := dstImage.Rect.Min.Y; y < dstImage.Rect.Max.Y; y++ {
-			for i := i0; i < i1; i += 4 {
-				if dstImage.Pix[i] != 0xff {
-					dstImage.Pix[i] = 0xff
-				}
-			}
-			i0 += dstImage.Stride
-			i1 += dstImage.Stride
+		var r, g, b uint8
+		if tk85alphacolor != nil {
+			clr := color.RGBAModel.Convert(tk85alphacolor).(color.RGBA)
+			r, g, b = clr.R, clr.G, clr.B
 		}
+		dstImage := image.NewRGBA(img.Bounds())
+		for i := 0; i < len(dstImage.Pix); i += 4 {
+			dstImage.Pix[i+0] = r
+			dstImage.Pix[i+1] = g
+			dstImage.Pix[i+2] = b
+			dstImage.Pix[i+3] = 0xff
+		}
+		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Over)
 		block = Tk_PhotoImageBlock{
 			&dstImage.Pix[0],
 			int32(width),
@@ -792,14 +798,14 @@ func (p *Photo) PutImage(img image.Image) error {
 	return nil
 }
 
-func (p *Photo) PutZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsampleY int) error {
+func (p *Photo) PutZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsampleY int, tk85alphacolor color.Color) error {
 	if img == nil || img.Bounds().Empty() {
 		return os.ErrInvalid
 	}
 	width := img.Bounds().Dx()
 	height := img.Bounds().Dy()
 	var block Tk_PhotoImageBlock
-	if p.interp.supportVer86 {
+	if p.interp.supportTk86 {
 		dstImage, ok := img.(*image.NRGBA)
 		if !ok {
 			dstImage = image.NewNRGBA(img.Bounds())
@@ -814,18 +820,19 @@ func (p *Photo) PutZoomedImage(img image.Image, zoomX, zoomY, subsampleX, subsam
 			[...]int32{0, 1, 2, 3},
 		}
 	} else {
-		dstImage := image.NewRGBA(img.Bounds())
-		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Src)
-		i0, i1 := 3, dstImage.Rect.Dx()*4
-		for y := dstImage.Rect.Min.Y; y < dstImage.Rect.Max.Y; y++ {
-			for i := i0; i < i1; i += 4 {
-				if dstImage.Pix[i] != 0xff {
-					dstImage.Pix[i] = 0xff
-				}
-			}
-			i0 += dstImage.Stride
-			i1 += dstImage.Stride
+		var r, g, b uint8
+		if tk85alphacolor != nil {
+			clr := color.RGBAModel.Convert(tk85alphacolor).(color.RGBA)
+			r, g, b = clr.R, clr.G, clr.B
 		}
+		dstImage := image.NewRGBA(img.Bounds())
+		for i := 0; i < len(dstImage.Pix); i += 4 {
+			dstImage.Pix[i+0] = r
+			dstImage.Pix[i+1] = g
+			dstImage.Pix[i+2] = b
+			dstImage.Pix[i+3] = 0xff
+		}
+		draw.Draw(dstImage, dstImage.Bounds(), img, img.Bounds().Min, draw.Over)
 		block = Tk_PhotoImageBlock{
 			&dstImage.Pix[0],
 			int32(width),
