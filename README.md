@@ -1,18 +1,20 @@
 # atk
-A Golang Tcl/Tk binding
+Another Golang Tcl/Tk binding GUI ToolKit
 
-### tcl/tk
+
+### Install Tcl/Tk
+
 http://www.tcl-lang.org
 
-### MacOS X, Windows
+* MacOS X, Windows
 
-https://www.activestate.com/activetcl/downloads
+	https://www.activestate.com/activetcl/downloads
 
-### Ubuntu
+* Ubuntu
 
-$ sudo apt install tk-dev
+	$ sudo apt install tk-dev
 
 
-### CentOS
+* CentOS
 
-$ sudo yum install tk-devel
+	$ sudo yum install tk-devel
