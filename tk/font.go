@@ -101,6 +101,16 @@ func (w *BaseFont) MeasureTextWidth(text string) int {
 	return r
 }
 
+func (w *BaseFont) Ascent() int {
+	r, _ := evalAsInt(fmt.Sprintf("font metrics %v -ascent", w.id))
+	return r
+}
+
+func (w *BaseFont) Descent() int {
+	r, _ := evalAsInt(fmt.Sprintf("font metrics %v -descent", w.id))
+	return r
+}
+
 func (w *BaseFont) Clone() *UserFont {
 	iid := makeNamedId("atk_font")
 	script := fmt.Sprintf("font create %v %v", iid, w.Description())
