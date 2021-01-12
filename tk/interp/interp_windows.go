@@ -91,6 +91,14 @@ type Tk_PhotoImageBlock struct {
 //sys	Tk_PhotoPutBlock(interp *Tcl_Interp, handle *Tk_PhotoHandle,blockPtr *Tk_PhotoImageBlock, x int32, y int32, width int32, height int32, compRule int32) (status int32) = tk86t.Tk_PhotoPutBlock
 //sys	Tk_PhotoPutZoomedBlock(interp *Tcl_Interp, handle *Tk_PhotoHandle,blockPtr *Tk_PhotoImageBlock, x int32, y int32, width int32, height int32, zoomX int32, zoomY int32, subsampleX int32, subsampleY int32, compRule int32) (status int32) = tk86t.Tk_PhotoPutZoomedBlock
 
+func init() {
+	err := modtcl86t.Load()
+	if err != nil {
+		modtcl86t.Name = "tcl86.dll"
+		modtk86t.Name = "tk86.dll"
+	}
+}
+
 var (
 	mainLoopThreadId *Tcl_ThreadId
 )
