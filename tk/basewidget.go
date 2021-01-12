@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var _ Widget = &BaseWidget{}
+
 type BaseWidget struct {
 	id   string
 	info *WidgetInfo

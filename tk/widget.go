@@ -18,6 +18,21 @@ type Widget interface {
 	IsValid() bool
 	Destroy() error
 	DestroyChildren() error
+	// attribute
+	NativeAttribute(key string) (value string)
+	SetNativeAttribute(key string, value string) error
+	SetAttributes(attributes ...*WidgetAttr) error
+	// event
+	BindEvent(event string, fn func(*Event)) error
+	BindKeyEvent(fn func(e *KeyEvent)) error
+	BindKeyEventEx(fnPress func(e *KeyEvent), fnRelease func(e *KeyEvent)) error
+	BindInfo() []string
+	ClearBind(event string) error
+	// focus
+	SetFocus() error
+	IsFocus() bool
+	Lower(below Widget) error
+	Raise(above Widget) error
 }
 
 var (
