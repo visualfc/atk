@@ -17,6 +17,16 @@ var (
 	globalWindowInfoMap = make(map[string]*WindowInfo)
 )
 
+type WindowWidget interface {
+	Widget
+	SetGeometry(v Geometry) error
+	Geometry() Geometry
+	SetGeometryN(x int, y int, width int, height int) error
+	GeometryN() (x int, y int, width int, height int)
+}
+
+var _ WindowWidget = &Window{}
+
 type Window struct {
 	BaseWidget
 }
@@ -304,12 +314,17 @@ func (w *Window) ScreenSize() Size {
 	return Size{width, height}
 }
 
-func (w *Window) Center() error {
-	sw, sh := w.ScreenSizeN()
+func (w *Window) Center(parent WindowWidget) error {
+	var sx, sy, sw, sh int
 	width, height := w.SizeN()
-	x := (sw - width) / 2
-	y := (sh - height) / 2
-	return w.MoveN(x, y)
+	if parent == nil {
+		sw, sh = w.ScreenSizeN()
+	} else {
+		sx, sy, sw, sh = parent.GeometryN()
+	}
+	xoff := sx + (sw-width)/2
+	yoff := sy + (sh-height)/2
+	return w.MoveN(xoff, yoff)
 }
 
 func (w *Window) OnClose(fn func() (accept bool)) error {
