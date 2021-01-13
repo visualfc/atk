@@ -172,6 +172,22 @@ func (w *BaseWidget) Raise(above Widget) error {
 	return eval(script)
 }
 
+func (w *BaseWidget) SetGrab() error {
+	return eval(fmt.Sprintf("grab set %v", w.id))
+}
+
+func (w *BaseWidget) ReleaseGrab() error {
+	return eval(fmt.Sprintf("grab release %v", w.id))
+}
+
+func (w *BaseWidget) IsGrab() bool {
+	id, err := evalAsString("grab current")
+	if err != nil || id == "" {
+		return false
+	}
+	return w.id == id
+}
+
 func (w *BaseWidget) SetFocus() error {
 	return eval(fmt.Sprintf("focus %v", w.id))
 }
@@ -206,6 +222,14 @@ func SetFocusFollowsMouse() error {
 
 func FocusWidget() Widget {
 	id, err := evalAsString("focus")
+	if err != nil || id == "" {
+		return nil
+	}
+	return FindWidget(id)
+}
+
+func GrabWidget() Widget {
+	id, err := evalAsString("grab current")
 	if err != nil || id == "" {
 		return nil
 	}

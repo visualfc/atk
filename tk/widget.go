@@ -28,6 +28,10 @@ type Widget interface {
 	BindKeyEventEx(fnPress func(e *KeyEvent), fnRelease func(e *KeyEvent)) error
 	BindInfo() []string
 	ClearBind(event string) error
+	// grab
+	SetGrab() error
+	ReleaseGrab() error
+	IsGrab() bool
 	// focus
 	SetFocus() error
 	IsFocus() bool
