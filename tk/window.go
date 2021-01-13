@@ -199,6 +199,21 @@ func (w *Window) IsIconify() bool {
 	return r == "iconic"
 }
 
+func (w *Window) ShowModal() error {
+	w.SetGrab()
+	w.SetFocus()
+	return w.SetVisible(true)
+}
+
+func (w *Window) EndModal() error {
+	w.ReleaseGrab()
+	return w.SetVisible(false)
+}
+
+func (w *Window) Wait() error {
+	return eval(fmt.Sprintf("tkwait window %v", w.Id()))
+}
+
 func (w *Window) ShowNormal() error {
 	if w.IsFullScreen() {
 		w.SetFullScreen(false)
