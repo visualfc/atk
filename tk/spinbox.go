@@ -58,10 +58,6 @@ func (w *SpinBox) SetTo(to float64) error {
 	return eval(fmt.Sprintf("%v configure -to {%v}", w.id, to))
 }
 
-func (w *SpinBox) SetRange(from, to float64) error {
-	return eval(fmt.Sprintf("%v configure -from {%v} -to {%v}", w.id, from, to))
-}
-
 func (w *SpinBox) To() float64 {
 	r, _ := evalAsFloat64(fmt.Sprintf("%v cget -to", w.id))
 	return r
@@ -131,6 +127,14 @@ func (w *SpinBox) OnEditReturn(fn func()) error {
 
 func (w *SpinBox) Entry() *Entry {
 	return &Entry{w.BaseWidget, nil}
+}
+
+func (w *SpinBox) SetRange(from, to float64) error {
+	return eval(fmt.Sprintf("%v configure -from {%v} -to {%v}", w.id, from, to))
+}
+
+func (w *SpinBox) Range() (float64, float64) {
+	return w.From(), w.To()
 }
 
 func (w *SpinBox) Value() float64 {
