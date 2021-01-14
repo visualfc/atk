@@ -18,9 +18,10 @@ const (
 	//The ButtonPress and ButtonRelease events are generated when the user presses or releases a mouse button. Motion events are generated whenever the pointer is moved. ButtonPress, ButtonRelease, and Motion events are normally sent to the window containing the pointer.
 	//
 	//When a mouse button is pressed, the window containing the pointer automatically obtains a temporary pointer grab. Subsequent ButtonPress, ButtonRelease, and Motion events will be sent to that window, regardless of which window contains the pointer, until all buttons have been released.
-	ButtonPress   = "<ButtonPress>"
-	ButtonRelease = "<ButtonRelease>"
-	Motion        = "<Motion>"
+	ButtonPress       = "<ButtonPress>"
+	ButtonRelease     = "<ButtonRelease>"
+	DoubleButtonPress = "<Double-ButtonPress>"
+	Motion            = "<Motion>"
 
 	//A Configure event is sent to a window whenever its size, position, or border width changes, and sometimes when it has changed position in the stacking order.
 	Configure = "<Configure>"
@@ -84,7 +85,7 @@ const (
 
 var (
 	EventList = []string{
-		"<Activate>", "<Destroy>", "<Map>", "<ButtonPress>", "<Button>",
+		"<Activate>", "<Destroy>", "<Map>", "<ButtonPress>", "<Double-ButtonPress>", "<Button>",
 		"<Enter>", "<MapRequest>", "<ButtonRelease>", "<Expose>", "<Motion>",
 		"<Circulate>", "<FocusIn>", "<MouseWheel>", "<CirculateRequest>", "<FocusOut>",
 		"<Property>", "<Colormap>", "<Gravity>", "<Reparent>", "<Configure>",
