@@ -101,6 +101,14 @@ func (w *Scale) OnCommand(fn func()) error {
 	return nil
 }
 
+func (w *Scale) SetRange(from, to float64) error {
+	return eval(fmt.Sprintf("%v configure -from {%v} -to {%v}", w.id, from, to))
+}
+
+func (w *Scale) Range() (float64, float64) {
+	return w.From(), w.To()
+}
+
 func ScaleAttrOrient(orient Orient) *WidgetAttr {
 	return &WidgetAttr{"orient", orient}
 }
