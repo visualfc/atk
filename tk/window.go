@@ -304,7 +304,9 @@ func (w *Window) MinimumSize() Size {
 }
 
 func (w *Window) ScreenSizeN() (width int, height int) {
-	return tkScreenWidth, tkScreenHeight
+	width, _ = evalAsInt(fmt.Sprintf("winfo screenwidth %v", w.id))
+	height, _ = evalAsInt(fmt.Sprintf("winfo screenheight %v", w.id))
+	return
 }
 
 func (w *Window) ScreenSize() Size {
