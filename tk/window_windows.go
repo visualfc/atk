@@ -5,6 +5,8 @@ package tk
 import (
 	"fmt"
 	"syscall"
+
+	"github.com/visualfc/atk/tk/user32"
 )
 
 func (w *Window) ShowMaximized() error {
@@ -29,11 +31,11 @@ func setHighDPI() {
 	if err != nil {
 		return
 	}
-	procGetScaleFactorForDevice, err := dll.FindProc("GetScaleFactorForDevice")
-	if err != nil {
-		return
-	}
+	cxLogical, cyLogical, cxPhysical, cyPhysical := user32.GetWindowScreen()
+	tkScreenWidth = cxPhysical
+	tkScreenHeight = cyPhysical
+	_ = cyLogical
+	tkScale = float64(cxPhysical) / float64(cxLogical)
 	procSetProcessDpiAwareness.Call(1)
-	r0, _, _ := procGetScaleFactorForDevice.Call()
-	mainInterp.Eval(fmt.Sprintf("tk scaling %v", float64(r0)/75))
+	mainInterp.Eval(fmt.Sprintf("tk scaling %v", tkScale))
 }

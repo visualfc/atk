@@ -24,6 +24,12 @@ func Init() error {
 	return InitEx(true, "", "")
 }
 
+var (
+	tkScale        float64 = 1.0
+	tkScreenWidth  int
+	tkScreenHeight int
+)
+
 func InitEx(tk_window_init_hide bool, tcl_library string, tk_library string) (err error) {
 	mainInterp, err = interp.NewInterp()
 	if err != nil {
@@ -40,6 +46,9 @@ func InitEx(tk_window_init_hide bool, tcl_library string, tk_library string) (er
 		dumpError(err)
 		return err
 	}
+	tkScreenWidth, _ = evalAsInt("winfo screenwidth .")
+	tkScreenHeight, _ = evalAsInt("winfo screenheight .")
+
 	tkWindowInitAutoHide = tk_window_init_hide
 	//hide console for macOS bundle
 	mainInterp.Eval("if {[info commands console] == \"console\"} {console hide}")
