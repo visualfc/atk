@@ -97,6 +97,12 @@ func buildWidgetAttributeScript(meta *MetaClass, ttk bool, attributes []*WidgetA
 		if !meta.HasAttribute(attr.key) {
 			continue
 		}
+		if strs, ok := attr.value.([]string); ok {
+			pname := "atk_tmp_" + attr.key
+			setObjTextList(pname, strs)
+			list = append(list, fmt.Sprintf("-%v $%v", attr.key, pname))
+			continue
+		}
 		if s, ok := attr.value.(string); ok {
 			pname := "atk_tmp_" + attr.key
 			setObjText(pname, s)
