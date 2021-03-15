@@ -337,7 +337,7 @@ func (w *Canvas) PlotWidget(x1,y1 int, options map[string]string) error {
 // 参考：
 // http://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm
 // https://tkdocs.com/tutorial/canvas.html
-// 例子：https://github.com/visualfc/atk/issues/17
+// 例子：https://github.com/visualfc/atk/issues/16
 
 
 
