@@ -334,6 +334,11 @@ func (w *Canvas) PlotWidget(x1,y1 int, options map[string]string) error {
     
 	return eval(fmt.Sprintf("%v create window %v %v %v", w.id, x1,y1, tmp2))
 }
+// 参考：
+// http://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm
+// https://tkdocs.com/tutorial/canvas.html
+// 例子：https://github.com/visualfc/atk/issues/17
+
 
 
 // WidgetAttr
