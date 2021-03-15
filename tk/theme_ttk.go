@@ -95,6 +95,8 @@ func StyleMap(name string, options map[string]map[string]string) error{
 // https://tkdocs.com/tutorial/styles.html
 // http://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_style.htm
 // https://tkdocs.com/shipman/ttk-map.html
+// 例子：https://github.com/visualfc/atk/issues/17
+
 
 func init() {
 	registerInit(func() {
