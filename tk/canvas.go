@@ -240,6 +240,103 @@ func (w *Canvas) YScrollIncrement() int {
 	return r
 }
 
+// Canvas Plot Geometry 
+func (w *Canvas) PlotLine(xy map[int]int, options map[string]string) error {
+    // canvas create line x1 y1... xn yn ?option value ...? // 不闭合折线
+    // canvas create line 10 10 200 50 -fill red -width 3 -tags line1
+    
+    var tmp1 = ""
+    for x,y := range xy {
+        tmp1 = tmp1 + strconv.Itoa(x) + " " + strconv.Itoa(y) + " "
+    }
+    var tmp2 = ""
+    for k,v := range options {
+        tmp2 = tmp2 + "-" +k+ " " + v + " "
+    }
+    
+	return eval(fmt.Sprintf("%v create line %v%v", w.id, tmp1, tmp2))
+}
+
+func (w *Canvas) PlotRectangle(x1,y1,x2,y2 int, options map[string]string) error {
+    // canvas create rectangle x1 y1 x2 y2 ?option value ...? // 矩形
+    // canvas create rectangle 10 10 200 50 -fill red -outline blue -tags rec1
+
+    var tmp2 = ""
+    for k,v := range options {
+        tmp2 = tmp2 + "-" +k+ " " + v + " "
+    }
+    
+	return eval(fmt.Sprintf("%v create rectangle %v %v %v %v %v", w.id, x1,y1,x2,y2, tmp2))
+}
+
+
+func (w *Canvas) PlotOval(x1,y1,x2,y2 int, options map[string]string) error {
+    // canvas create oval x1 y1 x2 y2 ?option value ...?   // 矩形内切椭圆或圆
+    // canvas create oval 10 10 200 50 -fill red -outline blue -tags oval1
+
+    var tmp2 = ""
+    for k,v := range options {
+        tmp2 = tmp2 + "-" +k+ " " + v + " "
+    }
+    
+	return eval(fmt.Sprintf("%v create oval %v %v %v %v %v", w.id, x1,y1,x2,y2, tmp2))
+}
+
+func (w *Canvas) PlotPolygon(xy map[int]int, options map[string]string) error {
+    // canvas create polygon x1 y1 ... xn yn ?option value ...?  // 多边形
+    // canvas create polygon 10 10 180 90 20 45 -fill red -width 3 -tags pol1 
+    
+    var tmp1 = ""
+    for x,y := range xy {
+        tmp1 = tmp1 + strconv.Itoa(x) + " " + strconv.Itoa(y) + " "
+    }
+    var tmp2 = ""
+    for k,v := range options {
+        tmp2 = tmp2 + "-" +k+ " " + v + " "
+    }
+    
+	return eval(fmt.Sprintf("%v create polygon %v%v", w.id, tmp1, tmp2))
+}
+
+
+func (w *Canvas) PlotText(x1,y1 int, options map[string]string) error {
+    // canvas create text x y ?option value ...?  // 文字
+    // canvas create text 100 100 -text "A wonderful story" -anchor nw -fill black -tags txt1
+
+    var tmp2 = ""
+    for k,v := range options {
+        tmp2 = tmp2 + "-" +k+ " " + v + " "
+    }
+    // v 值含有空格时使用{}, "text":"{A wonderful story}"
+    
+	return eval(fmt.Sprintf("%v create text %v %v %v", w.id, x1,y1, tmp2))
+}
+
+func (w *Canvas) PlotImage(x1,y1 int, options map[string]string) error {
+    // canvas create image x y ?option value ...?
+    // canvas create image 10 10 -image myimg -anchor nw
+    var tmp2 = ""
+    for k,v := range options {
+        tmp2 = tmp2 + "-" +k+ " " + v + " "
+    }
+    
+	return eval(fmt.Sprintf("%v create image %v %v %v", w.id, x1,y1, tmp2))
+}
+
+
+func (w *Canvas) PlotWidget(x1,y1 int, options map[string]string) error {
+    // canvas create window x y ?option value ...?
+    // canvas create window 10 10 -anchor nw -window .canvas.b
+    var tmp2 = ""
+    for k,v := range options {
+        tmp2 = tmp2 + "-" +k+ " " + v + " "
+    }
+    
+	return eval(fmt.Sprintf("%v create window %v %v %v", w.id, x1,y1, tmp2))
+}
+
+
+// WidgetAttr
 func CanvasAttrBackground(color string) *WidgetAttr {
 	return &WidgetAttr{"background", color}
 }
