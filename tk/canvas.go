@@ -241,13 +241,13 @@ func (w *Canvas) YScrollIncrement() int {
 }
 
 // Canvas Plot Geometry 
-func (w *Canvas) PlotLine(xy map[int]int, options map[string]string) error {
+func (w *Canvas) PlotLine(xy []Pos, options map[string]string) error {
     // canvas create line x1 y1... xn yn ?option value ...? // 不闭合折线
     // canvas create line 10 10 200 50 -fill red -width 3 -tags line1
     
     var tmp1 = ""
-    for x,y := range xy {
-        tmp1 = tmp1 + strconv.Itoa(x) + " " + strconv.Itoa(y) + " "
+    for _,pos := range xy {
+        tmp1 = tmp1 + strconv.Itoa(pos.X) + " " + strconv.Itoa(pos.Y) + " "
     }
     var tmp2 = ""
     for k,v := range options {
@@ -282,13 +282,13 @@ func (w *Canvas) PlotOval(x1,y1,x2,y2 int, options map[string]string) error {
 	return eval(fmt.Sprintf("%v create oval %v %v %v %v %v", w.id, x1,y1,x2,y2, tmp2))
 }
 
-func (w *Canvas) PlotPolygon(xy map[int]int, options map[string]string) error {
+func (w *Canvas) PlotPolygon(xy []Pos, options map[string]string) error {
     // canvas create polygon x1 y1 ... xn yn ?option value ...?  // 多边形
     // canvas create polygon 10 10 180 90 20 45 -fill red -width 3 -tags pol1 
     
     var tmp1 = ""
-    for x,y := range xy {
-        tmp1 = tmp1 + strconv.Itoa(x) + " " + strconv.Itoa(y) + " "
+    for _,pos := range xy {
+        tmp1 = tmp1 + strconv.Itoa(pos.X) + " " + strconv.Itoa(pos.Y) + " "
     }
     var tmp2 = ""
     for k,v := range options {
