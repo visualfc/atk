@@ -170,47 +170,41 @@ func NewUserFontFromClone(font Font) *UserFont {
 	return &UserFont{BaseFont{iid}}
 }
 
-func (w *UserFont) SetFamily(family string) *UserFont {
+func (w *UserFont) SetFamily(family string) error {
 	setObjText("atk_tmp_family", family)
-	eval(fmt.Sprintf("font configure %v -family $atk_tmp_family", w.id))
-	return w
+	return eval(fmt.Sprintf("font configure %v -family $atk_tmp_family", w.id))
 }
 
-func (w *UserFont) SetSize(size int) *UserFont {
-	eval(fmt.Sprintf("font configure %v -size {%v}", w.id, size))
-	return w
+func (w *UserFont) SetSize(size int) error {
+	return eval(fmt.Sprintf("font configure %v -size {%v}", w.id, size))
 }
 
-func (w *UserFont) SetBold(bold bool) *UserFont {
+func (w *UserFont) SetBold(bold bool) error {
 	var v string
 	if bold {
 		v = "bold"
 	} else {
 		v = "normal"
 	}
-	eval(fmt.Sprintf("font configure %v -weight {%v}", w.id, v))
-	return w
+	return eval(fmt.Sprintf("font configure %v -weight {%v}", w.id, v))
 }
 
-func (w *UserFont) SetItalic(italic bool) *UserFont {
+func (w *UserFont) SetItalic(italic bool) error {
 	var v string
 	if italic {
 		v = "italic"
 	} else {
 		v = "roman"
 	}
-	eval(fmt.Sprintf("font configure %v -slant {%v}", w.id, v))
-	return w
+	return eval(fmt.Sprintf("font configure %v -slant {%v}", w.id, v))
 }
 
-func (w *UserFont) SetUnderline(underline bool) *UserFont {
-	eval(fmt.Sprintf("font configure %v -underline {%v}", w.id, boolToInt(underline)))
-	return w
+func (w *UserFont) SetUnderline(underline bool) error {
+	return eval(fmt.Sprintf("font configure %v -underline {%v}", w.id, boolToInt(underline)))
 }
 
-func (w *UserFont) SetOverstrike(overstrike bool) *UserFont {
-	eval(fmt.Sprintf("font configure %v -overstrike {%v}", w.id, boolToInt(overstrike)))
-	return w
+func (w *UserFont) SetOverstrike(overstrike bool) error {
+	return eval(fmt.Sprintf("font configure %v -overstrike {%v}", w.id, boolToInt(overstrike)))
 }
 
 func FontFamilieList() []string {

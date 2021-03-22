@@ -1,4 +1,5 @@
 // +build ignore
+
 package tk
 
 // go get github.com/akavel/rsrc
