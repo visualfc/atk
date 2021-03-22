@@ -18,10 +18,10 @@ func checkLayoutWidget(widget Widget) Widget {
 
 type Layout interface {
 	Widget
-	AddWidget(widget Widget, attrs ...*LayoutAttr)
-	AddLayout(layout Layout, attrs ...*LayoutAttr)
-	RemoveWidget(widget Widget) bool
-	RemoveLayout(layout Layout) bool
+	AddWidget(widget Widget, attrs ...*LayoutAttr) error
+	AddLayout(layout Layout, attrs ...*LayoutAttr) error
+	RemoveWidget(widget Widget) error
+	RemoveLayout(layout Layout) error
 }
 
 type LayoutAttr struct {
