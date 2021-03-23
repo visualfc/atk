@@ -217,7 +217,7 @@ func parserReliefStyleResult(r string, err error) ReliefStyle {
 type Anchor int
 
 const (
-	AnchorCenter = iota
+	AnchorCenter Anchor = iota
 	AnchorNorth
 	AnchorEast
 	AnchorSouth
@@ -284,7 +284,7 @@ func (v Sticky) String() string {
 type Direction int
 
 const (
-	DirectionBelow = iota
+	DirectionBelow Direction = iota
 	DirectionAbove
 	DirectionLeft
 	DirectionRight
@@ -316,7 +316,7 @@ func parserDirectionResult(r string, err error) Direction {
 type Compound int
 
 const (
-	CompoundNone = iota
+	CompoundNone Compound = iota
 	CompoundTop
 	CompoundBottom
 	CompoundLeft
@@ -350,7 +350,7 @@ func parserCompoundResult(r string, err error) Compound {
 type State int
 
 const (
-	StateNormal = iota
+	StateNormal State = iota
 	StateActive
 	StateDisable
 	StateReadOnly
@@ -382,7 +382,7 @@ func parserStateResult(r string, err error) State {
 type ListSelectMode int
 
 const (
-	ListSelectSingle = iota
+	ListSelectSingle ListSelectMode = iota
 	ListSelectBrowse
 	ListSelectMultiple
 	ListSelectExtended
@@ -414,7 +414,7 @@ func parserListSelectModeResult(r string, err error) ListSelectMode {
 type DisplyCursor int
 
 const (
-	DisplyCursorNone = iota
+	DisplyCursorNone DisplyCursor = iota
 	DisplyCursorHollow
 	DisplyCursorSolid
 )
@@ -445,7 +445,7 @@ func parserDisplyCursorResult(r string, err error) DisplyCursor {
 type LineWrapMode int
 
 const (
-	LineWrapNone = iota
+	LineWrapNone LineWrapMode = iota
 	LineWrapChar
 	LineWrapWord
 )
@@ -476,7 +476,7 @@ func parserLineWrapModeResult(r string, err error) LineWrapMode {
 type TreeSelectMode int
 
 const (
-	TreeSelectExtended = iota
+	TreeSelectExtended TreeSelectMode = iota
 	TreeSelectBrowse
 	TreeSelectNode
 )
