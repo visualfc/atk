@@ -174,3 +174,69 @@ func parserImageResult(id string, err error) *Image {
 	}
 	return &Image{id, photo, nil}
 }
+
+func (i *Image) Copy(source *Image, attributes ...*ImageCopyAttr) {
+	var attrList []string
+	for _, attr := range attributes {
+		if attr == nil {
+			continue
+		}
+		if s, ok := attr.value.(string); ok {
+			if s != "" {
+				pname := "atk_tmp_" + attr.key
+				setObjText(pname, s)
+				attrList = append(attrList, fmt.Sprintf("-%v $%v", attr.key, pname))
+			} else {
+				attrList = append(attrList, fmt.Sprintf("-%v", attr.key))
+			}
+			continue
+		}
+		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
+	}
+	eval(fmt.Sprintf("%v copy %v %s", i.id, source.id, strings.Join(attrList, " ")))
+}
+
+type ImageCopyAttr struct {
+	key   string
+	value interface{}
+}
+
+
+func ImageCopyAttrFrom(x1, y1, x2, y2 int) *ImageCopyAttr {
+	return &ImageCopyAttr{fmt.Sprintf("from %d %d %d %d", x1, y1, x2, y2), ""}
+}
+
+func ImageCopyAttrTo(x1, y1, x2, y2 int) *ImageCopyAttr {
+	return &ImageCopyAttr{fmt.Sprintf("%d %d %d %d", x1, y1, x2, y2), ""}
+}
+
+func ImageCopyAttrShrink() *ImageCopyAttr {
+	return &ImageCopyAttr{"shrink", ""}
+}
+
+func ImageCopyAttrZoom(x, y int) *ImageCopyAttr {
+	return &ImageCopyAttr{fmt.Sprintf("zoom %d %d", x, y), ""}
+}
+
+func ImageCopyAttrSubSample(x, y float64) *ImageCopyAttr {
+	return &ImageCopyAttr{fmt.Sprintf("subsample %f %f", x, y), ""}
+}
+
+type CompositingRule int
+
+const (
+	CompositingRuleOverlay = iota
+	CompositingRuleSet
+)
+var (
+	compositingRuleName = []string{"overlay", "set"}
+)
+func (v CompositingRule) String() string {
+	if v > 0 && int(v) < len(compositingRuleName) {
+		return compositingRuleName[v]
+	}
+	return ""
+}
+func ImageCopyAttrCompositingRule(rule CompositingRule) *ImageCopyAttr {
+	return &ImageCopyAttr{"compositingrule", rule}
+}
