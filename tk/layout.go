@@ -18,10 +18,10 @@ func checkLayoutWidget(widget Widget) Widget {
 
 type Layout interface {
 	Widget
-	AddWidget(widget Widget, attrs ...*LayoutAttr)
-	AddLayout(layout Layout, attrs ...*LayoutAttr)
-	RemoveWidget(widget Widget) bool
-	RemoveLayout(layout Layout) bool
+	AddWidget(widget Widget, attrs ...*LayoutAttr) error
+	AddLayout(layout Layout, attrs ...*LayoutAttr) error
+	RemoveWidget(widget Widget) error
+	RemoveLayout(layout Layout) error
 }
 
 type LayoutAttr struct {
@@ -48,18 +48,18 @@ func (w *LayoutSpacer) TypeName() string {
 	return "LayoutSpacer"
 }
 
-func (w *LayoutSpacer) SetSpace(space int) *LayoutSpacer {
+func (w *LayoutSpacer) SetSpace(space int) error {
 	w.space = space
-	return w
+	return nil
 }
 
 func (w *LayoutSpacer) Space() int {
 	return w.space
 }
 
-func (w *LayoutSpacer) SetExpand(expand bool) *LayoutSpacer {
+func (w *LayoutSpacer) SetExpand(expand bool) error {
 	w.expand = expand
-	return w
+	return nil
 }
 
 func (w *LayoutSpacer) IsExpand() bool {
@@ -67,9 +67,8 @@ func (w *LayoutSpacer) IsExpand() bool {
 }
 
 // width ignore for PackLayout
-func (w *LayoutSpacer) SetWidth(width int) *LayoutSpacer {
-	evalAsInt(fmt.Sprintf("%v configure -width {%v}", w.id, width))
-	return w
+func (w *LayoutSpacer) SetWidth(width int) error {
+	return eval(fmt.Sprintf("%v configure -width {%v}", w.id, width))
 }
 
 func (w *LayoutSpacer) Width() int {
@@ -78,9 +77,8 @@ func (w *LayoutSpacer) Width() int {
 }
 
 // height ignore for PackLayout
-func (w *LayoutSpacer) SetHeight(height int) *LayoutSpacer {
-	evalAsInt(fmt.Sprintf("%v configure -height {%v}", w.id, height))
-	return w
+func (w *LayoutSpacer) SetHeight(height int) error {
+	return eval(fmt.Sprintf("%v configure -height {%v}", w.id, height))
 }
 
 func (w *LayoutSpacer) Height() int {

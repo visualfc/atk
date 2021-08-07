@@ -15,27 +15,33 @@ func testFont(t *testing.T) {
 	defer font.Destroy()
 
 	fname := font.Family()
-	if v := font.SetFamily("Courier").Family(); v != fname {
+	font.SetFamily("Courier")
+	if v := font.Family(); v != fname {
 		t.Fatal(v)
 	}
 
-	if v := font.SetSize(20).Size(); v != 20 {
+	font.SetSize(20)
+	if v := font.Size(); v != 20 {
 		t.Fatal(v, 20)
 	}
 
-	if v := font.SetBold(true).IsBold(); v != true {
+	font.SetBold(true)
+	if v := font.IsBold(); v != true {
 		t.Fatal(v)
 	}
 
-	if v := font.SetItalic(true).IsItalic(); v != true {
+	font.SetItalic(true)
+	if v := font.IsItalic(); v != true {
 		t.Fatal(v)
 	}
 
-	if v := font.SetUnderline(true).IsUnderline(); v != true {
+	font.SetUnderline(true)
+	if v := font.IsUnderline(); v != true {
 		t.Fatal(v)
 	}
 
-	if v := font.SetOverstrike(true).IsOverstrike(); v != true {
+	font.SetOverstrike(true)
+	if v := font.IsOverstrike(); v != true {
 		t.Fatal(v)
 	}
 }

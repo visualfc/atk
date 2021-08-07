@@ -4,8 +4,8 @@ package tk
 
 import "fmt"
 
-func ClearClipboard() {
-	eval("clipboard clear")
+func ClearClipboard() error {
+	return eval("clipboard clear")
 }
 
 func AppendToClipboard(text string) error {
