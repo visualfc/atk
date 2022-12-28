@@ -46,6 +46,10 @@ func (w *Button) Text() string {
 	return r
 }
 
+func (w *Button) SetUnder(pos int) error {
+        return eval(fmt.Sprintf("%v configure -under %d",w.id,pos))
+}
+
 func (w *Button) SetWidth(width int) error {
 	return eval(fmt.Sprintf("%v configure -width {%v}", w.id, width))
 }
