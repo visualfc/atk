@@ -3,6 +3,7 @@ Another Golang Tcl/Tk binding GUI ToolKit
 
 	go get github.com/visualfc/atk
 
+Go docs: https://pkg.go.dev/github.com/visualfc/atk/tk
 
 ### Install Tcl/Tk
 
