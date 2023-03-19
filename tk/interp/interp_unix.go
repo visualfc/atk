@@ -1,6 +1,6 @@
 // Copyright 2018 visualfc. All rights reserved.
 
-// +build !windows
+// +build !windows,!tclgo
 
 package interp
 
