@@ -1,5 +1,6 @@
 // Copyright 2018 visualfc. All rights reserved.
 
+//go:build !windows
 // +build !windows
 
 package interp

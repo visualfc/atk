@@ -93,10 +93,11 @@ func TkLibrary() (path string) {
 	return
 }
 
-func MainLoop(fn func()) error {
+func init() {
 	runtime.LockOSThread()
-	defer runtime.UnlockOSThread()
+}
 
+func MainLoop(fn func()) error {
 	if !tkHasInit {
 		err := Init()
 		if err != nil {
@@ -104,7 +105,6 @@ func MainLoop(fn func()) error {
 			return err
 		}
 	}
-
 	interp.MainLoop(fn)
 	return nil
 }
