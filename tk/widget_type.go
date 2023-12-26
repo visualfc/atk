@@ -90,26 +90,26 @@ func buildWidgetAttributeScript(meta *MetaClass, ttk bool, attributes []*WidgetA
 		if attr == nil {
 			continue
 		}
-		if attr.key == "padding" {
+		if attr.Key == "padding" {
 			list = append(list, checkPaddingScript(ttk, attr))
 			continue
 		}
-		if !meta.HasAttribute(attr.key) {
+		if !meta.HasAttribute(attr.Key) {
 			continue
 		}
-		if strs, ok := attr.value.([]string); ok {
-			pname := "atk_tmp_" + attr.key
+		if strs, ok := attr.Value.([]string); ok {
+			pname := "atk_tmp_" + attr.Key
 			setObjTextList(pname, strs)
-			list = append(list, fmt.Sprintf("-%v $%v", attr.key, pname))
+			list = append(list, fmt.Sprintf("-%v $%v", attr.Key, pname))
 			continue
 		}
-		if s, ok := attr.value.(string); ok {
-			pname := "atk_tmp_" + attr.key
+		if s, ok := attr.Value.(string); ok {
+			pname := "atk_tmp_" + attr.Key
 			setObjText(pname, s)
-			list = append(list, fmt.Sprintf("-%v $%v", attr.key, pname))
+			list = append(list, fmt.Sprintf("-%v $%v", attr.Key, pname))
 			continue
 		}
-		list = append(list, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
+		list = append(list, fmt.Sprintf("-%v {%v}", attr.Key, attr.Value))
 	}
 	return strings.Join(list, " ")
 }
