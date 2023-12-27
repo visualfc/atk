@@ -22,11 +22,12 @@ func (t *ttkTheme) InitAttributes(typ WidgetType) []NativeAttr {
 }
 
 func (t *ttkTheme) ThemeIdList() []string {
+	ttk_theme_list, _ := evalAsStringList("ttk::themes")
 	return ttk_theme_list
 }
 
 func (t *ttkTheme) SetThemeId(id string) error {
-	for _, v := range ttk_theme_list {
+	for _, v := range t.ThemeIdList() {
 		if v == id {
 			err := eval(fmt.Sprintf("ttk::setTheme %v", id))
 			return err
@@ -43,13 +44,14 @@ func (t *ttkTheme) ThemeId() string {
 }
 
 var (
-	ttk_theme_list []string
-	TtkTheme       = &ttkTheme{}
+	TtkTheme = &ttkTheme{}
 )
 
 func init() {
+	/*
 	registerInit(func() {
 		ttk_theme_list, _ = evalAsStringList("ttk::themes")
 	})
+	*/
 	SetMainTheme(TtkTheme)
 }
