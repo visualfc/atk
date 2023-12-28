@@ -119,20 +119,20 @@ func buildTabAttributeScript(ttk bool, attributes ...*WidgetAttr) string {
 		if attr == nil {
 			continue
 		}
-		if attr.key == "padding" {
+		if attr.Key == "padding" {
 			list = append(list, checkPaddingScript(ttk, attr))
 			continue
 		}
-		if !isTabAttributes(attr.key) {
+		if !isTabAttributes(attr.Key) {
 			continue
 		}
-		if s, ok := attr.value.(string); ok {
-			pname := "atk_tmp_" + attr.key
+		if s, ok := attr.Value.(string); ok {
+			pname := "atk_tmp_" + attr.Key
 			setObjText(pname, s)
-			list = append(list, fmt.Sprintf("-%v $%v", attr.key, pname))
+			list = append(list, fmt.Sprintf("-%v $%v", attr.Key, pname))
 			continue
 		}
-		list = append(list, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
+		list = append(list, fmt.Sprintf("-%v {%v}", attr.Key, attr.Value))
 	}
 	return strings.Join(list, " ")
 }

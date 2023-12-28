@@ -25,8 +25,8 @@ type Layout interface {
 }
 
 type LayoutAttr struct {
-	key   string
-	value interface{}
+	Key   string
+	Value interface{}
 }
 
 type LayoutItem struct {
@@ -134,8 +134,8 @@ func AppendLayoutAttrs(org []*LayoutAttr, attributes ...*LayoutAttr) []*LayoutAt
 	for _, attr := range attributes {
 		find = false
 		for _, old := range org {
-			if old.key == attr.key {
-				old.value = attr.value
+			if old.Key == attr.Key {
+				old.Value = attr.Value
 				find = true
 				break
 			}

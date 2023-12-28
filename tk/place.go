@@ -80,10 +80,10 @@ func Place(widget Widget, attributes ...*LayoutAttr) error {
 	}
 	var attrList []string
 	for _, attr := range attributes {
-		if attr == nil || !isValidKey(attr.key, placeAttrKeys) {
+		if attr == nil || !isValidKey(attr.Key, placeAttrKeys) {
 			continue
 		}
-		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.key, attr.value))
+		attrList = append(attrList, fmt.Sprintf("-%v {%v}", attr.Key, attr.Value))
 	}
 	script := fmt.Sprintf("place %v", widget.Id())
 	if len(attrList) > 0 {
