@@ -47,6 +47,57 @@ var (
 	TtkTheme = &ttkTheme{}
 )
 
+func (w *BaseWidget) StyleName() string {
+    // ttk::button .b; winfo class .b  // ==> TButton
+	r, _ := evalAsString(fmt.Sprintf("winfo class %v", w.id))
+	return r
+}
+
+func (w *BaseWidget) StyleLookUp(name, option string) string {
+    // ttk::style lookup style -option
+    // ttk::style lookup 1.TButton -font  // [---> helvetica 24]
+    r1, _ := evalAsString(fmt.Sprintf("ttk::style lookup %v -%v", name,option))
+    return r1
+}
+
+
+func StyleConfigure(name string, options map[string]string) error {
+    // ttk::style configure style ?-option ?value option value...? ?
+    // ttk::style configure Emergency.TButton -foreground red -padding 10
+    // ttk::button .b -text "Hello" -style "Fun.TButton"
+    var tmp = ""
+    for k,v := range options {
+        tmp = tmp + "-" + k + " " + v + " "
+    }
+    
+    return eval(fmt.Sprintf("ttk::style configure %v %v", name,tmp))
+}
+
+func StyleMap(name string, options map[string]map[string]string) error{
+    // ttk::style map style ?-option { statespec value... }?
+    // ttk::style map TRadiobutton -foreground [list !pressed blue pressed yellow] -background [list selected black !selected white]
+    var tmp1 = ""
+    var tmp2 = ""
+    for k1,v1 := range options {
+        tmp2 = "[list "
+        tmp1 = tmp1 + "-" + k1 + " "
+        for k2,v2 := range v1 {
+            tmp2 = tmp2 + k2 + " " + v2 + " "
+        }
+        tmp2 = tmp2 + "] "
+        tmp1 = tmp1 + tmp2
+    }
+    // fmt.Println(fmt.Sprintf("ttk::style map %v %v", name,tmp1))
+    return eval(fmt.Sprintf("ttk::style map %v %v", name,tmp1))
+}
+
+// 参考：
+// https://tkdocs.com/tutorial/styles.html
+// http://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_style.htm
+// https://tkdocs.com/shipman/ttk-map.html
+// 例子：https://github.com/visualfc/atk/issues/17
+
+
 func init() {
 	/*
 	registerInit(func() {
