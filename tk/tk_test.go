@@ -4,6 +4,7 @@ package tk
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 	"time"
 )
@@ -33,7 +34,15 @@ func TestMain(t *testing.T) {
 		t.Log("sub test", "RootWindow")
 		testRootWindow(t)
 
-		for name, fn := range allTestMap {
+		// deterministic test order
+		keys := make([]string, 0, len(allTestMap))
+		for k := range allTestMap {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+
+		for _, name := range keys {
+			fn := allTestMap[name]
 			t.Log("sub test", name)
 			fn(t)
 		}
