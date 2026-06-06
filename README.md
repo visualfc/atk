@@ -12,7 +12,7 @@ http://www.tcl-lang.org
 
 * MacOS X
 
-	https://www.activestate.com/activetcl/downloads
+	$ brew install tcl-tk@8
 
 * Windows
 
